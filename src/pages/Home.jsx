@@ -42,10 +42,10 @@ export default function Home() {
             <Wand2 className="w-7 h-7 text-white" />
           </div>
           <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-slate-900 mb-3">
-            Generează Imagini
+            Generate Images
           </h1>
           <p className="text-lg text-slate-500 max-w-md mx-auto">
-            Descrie ce vrei să vezi și lasă inteligența artificială să creeze pentru tine.
+            Describe what you want to see and let AI create it for you.
           </p>
         </motion.div>
 

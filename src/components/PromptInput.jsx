@@ -23,7 +23,7 @@ export default function PromptInput({ prompt, setPrompt, onGenerate, isLoading }
         <div className="absolute -inset-0.5 bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 rounded-2xl opacity-20 group-hover:opacity-30 blur transition-opacity duration-500" />
         <div className="relative bg-white rounded-2xl p-1.5 shadow-xl shadow-slate-200/50">
           <Textarea
-            placeholder="Descrie imaginea pe care vrei să o creezi..."
+            placeholder="Describe the image you want to create..."
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             onKeyDown={handleKeyDown}
