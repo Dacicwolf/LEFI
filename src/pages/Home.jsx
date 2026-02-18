@@ -71,7 +71,7 @@ export default function Home() {
               </div>
             </div>
             <p className="text-sm text-slate-400 animate-pulse">
-              Se creează imaginea ta...
+              Creating your image...
             </p>
           </motion.div>
         )}
@@ -90,7 +90,7 @@ export default function Home() {
             className="text-center mt-16"
           >
             <div className="flex flex-wrap justify-center gap-2 max-w-lg mx-auto">
-              {["Un apus pe ocean 🌅", "Pisică astronaut 🐱", "Castel medieval 🏰"].map((suggestion) => (
+              {["Ocean sunset 🌅", "Astronaut cat 🐱", "Medieval castle 🏰"].map((suggestion) => (
                 <button
                   key={suggestion}
                   onClick={() => setPrompt(suggestion)}

@@ -31,7 +31,7 @@ export default function PromptInput({ prompt, setPrompt, onGenerate, isLoading }
           />
           <div className="flex items-center justify-between px-2 pt-1 pb-1">
             <p className="text-xs text-slate-400 pl-2">
-              Enter pentru a genera
+              Press Enter to generate
             </p>
             <Button
               onClick={onGenerate}
@@ -43,7 +43,7 @@ export default function PromptInput({ prompt, setPrompt, onGenerate, isLoading }
               ) : (
                 <Sparkles className="w-4 h-4 mr-2" />
               )}
-              {isLoading ? "Se generează..." : "Generează"}
+              {isLoading ? "Generating..." : "Generate"}
             </Button>
           </div>
         </div>

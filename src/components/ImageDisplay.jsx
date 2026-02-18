@@ -20,7 +20,7 @@ export default function ImageDisplay({ imageUrl, prompt }) {
   const handleCopyLink = async () => {
     await navigator.clipboard.writeText(imageUrl);
     setCopied(true);
-    toast.success("Link copiat!");
+    toast.success("Link copied!");
     setTimeout(() => setCopied(false), 2000);
   };
 
