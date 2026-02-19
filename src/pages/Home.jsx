@@ -23,7 +23,7 @@ export default function Home() {
       setLastPrompt(prompt);
       const { width, height } = getDimensions(settings.orientation, settings.format, settings.resolution);
       const result = await base44.integrations.Core.GenerateImage({
-        prompt: `${prompt}, ${settings.orientation === "Landscape" ? "wide landscape orientation" : "portrait orientation"}, aspect ratio ${settings.format}`,
+        prompt: `${prompt}. IMPORTANT image generation instructions: orientation must be strictly ${settings.orientation} (${settings.orientation === "Landscape" ? "wider than tall" : "taller than wide"}), aspect ratio must be strictly ${settings.format}, resolution largest side must be ${settings.resolution}px. Generate the image respecting these exact dimensions and composition.`,
       });
     setImageUrl(result.url);
     setIsLoading(false);
