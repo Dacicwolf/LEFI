@@ -22,8 +22,14 @@ export default function Home() {
     setIsLoading(true);
       setLastPrompt(prompt);
       const { width, height } = getDimensions(settings.orientation, settings.format, settings.resolution);
+      const aspectLabel = {
+        "1:1": "square",
+        "4:3": settings.orientation === "Landscape" ? "wide 4:3 landscape" : "tall 3:4 portrait",
+        "9:16": settings.orientation === "Landscape" ? "ultra-wide 16:9 landscape" : "tall 9:16 portrait",
+      }[settings.format];
+
       const result = await base44.integrations.Core.GenerateImage({
-        prompt: `${prompt}. IMPORTANT image generation instructions: orientation must be strictly ${settings.orientation} (${settings.orientation === "Landscape" ? "wider than tall" : "taller than wide"}), aspect ratio must be strictly ${settings.format}, resolution largest side must be ${settings.resolution}px. Generate the image respecting these exact dimensions and composition.`,
+        prompt: `${prompt}. Compose this image strictly as a ${aspectLabel} image. The composition, framing, and subject placement must fill a ${settings.format} ${settings.orientation.toLowerCase()} frame. Do NOT compose as square. Aspect ratio: ${settings.orientation === "Portrait" && settings.format === "9:16" ? "9:16 vertical" : settings.orientation === "Portrait" && settings.format === "4:3" ? "3:4 vertical" : settings.format} — strictly enforced.`,
       });
     setImageUrl(result.url);
     setIsLoading(false);
