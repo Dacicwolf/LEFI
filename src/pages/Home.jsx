@@ -20,10 +20,11 @@ export default function Home() {
   const handleGenerate = async () => {
     if (!prompt.trim()) return;
     setIsLoading(true);
-    setLastPrompt(prompt);
-    const result = await base44.integrations.Core.GenerateImage({
-      prompt: prompt,
-    });
+      setLastPrompt(prompt);
+      const { width, height } = getDimensions(settings.orientation, settings.format, settings.resolution);
+      const result = await base44.integrations.Core.GenerateImage({
+        prompt: `${prompt}, ${settings.orientation === "Landscape" ? "wide landscape orientation" : "portrait orientation"}, aspect ratio ${settings.format}`,
+      });
     setImageUrl(result.url);
     setIsLoading(false);
   };
