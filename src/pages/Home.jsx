@@ -11,6 +11,11 @@ export default function Home() {
   const [imageUrl, setImageUrl] = useState(null);
   const [lastPrompt, setLastPrompt] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [settings, setSettings] = useState({
+    orientation: "Portrait",
+    format: "1:1",
+    resolution: "1024",
+  });
 
   const handleGenerate = async () => {
     if (!prompt.trim()) return;
