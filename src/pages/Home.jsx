@@ -64,6 +64,9 @@ export default function Home() {
           isLoading={isLoading}
         />
 
+        {/* Image Settings */}
+        <ImageSettings settings={settings} setSettings={setSettings} />
+
         {/* Loading State */}
         {isLoading && (
           <motion.div
