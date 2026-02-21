@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Wand2 } from "lucide-react";
 import PromptInput from "@/components/PromptInput";
 import ImageDisplay from "@/components/ImageDisplay";
-import ImageSettings, { getDimensions } from "@/components/ImageSettings";
+import ImageSettings, { getCost } from "@/components/ImageSettings";
 
 export default function Home() {
   const [prompt, setPrompt] = useState("");
