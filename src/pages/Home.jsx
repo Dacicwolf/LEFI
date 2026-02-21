@@ -11,6 +11,7 @@ export default function Home() {
   const [imageUrl, setImageUrl] = useState(null);
   const [lastPrompt, setLastPrompt] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [credits, setCredits] = useState(50);
   const [settings, setSettings] = useState({
     orientation: "Portrait",
     format: "1:1",
@@ -19,12 +20,15 @@ export default function Home() {
 
   const handleGenerate = async () => {
     if (!prompt.trim()) return;
+    const cost = getCost(settings.resolution);
+    if (credits <= 0) return;
     setIsLoading(true);
-      setLastPrompt(prompt);
-      const result = await base44.integrations.Core.GenerateImage({
-        prompt: prompt,
-      });
+    setLastPrompt(prompt);
+    const result = await base44.integrations.Core.GenerateImage({
+      prompt: prompt,
+    });
     setImageUrl(result.url);
+    setCredits((c) => Math.max(0, c - cost));
     setIsLoading(false);
   };
 
