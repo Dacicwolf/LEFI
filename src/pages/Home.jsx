@@ -94,6 +94,15 @@ export default function Home() {
           <ImageDisplay imageUrl={imageUrl} prompt={lastPrompt} />
         )}
 
+        {/* Credits */}
+        <div className="text-center mt-8">
+          {credits === 0 ? (
+            <span className="text-red-500 font-semibold text-sm">Recharge your credits</span>
+          ) : (
+            <span className="text-slate-500 text-sm">Credits: <span className="font-bold text-violet-700">{credits}</span> 🪙</span>
+          )}
+        </div>
+
         {/* Empty state hint */}
         {!imageUrl && !isLoading && (
           <motion.div
