@@ -38,8 +38,8 @@ export function getDimensions(orientation, format, resolution) {
 }
 
 export default function ImageSettings({ settings, setSettings }) {
-  const { orientation, format, resolution } = settings;
-  const cost = getCost(resolution, format);
+  const { resolution } = settings;
+  const cost = getCost(resolution);
 
   const toggle = (key, value) => setSettings((s) => ({ ...s, [key]: value }));
 
@@ -64,30 +64,6 @@ export default function ImageSettings({ settings, setSettings }) {
       className="w-full max-w-2xl mx-auto mt-3 px-1"
     >
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 px-5 py-4 flex flex-wrap gap-5 items-center justify-between">
-        {/* Orientation */}
-        <div className="flex flex-col gap-1.5">
-          <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Orientation</span>
-          <div className="flex gap-2">
-            {["Portrait", "Landscape"].map((o) => (
-              <Chip key={o} active={orientation === o} onClick={() => toggle("orientation", o)}>
-                {o === "Portrait" ? "⬆ Portrait" : "⬅ Landscape"}
-              </Chip>
-            ))}
-          </div>
-        </div>
-
-        {/* Format */}
-        <div className="flex flex-col gap-1.5">
-          <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Format</span>
-          <div className="flex gap-2">
-            {["1:1", "4:3", "9:16"].map((f) => (
-              <Chip key={f} active={format === f} onClick={() => toggle("format", f)}>
-                {f}
-              </Chip>
-            ))}
-          </div>
-        </div>
-
         {/* Resolution */}
         <div className="flex flex-col gap-1.5">
           <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Resolution</span>
