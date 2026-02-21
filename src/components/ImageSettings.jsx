@@ -65,7 +65,7 @@ export default function ImageSettings({ settings, setSettings, credits }) {
     >
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 px-5 py-4 flex flex-wrap gap-5 items-center justify-between">
         {/* Resolution */}
-        <div className="flex flex-col gap-1.5">
+        <div className="flex flex-col gap-1.5 items-center">
           <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Resolution</span>
           <div className="flex gap-2">
             {["512", "1024"].map((r) => (
@@ -77,29 +77,29 @@ export default function ImageSettings({ settings, setSettings, credits }) {
         </div>
 
         {/* Cost */}
-          <div className="flex flex-col gap-1.5 items-end">
-            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Cost</span>
-            <div className="flex items-center gap-1.5 bg-violet-50 border border-violet-100 rounded-xl px-3 py-1.5">
-              <span className="text-sm font-bold text-violet-700">{cost}</span>
-              <span className="text-sm">🪙</span>
-              <span className="text-xs text-slate-500 ml-1">credits</span>
-            </div>
+        <div className="flex flex-col gap-1.5 items-center">
+          <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Cost</span>
+          <div className="flex items-center gap-1.5 bg-violet-50 border border-violet-100 rounded-xl px-3 py-1.5">
+            <span className="text-sm font-bold text-violet-700">{cost}</span>
+            <span className="text-sm">🪙</span>
+            <span className="text-xs text-slate-500 ml-1">credits</span>
           </div>
+        </div>
 
-          {/* Credits */}
-          <div className="flex flex-col gap-1.5 items-end ml-auto">
-            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Credits</span>
-            {credits === 0 ? (
-              <div className="flex items-center gap-1.5 bg-red-50 border border-red-200 rounded-xl px-3 py-1.5">
-                <span className="text-sm font-semibold text-red-500">Recharge your credits</span>
-              </div>
-            ) : (
-              <div className="flex items-center gap-1.5 bg-violet-50 border border-violet-100 rounded-xl px-3 py-1.5">
-                <span className="text-sm font-bold text-violet-700">{credits}</span>
-                <span className="text-sm">🪙</span>
-              </div>
-            )}
-          </div>
+        {/* Credits */}
+        <div className="flex flex-col gap-1.5 items-center">
+          <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Credits</span>
+          {credits === 0 ? (
+            <div className="flex items-center gap-1.5 bg-red-50 border border-red-200 rounded-xl px-3 py-1.5">
+              <span className="text-sm font-semibold text-red-500">Recharge your credits</span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-1.5 bg-violet-50 border border-violet-100 rounded-xl px-3 py-1.5">
+              <span className="text-sm font-bold text-violet-700">{credits}</span>
+              <span className="text-sm">🪙</span>
+            </div>
+          )}
+        </div>
       </div>
     </motion.div>
   );
