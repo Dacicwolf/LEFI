@@ -77,14 +77,29 @@ export default function ImageSettings({ settings, setSettings, credits }) {
         </div>
 
         {/* Cost */}
-        <div className="flex flex-col gap-1.5 items-end ml-auto">
-          <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Cost</span>
-          <div className="flex items-center gap-1.5 bg-violet-50 border border-violet-100 rounded-xl px-3 py-1.5">
-            <span className="text-sm font-bold text-violet-700">{cost}</span>
-            <span className="text-sm">🪙</span>
-            <span className="text-xs text-slate-500 ml-1">credits</span>
+          <div className="flex flex-col gap-1.5 items-end">
+            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Cost</span>
+            <div className="flex items-center gap-1.5 bg-violet-50 border border-violet-100 rounded-xl px-3 py-1.5">
+              <span className="text-sm font-bold text-violet-700">{cost}</span>
+              <span className="text-sm">🪙</span>
+              <span className="text-xs text-slate-500 ml-1">credits</span>
+            </div>
           </div>
-        </div>
+
+          {/* Credits */}
+          <div className="flex flex-col gap-1.5 items-end ml-auto">
+            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Credits</span>
+            {credits === 0 ? (
+              <div className="flex items-center gap-1.5 bg-red-50 border border-red-200 rounded-xl px-3 py-1.5">
+                <span className="text-sm font-semibold text-red-500">Recharge your credits</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1.5 bg-violet-50 border border-violet-100 rounded-xl px-3 py-1.5">
+                <span className="text-sm font-bold text-violet-700">{credits}</span>
+                <span className="text-sm">🪙</span>
+              </div>
+            )}
+          </div>
       </div>
     </motion.div>
   );
