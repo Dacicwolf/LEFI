@@ -68,7 +68,7 @@ export default function Home() {
         />
 
         {/* Image Settings */}
-        <ImageSettings settings={settings} setSettings={setSettings} />
+        <ImageSettings settings={settings} setSettings={setSettings} credits={credits} />
 
         {/* Loading State */}
         {isLoading && (
