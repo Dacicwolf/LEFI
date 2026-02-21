@@ -2,12 +2,12 @@ import React from "react";
 import { motion } from "framer-motion";
 
 const COSTS = {
-  "512": { "1:1": 2, "4:3": 1.5, "9:16": 1 },
-  "1024": { "1:1": 4, "4:3": 3, "9:16": 2 },
+  "512": 2,
+  "1024": 4,
 };
 
-export function getCost(resolution, format) {
-  return COSTS[resolution]?.[format] ?? 0;
+export function getCost(resolution) {
+  return COSTS[resolution] ?? 0;
 }
 
 export function getDimensions(orientation, format, resolution) {
