@@ -37,7 +37,7 @@ export function getDimensions(orientation, format, resolution) {
   }
 }
 
-export default function ImageSettings({ settings, setSettings }) {
+export default function ImageSettings({ settings, setSettings, credits }) {
   const { resolution } = settings;
   const cost = getCost(resolution);
 
