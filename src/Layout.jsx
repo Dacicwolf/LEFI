@@ -1,7 +1,7 @@
-import React, { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Wand2, Settings } from "lucide-react";
+import { Wand2, Settings, Sun, Moon } from "lucide-react";
 
 const tabs = [
   { name: "Home", label: "Generate", icon: Wand2 },
@@ -9,6 +9,17 @@ const tabs = [
 ];
 
 export default function Layout({ children, currentPageName }) {
+  const [dark, setDark] = useState(() => {
+    const saved = localStorage.getItem("theme");
+    if (saved) return saved === "dark";
+    return window.matchMedia("(prefers-color-scheme: dark)").matches;
+  });
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", dark);
+    localStorage.setItem("theme", dark ? "dark" : "light");
+  }, [dark]);
+
   return (
     <div
       className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 dark:bg-none dark:bg-slate-950 flex flex-col select-none"
@@ -16,9 +27,7 @@ export default function Layout({ children, currentPageName }) {
     >
       <style>{`
         body { overscroll-behavior: none; background-color: transparent; }
-        @media (prefers-color-scheme: dark) {
-          body { background-color: #020617; }
-        }
+        html.dark body { background-color: #020617; }
       `}</style>
 
       {/* Page content */}
@@ -48,6 +57,16 @@ export default function Layout({ children, currentPageName }) {
             </Link>
           );
         })}
+
+        {/* Dark/Light toggle */}
+        <button
+          onClick={() => setDark((d) => !d)}
+          className="flex flex-col items-center justify-center min-h-[56px] px-4 gap-0.5 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors duration-200 select-none"
+          aria-label="Toggle theme"
+        >
+          {dark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+          <span className="text-[10px] font-medium">{dark ? "Light" : "Dark"}</span>
+        </button>
       </nav>
     </div>
   );
