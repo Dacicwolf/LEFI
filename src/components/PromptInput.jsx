@@ -21,22 +21,22 @@ export default function PromptInput({ prompt, setPrompt, onGenerate, isLoading }
     >
       <div className="relative group">
         <div className="absolute -inset-0.5 bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 rounded-2xl opacity-20 group-hover:opacity-30 blur transition-opacity duration-500" />
-        <div className="relative bg-white rounded-2xl p-1.5 shadow-xl shadow-slate-200/50">
+        <div className="relative bg-white dark:bg-slate-900 rounded-2xl p-1.5 shadow-xl shadow-slate-200/50 dark:shadow-black/30">
           <Textarea
             placeholder="Describe the image you want to create..."
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="min-h-[120px] border-0 bg-slate-50/50 rounded-xl text-base text-slate-800 placeholder:text-slate-400 focus-visible:ring-0 focus-visible:ring-offset-0 resize-none p-4"
+            className="min-h-[120px] border-0 bg-slate-50/50 dark:bg-slate-800/50 rounded-xl text-base text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus-visible:ring-0 focus-visible:ring-offset-0 resize-none p-4"
           />
           <div className="flex items-center justify-between px-2 pt-1 pb-1">
-            <p className="text-xs text-slate-400 pl-2">
+            <p className="text-xs text-slate-400 dark:text-slate-500 pl-2">
               Press Enter to generate
             </p>
             <Button
               onClick={onGenerate}
               disabled={isLoading || !prompt.trim()}
-              className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white rounded-xl px-6 h-10 font-medium shadow-lg shadow-violet-500/25 transition-all duration-300 disabled:opacity-40"
+              className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white rounded-xl px-6 min-h-[44px] font-medium shadow-lg shadow-violet-500/25 transition-all duration-300 disabled:opacity-40 select-none"
             >
               {isLoading ? (
                 <Loader2 className="w-4 h-4 animate-spin mr-2" />

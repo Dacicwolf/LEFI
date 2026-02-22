@@ -46,10 +46,10 @@ export default function ImageSettings({ settings, setSettings, credits }) {
   const Chip = ({ active, onClick, children }) => (
     <button
       onClick={onClick}
-      className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+      className={`px-3 min-h-[44px] rounded-lg text-sm font-medium transition-all duration-200 select-none ${
         active
           ? "bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-md shadow-violet-500/20"
-          : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+          : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
       }`}
     >
       {children}
@@ -63,10 +63,10 @@ export default function ImageSettings({ settings, setSettings, credits }) {
       transition={{ duration: 0.4, delay: 0.1 }}
       className="w-full max-w-2xl mx-auto mt-3 px-1"
     >
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 px-5 py-4 flex flex-wrap gap-5 items-center justify-between">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 px-5 py-4 flex flex-wrap gap-5 items-center justify-between">
         {/* Resolution */}
         <div className="flex flex-col gap-1.5 items-center">
-          <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Resolution</span>
+          <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Resolution</span>
           <div className="flex gap-2">
             {["512", "1024"].map((r) => (
               <Chip key={r} active={resolution === r} onClick={() => toggle("resolution", r)}>
@@ -78,24 +78,24 @@ export default function ImageSettings({ settings, setSettings, credits }) {
 
         {/* Cost */}
         <div className="flex flex-col gap-1.5 items-center">
-          <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Cost</span>
-          <div className="flex items-center gap-1.5 bg-violet-50 border border-violet-100 rounded-xl px-3 py-1.5">
-            <span className="text-sm font-bold text-violet-700">{cost}</span>
+          <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Cost</span>
+          <div className="flex items-center gap-1.5 bg-violet-50 dark:bg-violet-900/20 border border-violet-100 dark:border-violet-800 rounded-xl px-3 py-1.5">
+            <span className="text-sm font-bold text-violet-700 dark:text-violet-300">{cost}</span>
             <span className="text-sm">🪙</span>
-            <span className="text-xs text-slate-500 ml-1">credits</span>
+            <span className="text-xs text-slate-500 dark:text-slate-400 ml-1">credits</span>
           </div>
         </div>
 
         {/* Credits */}
         <div className="flex flex-col gap-1.5 items-center">
-          <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Credits</span>
+          <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Credits</span>
           {credits === 0 ? (
-            <div className="flex items-center gap-1.5 bg-red-50 border border-red-200 rounded-xl px-3 py-1.5">
-              <span className="text-sm font-semibold text-red-500">Recharge your credits</span>
+            <div className="flex items-center gap-1.5 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl px-3 py-1.5">
+              <span className="text-sm font-semibold text-red-500 dark:text-red-400">Recharge your credits</span>
             </div>
           ) : (
-            <div className="flex items-center gap-1.5 bg-violet-50 border border-violet-100 rounded-xl px-3 py-1.5">
-              <span className="text-sm font-bold text-violet-700">{credits}</span>
+            <div className="flex items-center gap-1.5 bg-violet-50 dark:bg-violet-900/20 border border-violet-100 dark:border-violet-800 rounded-xl px-3 py-1.5">
+              <span className="text-sm font-bold text-violet-700 dark:text-violet-300">{credits}</span>
               <span className="text-sm">🪙</span>
             </div>
           )}
