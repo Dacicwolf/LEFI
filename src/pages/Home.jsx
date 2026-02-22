@@ -56,11 +56,12 @@ export default function Home() {
     if (!prompt.trim()) return;
     const cost = getCost(settings.resolution);
     if (credits <= 0) return;
+    // Optimistic update
+    setCredits((c) => Math.max(0, c - cost));
     setIsLoading(true);
     setLastPrompt(prompt);
     const result = await base44.integrations.Core.GenerateImage({ prompt });
     setImageUrl(result.url);
-    setCredits((c) => Math.max(0, c - cost));
     setIsLoading(false);
   };
 
