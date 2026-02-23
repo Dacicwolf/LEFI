@@ -115,9 +115,9 @@ export default function Home() {
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-600 to-indigo-600 shadow-lg shadow-violet-500/30 mb-6">
-            <Wand2 className="w-7 h-7 text-white" />
-          </div>
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-6 overflow-hidden shadow-lg">
+              <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6995fb83472e84f2aaa7251a/77a5e07ff_lefi_logo.png" alt="Graphos Logo" className="w-full h-full object-cover" />
+            </div>
           <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-slate-900 dark:text-white mb-3">
             Generate Images
           </h1>
