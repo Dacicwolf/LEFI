@@ -23,6 +23,12 @@ export default function Layout({ children, currentPageName }) {
   const location = useLocation();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    base44.auth.isAuthenticated().then((auth) => {
+      if (!auth) base44.auth.redirectToLogin(window.location.pathname);
+    });
+  }, []);
+
   const [dark, setDark] = useState(() => {
     const saved = localStorage.getItem("theme");
     if (saved) return saved === "dark";
