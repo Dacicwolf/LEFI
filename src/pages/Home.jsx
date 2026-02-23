@@ -62,6 +62,13 @@ export default function Home() {
     setIsLoading(true);
     setLastPrompt(prompt);
     const result = await base44.integrations.Core.GenerateImage({ prompt });
+    if (!result?.url) {
+      // Rollback
+      setCredits((c) => c + cost);
+      toast.error("Image generation failed. Credits restored.");
+      setIsLoading(false);
+      return;
+    }
     setImageUrl(result.url);
     setIsLoading(false);
   };
