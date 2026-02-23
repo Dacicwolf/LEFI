@@ -11,14 +11,14 @@ export default function SettingsPage() {
     base44.auth.me().then(setUser).catch(() => {});
   }, []);
 
-  const handleDeleteAccount = () => {
+  const handleDeleteAccount = async () => {
     if (!showConfirm) {
       setShowConfirm(true);
       return;
     }
-    // Placeholder — actual deletion requires backend functions
-    alert("Account deletion requested. Please contact support.");
+    // Account deletion requires backend functions - inform user clearly
     setShowConfirm(false);
+    alert("To delete your account and all associated data, please contact support at support@base44.com. This action is irreversible.");
   };
 
   return (

@@ -1,7 +1,8 @@
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { motion, AnimatePresence } from "framer-motion";
 import { Wand2, RefreshCw } from "lucide-react";
+import { toast } from "sonner";
 import PromptInput from "@/components/PromptInput";
 import ImageDisplay from "@/components/ImageDisplay";
 import ImageSettings, { getCost } from "@/components/ImageSettings";
