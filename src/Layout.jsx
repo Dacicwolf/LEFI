@@ -77,8 +77,15 @@ export default function Layout({ children, currentPageName }) {
             <ChevronLeft className="w-6 h-6" />
           </button>
         )}
-        <h1 className="text-base font-semibold text-slate-900 dark:text-white flex-1">
-          {pageTitle}
+        <h1 className="text-base font-semibold flex-1">
+          {currentPageName === "Home" ? (
+            <>
+              <span className="text-indigo-200">Lefi</span>{" "}
+              <span className="text-indigo-600">(text-to-image app)</span>
+            </>
+          ) : (
+            <span className="text-slate-900 dark:text-white">{pageTitle}</span>
+          )}
         </h1>
         <button
           onClick={() => setDark((d) => !d)}
