@@ -15,7 +15,7 @@ const tabs = [
 ];
 
 const PAGE_TITLES = {
-  Home: "Generate",
+  Home: "Lefi (text-to-image)",
   SettingsPage: "Settings",
 };
 
