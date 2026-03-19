@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { motion, AnimatePresence } from "framer-motion";
 import { Wand2, RefreshCw } from "lucide-react";
@@ -8,18 +8,32 @@ import ImageDisplay from "@/components/ImageDisplay";
 import ImageSettings, { getCost } from "@/components/ImageSettings";
 
 const PULL_THRESHOLD = 70;
+const DEFAULT_CREDITS = 50;
 
 export default function Home() {
   const [prompt, setPrompt] = useState("");
   const [imageUrl, setImageUrl] = useState(null);
   const [lastPrompt, setLastPrompt] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [credits, setCredits] = useState(50);
+  const [credits, setCredits] = useState(null); // null = loading
   const [settings, setSettings] = useState({
     orientation: "Portrait",
     format: "1:1",
     resolution: "1024",
   });
+
+  // Load credits from DB on mount
+  useEffect(() => {
+    base44.auth.me().then(async (user) => {
+      if (user.credits === undefined || user.credits === null) {
+        // First time: initialize credits
+        await base44.auth.updateMe({ credits: DEFAULT_CREDITS });
+        setCredits(DEFAULT_CREDITS);
+      } else {
+        setCredits(user.credits);
+      }
+    }).catch(() => setCredits(DEFAULT_CREDITS));
+  }, []);
 
   // Pull-to-refresh
   const [pullY, setPullY] = useState(0);
