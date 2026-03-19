@@ -122,19 +122,27 @@ export default function SettingsPage() {
         >
           <button
             onClick={handleDeleteAccount}
-            className="w-full flex items-center gap-3 px-5 min-h-[56px] text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors duration-150 select-none"
+            disabled={deleting}
+            className="w-full flex items-center gap-3 px-5 min-h-[56px] text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors duration-150 select-none disabled:opacity-60"
           >
-            <Trash2 className="w-5 h-5" />
+            {deleting ? (
+              <Loader2 className="w-5 h-5 animate-spin" />
+            ) : (
+              <Trash2 className="w-5 h-5" />
+            )}
             <span className="font-medium">
-              {showConfirm ? "Tap again to confirm deletion" : "Delete Account"}
+              {deleting ? "Processing..." : showConfirm ? "Tap again to confirm deletion" : "Delete Account"}
             </span>
           </button>
         </motion.div>
 
-        {showConfirm && (
+        {showConfirm && !deleting && (
           <p className="text-xs text-slate-400 dark:text-slate-500 text-center mt-3">
             This action is irreversible. Tap the button again to confirm.
           </p>
+        )}
+        {deleteError && (
+          <p className="text-xs text-red-400 text-center mt-3">{deleteError}</p>
         )}
       </div>
     </div>
