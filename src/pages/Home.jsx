@@ -107,15 +107,15 @@ export default function Home() {
         )}
       </AnimatePresence>
 
-      <div className="relative z-10 px-4 py-12 sm:py-20">
+      <div className="relative z-10 px-4 py-4 sm:py-10">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-12"
+          className="text-center mb-6"
         >
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-6 overflow-hidden shadow-lg">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl mb-3 overflow-hidden shadow-lg">
               <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6995fb83472e84f2aaa7251a/77a5e07ff_lefi_logo.png" alt="Graphos Logo" className="w-full h-full object-cover" />
             </div>
           <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-slate-900 dark:text-white mb-3">
