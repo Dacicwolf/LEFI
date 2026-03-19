@@ -70,19 +70,25 @@ export default function Home() {
   const handleGenerate = async () => {
     if (!prompt.trim()) return;
     const cost = getCost(settings.resolution);
-    if (credits <= 0) return;
+    if (credits === null || credits < cost) {
+      toast.error("Not enough credits.");
+      return;
+    }
+    const newCredits = Math.max(0, credits - cost);
     // Optimistic update
-    setCredits((c) => Math.max(0, c - cost));
+    setCredits(newCredits);
     setIsLoading(true);
     setLastPrompt(prompt);
     const result = await base44.integrations.Core.GenerateImage({ prompt });
     if (!result?.url) {
-      // Rollback
-      setCredits((c) => c + cost);
+      // Rollback credits
+      setCredits(credits);
       toast.error("Image generation failed. Credits restored.");
       setIsLoading(false);
       return;
     }
+    // Save new credit balance to DB
+    await base44.auth.updateMe({ credits: newCredits });
     setImageUrl(result.url);
     setIsLoading(false);
   };
