@@ -118,10 +118,10 @@ export default function Home() {
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl mb-3 overflow-hidden shadow-lg">
               <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6995fb83472e84f2aaa7251a/77a5e07ff_lefi_logo.png" alt="Graphos Logo" className="w-full h-full object-cover" />
             </div>
-          <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-slate-900 dark:text-white mb-3">
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900 dark:text-white mb-2">
             Generate Images
           </h1>
-          <p className="text-lg text-slate-500 dark:text-slate-400 max-w-md mx-auto">
+          <p className="text-base text-slate-500 dark:text-slate-400 max-w-md mx-auto">
             Describe what you want to see and let AI create it for you.
           </p>
         </motion.div>
