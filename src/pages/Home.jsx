@@ -142,7 +142,7 @@ export default function Home() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="flex flex-col items-center mt-16 gap-4"
+            className="flex flex-col items-center mt-8 gap-4"
           >
             <div className="relative">
               <div className="w-16 h-16 rounded-full border-2 border-violet-200 border-t-violet-600 animate-spin" />
