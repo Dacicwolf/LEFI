@@ -170,7 +170,7 @@ export default function Home() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.8 }}
-            className="text-center mt-16"
+            className="text-center mt-6"
           >
             <div className="flex flex-wrap justify-center gap-2 max-w-lg mx-auto">
               {["Ocean sunset 🌅", "Astronaut cat 🐱", "Medieval castle 🏰"].map((suggestion) => (
