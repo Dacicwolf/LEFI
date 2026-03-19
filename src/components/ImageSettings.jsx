@@ -89,9 +89,13 @@ export default function ImageSettings({ settings, setSettings, credits }) {
         {/* Credits */}
         <div className="flex flex-col gap-1.5 items-center">
           <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Credits</span>
-          {credits === 0 ? (
+          {credits === null ? (
+            <div className="flex items-center gap-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-1.5">
+              <span className="text-sm text-slate-400">Loading...</span>
+            </div>
+          ) : credits === 0 ? (
             <div className="flex items-center gap-1.5 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl px-3 py-1.5">
-              <span className="text-sm font-semibold text-red-500 dark:text-red-400">Recharge your credits</span>
+              <span className="text-sm font-semibold text-red-500 dark:text-red-400">No credits left</span>
             </div>
           ) : (
             <div className="flex items-center gap-1.5 bg-violet-50 dark:bg-violet-900/20 border border-violet-100 dark:border-violet-800 rounded-xl px-3 py-1.5">
