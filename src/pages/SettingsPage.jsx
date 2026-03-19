@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
-import { User, Trash2, LogOut } from "lucide-react";
+import { User, Trash2, LogOut, Loader2 } from "lucide-react";
 
 export default function SettingsPage() {
   const [user, setUser] = useState(null);

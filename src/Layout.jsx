@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Wand2, Settings, Sun, Moon, ChevronLeft } from "lucide-react";
 import { base44 } from "@/api/base44Client";
+import { AnimatePresence, motion } from "framer-motion";
 
 const ROOT_PAGES = {
   Home: createPageUrl("Home"),
@@ -19,16 +20,26 @@ const PAGE_TITLES = {
   SettingsPage: "Settings",
 };
 
+// Determine which tab owns a given page name
+const TAB_ORDER = ["Home", "SettingsPage"];
+
+function getTabIndex(pageName) {
+  const tab = TAB_ORDER.find((t) => t === pageName);
+  return TAB_ORDER.indexOf(tab ?? "Home");
+}
+
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
   const navigate = useNavigate();
 
+  // Auth check
   useEffect(() => {
     base44.auth.isAuthenticated().then((auth) => {
       if (!auth) base44.auth.redirectToLogin(window.location.pathname);
     });
   }, []);
 
+  // Dark mode
   const [dark, setDark] = useState(() => {
     const saved = localStorage.getItem("theme");
     if (saved) return saved === "dark";
@@ -40,30 +51,75 @@ export default function Layout({ children, currentPageName }) {
     localStorage.setItem("theme", dark ? "dark" : "light");
   }, [dark]);
 
-  // Track history stacks per tab
-  const tabStacks = useRef({ Home: [ROOT_PAGES.Home], SettingsPage: [ROOT_PAGES.SettingsPage] });
+  // Independent history stack per tab
+  const tabStacks = useRef({
+    Home: [ROOT_PAGES.Home],
+    SettingsPage: [ROOT_PAGES.SettingsPage],
+  });
 
-  const isRootPage = Object.values(ROOT_PAGES).includes(location.pathname) || location.pathname === "/";
+  // Track navigation direction for animation: 1 = forward/right, -1 = back/left
+  const [direction, setDirection] = useState(1);
+  const prevPageRef = useRef(currentPageName);
+
+  useEffect(() => {
+    const prev = prevPageRef.current;
+    const prevIdx = getTabIndex(prev);
+    const currIdx = getTabIndex(currentPageName);
+    if (currentPageName !== prev) {
+      setDirection(currIdx >= prevIdx ? 1 : -1);
+      prevPageRef.current = currentPageName;
+    }
+  }, [currentPageName]);
+
+  // Hardware back button (Android)
+  useEffect(() => {
+    const handlePopState = () => {
+      const currentTab = currentPageName;
+      const stack = tabStacks.current[currentTab];
+      if (stack && stack.length > 1) {
+        stack.pop();
+        tabStacks.current[currentTab] = [...stack];
+      }
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [currentPageName]);
+
+  const isRootPage =
+    Object.values(ROOT_PAGES).includes(location.pathname) || location.pathname === "/";
   const pageTitle = PAGE_TITLES[currentPageName] || currentPageName || "ImagineAI";
 
   const handleTabClick = (tabName) => {
     if (currentPageName === tabName) {
-      // Reset to root of that tab
       tabStacks.current[tabName] = [ROOT_PAGES[tabName]];
       navigate(ROOT_PAGES[tabName], { replace: true });
     } else {
+      setDirection(getTabIndex(tabName) > getTabIndex(currentPageName) ? 1 : -1);
       navigate(ROOT_PAGES[tabName]);
     }
   };
 
+  const pageVariants = {
+    initial: (dir) => ({ x: dir > 0 ? "100%" : "-100%", opacity: 0 }),
+    animate: { x: 0, opacity: 1, transition: { type: "tween", duration: 0.28, ease: "easeOut" } },
+    exit: (dir) => ({
+      x: dir > 0 ? "-40%" : "40%",
+      opacity: 0,
+      transition: { type: "tween", duration: 0.22, ease: "easeIn" },
+    }),
+  };
+
   return (
     <div
-      className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 dark:bg-none dark:bg-slate-950 flex flex-col select-none"
+      className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 dark:bg-none dark:bg-slate-950 flex flex-col select-none overflow-hidden"
       style={{ paddingTop: "env(safe-area-inset-top)", overscrollBehavior: "none" }}
     >
       <style>{`
         body { overscroll-behavior: none; background-color: transparent; }
         html.dark body { background-color: #020617; }
+        /* Hide scrollbars globally while keeping functionality */
+        * { scrollbar-width: none; -ms-overflow-style: none; }
+        *::-webkit-scrollbar { display: none; }
       `}</style>
 
       {/* Global Header */}
@@ -96,9 +152,21 @@ export default function Layout({ children, currentPageName }) {
         </button>
       </header>
 
-      {/* Page content */}
-      <div className="flex-1 overflow-y-auto pb-20">
-        {children}
+      {/* Page content with transition animations */}
+      <div className="flex-1 overflow-y-auto overflow-x-hidden pb-20 relative">
+        <AnimatePresence mode="wait" custom={direction}>
+          <motion.div
+            key={currentPageName}
+            custom={direction}
+            variants={pageVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            className="w-full"
+          >
+            {children}
+          </motion.div>
+        </AnimatePresence>
       </div>
 
       {/* Bottom Navigation Bar */}
