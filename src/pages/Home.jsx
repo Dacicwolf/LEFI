@@ -164,27 +164,7 @@ export default function Home() {
         {/* Generated Image */}
         {!isLoading && <ImageDisplay imageUrl={imageUrl} prompt={lastPrompt} />}
 
-        {/* Empty state suggestions */}
-        {!imageUrl && !isLoading && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.8 }}
-            className="text-center mt-6"
-          >
-            <div className="flex flex-wrap justify-center gap-2 max-w-lg mx-auto">
-              {["Ocean sunset 🌅", "Astronaut cat 🐱", "Medieval castle 🏰"].map((suggestion) => (
-                <button
-                  key={suggestion}
-                  onClick={() => setPrompt(suggestion)}
-                  className="px-4 min-h-[44px] rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-sm text-slate-600 dark:text-slate-300 transition-colors duration-200 select-none"
-                >
-                  {suggestion}
-                </button>
-              ))}
-            </div>
-          </motion.div>
-        )}
+
       </div>
     </div>
   );
