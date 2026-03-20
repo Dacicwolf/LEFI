@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Wand2, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import PromptInput from "@/components/PromptInput";
-import ImageDisplay from "@/components/ImageDisplay";
 import ImageSettings, { getCost } from "@/components/ImageSettings";
 
 const PULL_THRESHOLD = 70;
@@ -14,7 +13,6 @@ const DEFAULT_CREDITS = 50;
 export default function Home() {
   const navigate = useNavigate();
   const [prompt, setPrompt] = useState("");
-  const [imageUrl, setImageUrl] = useState(null);
   const [lastPrompt, setLastPrompt] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [credits, setCredits] = useState(null); // null = loading
