@@ -89,8 +89,8 @@ export default function Home() {
     }
     // Save new credit balance to DB
     await base44.auth.updateMe({ credits: newCredits });
-    setImageUrl(result.url);
     setIsLoading(false);
+    navigate(`/ImageResult?url=${encodeURIComponent(result.url)}&prompt=${encodeURIComponent(prompt)}`);
   };
 
   const pullProgress = Math.min(pullY / PULL_THRESHOLD, 1);
