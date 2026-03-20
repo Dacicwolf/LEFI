@@ -28,7 +28,7 @@ export default function ImageResult() {
   };
 
   return (
-    <div className="min-h-screen overflow-y-auto bg-gradient-to-b from-slate-50 via-white to-slate-50 dark:bg-none dark:bg-slate-950 pb-24">
+    <div className="h-screen overflow-y-scroll bg-gradient-to-b from-slate-50 via-white to-slate-50 dark:bg-none dark:bg-slate-950 pb-24" style={{scrollbarWidth: "thin", overflowY: "scroll"}}>
       {/* Background blobs */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-violet-100/40 dark:bg-violet-900/10 rounded-full blur-3xl" />
