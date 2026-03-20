@@ -168,9 +168,7 @@ export default function Home() {
           >
             <div className="relative">
               <div className="w-16 h-16 rounded-full border-2 border-violet-200 border-t-violet-600 animate-spin" />
-              <div
-                className="absolute inset-0 flex items-center justify-center"
-              >
+              <div className="absolute inset-0 flex items-center justify-center">
                 <div
                   className="w-8 h-8 rounded-full border-2 border-indigo-200 border-b-indigo-600 animate-spin"
                   style={{ animationDirection: "reverse", animationDuration: "0.8s" }}
@@ -182,9 +180,6 @@ export default function Home() {
             </p>
           </motion.div>
         )}
-
-        {/* Generated Image */}
-        {!isLoading && <ImageDisplay imageUrl={imageUrl} prompt={lastPrompt} />}
 
 
       </div>

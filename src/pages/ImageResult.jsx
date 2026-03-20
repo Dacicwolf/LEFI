@@ -28,7 +28,7 @@ export default function ImageResult() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 dark:bg-none dark:bg-slate-950">
+    <div className="min-h-screen overflow-y-auto bg-gradient-to-b from-slate-50 via-white to-slate-50 dark:bg-none dark:bg-slate-950 pb-24">
       {/* Background blobs */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-violet-100/40 dark:bg-violet-900/10 rounded-full blur-3xl" />
@@ -41,7 +41,7 @@ export default function ImageResult() {
           initial={{ opacity: 0, x: -10 }}
           animate={{ opacity: 1, x: 0 }}
           onClick={() => navigate("/")}
-          className="flex items-center gap-1 text-violet-600 dark:text-violet-400 font-medium mb-6 hover:opacity-70 transition-opacity"
+          className="flex items-center gap-1 text-violet-600 dark:text-violet-400 font-medium mb-6 hover:opacity-70 transition-opacity min-h-[44px]"
         >
           <ChevronLeft className="w-5 h-5" />
           Back to Generate
