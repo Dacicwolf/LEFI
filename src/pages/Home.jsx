@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { motion, AnimatePresence } from "framer-motion";
 import { Wand2, RefreshCw } from "lucide-react";
@@ -11,6 +12,7 @@ const PULL_THRESHOLD = 70;
 const DEFAULT_CREDITS = 50;
 
 export default function Home() {
+  const navigate = useNavigate();
   const [prompt, setPrompt] = useState("");
   const [imageUrl, setImageUrl] = useState(null);
   const [lastPrompt, setLastPrompt] = useState("");
