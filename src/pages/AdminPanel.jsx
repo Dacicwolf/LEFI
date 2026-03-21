@@ -28,7 +28,15 @@ export default function AdminPanel() {
     setLoading(false);
   };
 
-  if (!user) return null;
+  if (!user) return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="w-8 h-8 border-4 border-slate-200 border-t-violet-600 rounded-full animate-spin" />
+    </div>
+  );
+
+  if (user.email !== ADMIN_EMAIL) return (
+    <div className="min-h-screen flex items-center justify-center text-slate-400">Access denied.</div>
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 dark:bg-none dark:bg-slate-950">
