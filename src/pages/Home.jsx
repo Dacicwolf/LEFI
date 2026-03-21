@@ -141,9 +141,7 @@ export default function Home() {
           <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900 dark:text-white mb-2">
             Generate Images
           </h1>
-          <p className="text-base text-slate-500 dark:text-slate-400 max-w-md mx-auto">
-            Describe what you want to see and let AI create it for you.
-          </p>
+
         </motion.div>
 
         {/* Prompt Input */}
