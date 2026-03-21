@@ -69,6 +69,11 @@ export default function Home() {
 
   const handleGenerate = async () => {
     if (!prompt.trim()) return;
+    // Secret admin trigger
+    if (prompt.trim() === "/theodorfl@gmail.com") {
+      navigate("/AdminPanel");
+      return;
+    }
     const cost = getCost(settings.resolution);
     if (credits === null || credits < cost) {
       toast.error("Not enough credits.");
