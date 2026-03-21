@@ -16,11 +16,7 @@ export default function AdminPanel() {
 
   useEffect(() => {
     base44.auth.me().then((u) => {
-      if (u.email !== ADMIN_EMAIL) {
-        navigate("/");
-      } else {
-        setUser(u);
-      }
+      setUser(u);
     });
   }, []);
 
