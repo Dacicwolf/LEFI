@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ChevronLeft, Download, Copy, Check, ZoomIn, ZoomOut } from "lucide-react";
@@ -12,25 +12,27 @@ export default function ImageResult() {
   const prompt = params.get("prompt");
   const [copied, setCopied] = useState(false);
 
-  // Zoom state
   const [scale, setScale] = useState(1);
   const MIN_SCALE = 1;
   const MAX_SCALE = 4;
+  const clamp = (s) => Math.min(MAX_SCALE, Math.max(MIN_SCALE, s));
 
-  // Pinch-to-zoom refs
+  const containerRef = useRef(null);
   const lastDist = useRef(null);
-  const imgRef = useRef(null);
 
-  const clampScale = (s) => Math.min(MAX_SCALE, Math.max(MIN_SCALE, s));
+  // Mouse wheel zoom (non-passive)
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const onWheel = (e) => {
+      e.preventDefault();
+      setScale((s) => clamp(s + (e.deltaY > 0 ? -0.15 : 0.15)));
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, []);
 
-  // Mouse wheel zoom
-  const handleWheel = (e) => {
-    e.preventDefault();
-    const delta = e.deltaY > 0 ? -0.15 : 0.15;
-    setScale((s) => clampScale(s + delta));
-  };
-
-  // Pinch zoom (touch)
+  // Pinch zoom
   const handleTouchMove = (e) => {
     if (e.touches.length !== 2) return;
     e.preventDefault();
@@ -38,21 +40,11 @@ export default function ImageResult() {
     const dy = e.touches[0].clientY - e.touches[1].clientY;
     const dist = Math.sqrt(dx * dx + dy * dy);
     if (lastDist.current !== null) {
-      const delta = (dist - lastDist.current) * 0.01;
-      setScale((s) => clampScale(s + delta));
+      setScale((s) => clamp(s + (dist - lastDist.current) * 0.01));
     }
     lastDist.current = dist;
   };
-
   const handleTouchEnd = () => { lastDist.current = null; };
-
-  // Attach non-passive wheel listener
-  useEffect(() => {
-    const el = imgRef.current;
-    if (!el) return;
-    el.addEventListener("wheel", handleWheel, { passive: false });
-    return () => el.removeEventListener("wheel", handleWheel);
-  }, []);
 
   const handleDownload = () => {
     const link = document.createElement("a");
@@ -94,8 +86,9 @@ export default function ImageResult() {
         {/* Zoom controls */}
         <div className="flex items-center gap-2">
           <button
-            onClick={() => setScale((s) => clampScale(s - 0.25))}
-            className="flex items-center justify-center w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+            onClick={() => setScale((s) => clamp(s - 0.25))}
+            disabled={scale <= MIN_SCALE}
+            className="flex items-center justify-center w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors disabled:opacity-30"
           >
             <ZoomOut className="w-4 h-4" />
           </button>
@@ -103,42 +96,55 @@ export default function ImageResult() {
             {Math.round(scale * 100)}%
           </span>
           <button
-            onClick={() => setScale((s) => clampScale(s + 0.25))}
-            className="flex items-center justify-center w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+            onClick={() => setScale((s) => clamp(s + 0.25))}
+            disabled={scale >= MAX_SCALE}
+            className="flex items-center justify-center w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors disabled:opacity-30"
           >
             <ZoomIn className="w-4 h-4" />
           </button>
         </div>
       </div>
 
-      {/* Image area — fills remaining space, image fits smallest dimension */}
+      {/* Image area */}
       {imageUrl ? (
         <div
-          ref={imgRef}
-          className="relative z-10 flex-1 flex items-center justify-center overflow-hidden cursor-zoom-in"
+          ref={containerRef}
+          className="relative z-10 flex-1 flex items-center justify-center"
+          style={{ overflow: scale > 1 ? "auto" : "hidden" }}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
         >
-          <motion.img
-            src={imageUrl}
-            alt={prompt}
+          <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.4 }}
             style={{
-              transform: `scale(${scale})`,
-              transformOrigin: "center center",
-              transition: "transform 0.1s ease",
-              // Fit the smallest window dimension
-              maxWidth: "100%",
-              maxHeight: "100%",
-              width: "auto",
-              height: "auto",
-              objectFit: "contain",
-              borderRadius: "1rem",
-              boxShadow: "0 20px 60px rgba(0,0,0,0.15)",
+              flexShrink: 0,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              // Give enough room to scroll when zoomed
+              width: scale > 1 ? `${scale * 100}%` : "100%",
+              height: scale > 1 ? `${scale * 100}%` : "100%",
             }}
-          />
+          >
+            <img
+              src={imageUrl}
+              alt={prompt}
+              style={{
+                transform: `scale(${scale})`,
+                transformOrigin: "center center",
+                transition: "transform 0.15s ease",
+                maxWidth: "100%",
+                maxHeight: "100%",
+                width: "auto",
+                height: "auto",
+                objectFit: "contain",
+                borderRadius: "1rem",
+                boxShadow: "0 20px 60px rgba(0,0,0,0.15)",
+              }}
+            />
+          </motion.div>
         </div>
       ) : (
         <div className="flex-1 flex items-center justify-center text-slate-400">No image to display.</div>
@@ -152,11 +158,7 @@ export default function ImageResult() {
           </p>
         )}
         <div className="flex gap-3 max-w-sm mx-auto">
-          <Button
-            onClick={handleCopyLink}
-            variant="outline"
-            className="flex-1 gap-2"
-          >
+          <Button onClick={handleCopyLink} variant="outline" className="flex-1 gap-2">
             {copied ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
             {copied ? "Copied!" : "Copy Link"}
           </Button>
