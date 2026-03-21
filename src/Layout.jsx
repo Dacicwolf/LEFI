@@ -135,10 +135,7 @@ export default function Layout({ children, currentPageName }) {
         )}
         <h1 className="text-base font-semibold flex-1">
           {currentPageName === "Home" ? (
-            <>
-              <span className="text-indigo-200">Lefi</span>{" "}
-              <span className="text-indigo-600">(text-to-image app)</span>
-            </>
+            <span className="text-indigo-600">Lefi</span>
           ) : (
             <span className="text-slate-900 dark:text-white">{pageTitle}</span>
           )}
