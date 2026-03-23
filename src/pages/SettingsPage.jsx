@@ -56,7 +56,7 @@ export default function SettingsPage() {
           Settings
         </motion.h1>
 
-        {/* ITonAI Branding Card */}
+        {/* ITonAI Branding + Email Card */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -71,29 +71,7 @@ export default function SettingsPage() {
           />
           <div>
             <p className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">ITonAI</p>
-            <p className="text-sm text-slate-500 dark:text-slate-400">Powered by ITonAI</p>
-          </div>
-        </motion.div>
-
-        {/* Profile Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 p-5 mb-4"
-        >
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-violet-500 to-indigo-500 flex items-center justify-center shrink-0">
-              <User className="w-7 h-7 text-white" />
-            </div>
-            <div>
-              <p className="font-semibold text-slate-900 dark:text-white text-base">
-                {user?.full_name || "User"}
-              </p>
-              <p className="text-sm text-slate-500 dark:text-slate-400">
-                {user?.email || "—"}
-              </p>
-            </div>
+            <p className="text-sm text-slate-500 dark:text-slate-400">office@itonai.ro</p>
           </div>
         </motion.div>
 
