@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
 import { Trash2, LogOut, Loader2 } from "lucide-react";
 
 export default function SettingsPage() {
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [showConfirm, setShowConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -55,6 +57,38 @@ export default function SettingsPage() {
         >
           Settings
         </motion.h1>
+
+        {/* Buy Credits */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.02 }}
+          className="mb-6"
+        >
+          <h2 className="text-sm font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-3 px-1">Buy Credits</h2>
+          <div className="grid grid-cols-3 gap-3">
+            {[
+              { name: "Bronze", credits: 40, price: "$2.9", color: "from-amber-600 to-amber-500", border: "border-amber-200 dark:border-amber-800", plan: "bronze" },
+              { name: "Silver", credits: 88, price: "$5.9", color: "from-slate-500 to-slate-400", border: "border-slate-200 dark:border-slate-700", plan: "silver" },
+              { name: "Gold", credits: 180, price: "$9.9", color: "from-yellow-500 to-amber-400", border: "border-yellow-200 dark:border-yellow-800", plan: "gold" },
+            ].map(({ name, credits, price, color, border, plan }) => (
+              <a
+                key={plan}
+                href={`https://buy.stripe.com/REPLACE_${plan.toUpperCase()}_LINK?client_reference_id=${user?.email}&success_url=${encodeURIComponent(window.location.origin + '/payment-success?plan=' + plan)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`bg-white dark:bg-slate-900 rounded-2xl border ${border} p-4 flex flex-col items-center gap-2 shadow-sm hover:shadow-md transition-shadow`}
+              >
+                <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${color} flex items-center justify-center shadow`}>
+                  <span className="text-white font-bold text-xs">{name[0]}</span>
+                </div>
+                <p className="font-semibold text-slate-900 dark:text-white text-sm">{name}</p>
+                <p className="text-violet-600 dark:text-violet-400 font-bold text-xs">{credits} 🪙</p>
+                <p className="text-slate-500 dark:text-slate-400 text-xs">{price}</p>
+              </a>
+            ))}
+          </div>
+        </motion.div>
 
         {/* ITonAI Branding + Email Card */}
         <motion.div

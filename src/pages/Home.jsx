@@ -8,7 +8,7 @@ import PromptInput from "@/components/PromptInput";
 import ImageSettings, { getCost } from "@/components/ImageSettings";
 
 const PULL_THRESHOLD = 70;
-const DEFAULT_CREDITS = 50;
+const DEFAULT_CREDITS = 40;
 
 export default function Home() {
   const navigate = useNavigate();
