@@ -177,7 +177,7 @@ export default function Home() {
                 ].map(({ name, credits: c, price, color, border, plan }) => (
                   <a
                     key={plan}
-                    href={`https://buy.stripe.com/REPLACE_${plan.toUpperCase()}_LINK?client_reference_id=${encodeURIComponent(window.location.origin + '/payment-success?plan=' + plan)}`}
+                    href={plan === 'bronze' ? `https://buy.stripe.com/cNi7sM0gq2zM7n9bwB3wQ02?client_reference_id=${encodeURIComponent(window.location.origin + '/payment-success?plan=bronze')}` : plan === 'silver' ? `https://buy.stripe.com/9B614o6EOfmy6j51W13wQ01?client_reference_id=${encodeURIComponent(window.location.origin + '/payment-success?plan=silver')}` : `https://buy.stripe.com/9B63cw7IS2zM5f1eIN3wQ00?client_reference_id=${encodeURIComponent(window.location.origin + '/payment-success?plan=gold')}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className={`bg-white dark:bg-slate-900 rounded-2xl border ${border} p-4 flex flex-col items-center gap-2 shadow-sm hover:shadow-md transition-shadow`}
