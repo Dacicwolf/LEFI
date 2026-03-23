@@ -72,6 +72,7 @@ export default function SettingsPage() {
           <div>
             <p className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">ITonAI</p>
             <p className="text-sm text-slate-500 dark:text-slate-400">office@itonai.ro</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">www.itonai.ro</p>
           </div>
         </motion.div>
 
