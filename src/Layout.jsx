@@ -163,7 +163,7 @@ export default function Layout({ children, currentPageName }) {
         </h1>
         <button
           onClick={() => setDark((d) => !d)}
-          className="flex items-center justify-center min-w-[44px] min-h-[44px] text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors select-none"
+          className="flex items-center justify-center min-w-[44px] min-h-[44px] rounded-xl text-slate-400 dark:text-slate-500 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/20 hover:scale-110 active:scale-95 transition-all duration-200 select-none"
           aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
         >
           {dark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
@@ -199,10 +199,10 @@ export default function Layout({ children, currentPageName }) {
               key={name}
               onClick={() => handleTabClick(name)}
               aria-label={label}
-              className={`flex-1 flex flex-col items-center justify-center min-h-[56px] gap-0.5 transition-colors duration-200 select-none ${
+              className={`flex-1 flex flex-col items-center justify-center min-h-[56px] gap-0.5 transition-all duration-200 select-none ${
                 active
-                  ? "text-violet-600 dark:text-violet-400"
-                  : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
+                  ? "text-violet-600 dark:text-violet-400 scale-110"
+                  : "text-slate-400 dark:text-slate-500 hover:text-violet-500 dark:hover:text-violet-400 hover:scale-110 hover:bg-violet-50 dark:hover:bg-violet-900/20 rounded-xl"
               }`}
             >
               <Icon className="w-5 h-5" />
