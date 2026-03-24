@@ -121,11 +121,12 @@ export default function Layout({ children, currentPageName }) {
   };
 
   const pageVariants = {
-    initial: (dir) => ({ x: dir > 0 ? "100%" : "-100%", opacity: 0 }),
-    animate: { x: 0, opacity: 1, transition: { type: "tween", duration: 0.28, ease: "easeOut" } },
+    initial: (dir) => ({ x: dir > 0 ? "100%" : "-100%", opacity: 0, willChange: "transform" }),
+    animate: { x: 0, opacity: 1, willChange: "transform", transition: { type: "tween", duration: 0.28, ease: "easeOut" } },
     exit: (dir) => ({
       x: dir > 0 ? "-40%" : "40%",
       opacity: 0,
+      willChange: "transform",
       transition: { type: "tween", duration: 0.22, ease: "easeIn" },
     }),
   };
@@ -144,7 +145,7 @@ export default function Layout({ children, currentPageName }) {
       `}</style>
 
       {/* Global Header */}
-      <header className="sticky top-0 z-40 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 flex items-center px-4 h-14 gap-3">
+      <header className="sticky top-0 z-40 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 flex items-center h-14 gap-3" style={{ paddingLeft: 'max(1rem, env(safe-area-inset-left))', paddingRight: 'max(1rem, env(safe-area-inset-right))' }}>
         {!isRootPage && (
           <button
             onClick={() => navigate(-1)}
@@ -190,7 +191,7 @@ export default function Layout({ children, currentPageName }) {
       {/* Bottom Navigation Bar */}
       <nav
         className="fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 flex z-50"
-        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+        style={{ paddingBottom: "env(safe-area-inset-bottom)", paddingLeft: "env(safe-area-inset-left)", paddingRight: "env(safe-area-inset-right)" }}
       >
         {tabs.map(({ name, label, icon: Icon }) => {
           const active = currentPageName === name;

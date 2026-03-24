@@ -36,6 +36,7 @@ export default function PromptInput({ prompt, setPrompt, onGenerate, isLoading }
             <Button
               onClick={onGenerate}
               disabled={isLoading || !prompt.trim()}
+              aria-label={isLoading ? "Generating image" : "Generate image"}
               className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white rounded-xl px-6 min-h-[44px] font-medium shadow-lg shadow-violet-500/25 transition-all duration-300 disabled:opacity-40 select-none"
             >
               {isLoading ? (

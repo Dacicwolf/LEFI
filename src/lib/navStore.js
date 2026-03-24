@@ -15,11 +15,9 @@ export function getStack(tab) {
 
 export function pushToStack(tab, path) {
   const s = getState(tab);
-  // Avoid duplicate consecutive entries
+  // Avoid duplicate consecutive entries — React Router manages history API
   if (s.stack[s.stack.length - 1] !== path) {
     s.stack = [...s.stack, path];
-    // Keep browser History API in sync so popstate fires on native back
-    window.history.pushState({ tab, path }, "", path);
   }
 }
 
