@@ -145,7 +145,7 @@ export default function Layout({ children, currentPageName }) {
       <header className="sticky top-0 z-40 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 flex items-center px-4 h-14 gap-3">
         {!isRootPage && (
           <button
-            onClick={() => window.history.back()}
+            onClick={() => navigate(-1)}
             className="flex items-center justify-center min-w-[44px] min-h-[44px] -ml-2 text-violet-600 dark:text-violet-400 select-none"
             aria-label="Go back"
           >

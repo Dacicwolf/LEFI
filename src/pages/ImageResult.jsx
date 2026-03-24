@@ -11,6 +11,7 @@ export default function ImageResult() {
   const imageUrl = params.get("url");
   const prompt = params.get("prompt");
   const [copied, setCopied] = useState(false);
+  const [imgLoaded, setImgLoaded] = useState(false);
 
   const [scale, setScale] = useState(1);
   const MIN_SCALE = 1;
@@ -114,16 +115,18 @@ export default function ImageResult() {
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
         >
+          {!imgLoaded && (
+            <div className="w-72 h-72 sm:w-96 sm:h-96 rounded-2xl bg-slate-200 dark:bg-slate-800 animate-pulse" />
+          )}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
+            animate={{ opacity: imgLoaded ? 1 : 0, scale: imgLoaded ? 1 : 0.95 }}
             transition={{ duration: 0.4 }}
             style={{
               flexShrink: 0,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              // Give enough room to scroll when zoomed
               width: scale > 1 ? `${scale * 100}%` : "100%",
               height: scale > 1 ? `${scale * 100}%` : "100%",
             }}
@@ -131,6 +134,7 @@ export default function ImageResult() {
             <img
               src={imageUrl}
               alt={prompt}
+              onLoad={() => setImgLoaded(true)}
               style={{
                 transform: `scale(${scale})`,
                 transformOrigin: "center center",

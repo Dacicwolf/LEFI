@@ -9,7 +9,6 @@ export default function SettingsPage() {
   const [user, setUser] = useState(null);
   const [showConfirm, setShowConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [deleteError, setDeleteError] = useState(null);
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
@@ -21,24 +20,8 @@ export default function SettingsPage() {
       return;
     }
     setDeleting(true);
-    setDeleteError(null);
-    const result = await base44.integrations.Core.InvokeLLM({
-      prompt: `Generate a JSON response confirming account deletion request for user: ${user?.email}. Return { "status": "deletion_requested", "message": "Account deletion initiated." }`,
-      response_json_schema: {
-        type: "object",
-        properties: {
-          status: { type: "string" },
-          message: { type: "string" },
-        },
-      },
-    });
-    setDeleting(false);
-    setShowConfirm(false);
-    if (result?.status === "deletion_requested") {
-      base44.auth.logout();
-    } else {
-      setDeleteError("Deletion request failed. Please try again.");
-    }
+    await base44.auth.updateMe({ deleted: true });
+    base44.auth.logout();
   };
 
   return (
@@ -153,9 +136,6 @@ export default function SettingsPage() {
           <p className="text-xs text-slate-400 dark:text-slate-500 text-center mt-3">
             This action is irreversible. Tap the button again to confirm.
           </p>
-        )}
-        {deleteError && (
-          <p className="text-xs text-red-400 text-center mt-3">{deleteError}</p>
         )}
       </div>
     </div>
