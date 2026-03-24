@@ -123,10 +123,10 @@ export default function Home() {
               <p className="text-sm font-semibold text-red-500 mb-4 text-center">You've run out of credits. Top up to keep generating!</p>
               <div className="grid grid-cols-3 gap-3">
                 {[
-                  { name: "Bronze", credits: 40, price: "$2.9", color: "from-amber-600 to-amber-500", border: "border-amber-200 dark:border-amber-800", plan: "bronze" },
-                  { name: "Silver", credits: 88, price: "$5.9", color: "from-slate-500 to-slate-400", border: "border-slate-200 dark:border-slate-700", plan: "silver" },
-                  { name: "Gold", credits: 180, price: "$9.9", color: "from-yellow-500 to-amber-400", border: "border-yellow-200 dark:border-yellow-800", plan: "gold" },
-                ].map(({ name, credits: c, price, color, border, plan }) => (
+                  { name: "Bronze", credits: 40, price: "$2.9", border: "border-amber-200 dark:border-amber-800", plan: "bronze", img: "https://media.base44.com/images/public/6995fb83472e84f2aaa7251a/88cf9d6c2_lefi_logo_bronze.png" },
+                  { name: "Silver", credits: 88, price: "$5.9", border: "border-slate-200 dark:border-slate-700", plan: "silver", img: "https://media.base44.com/images/public/6995fb83472e84f2aaa7251a/451aba21c_lefi_logo_silver.png" },
+                  { name: "Gold", credits: 180, price: "$9.9", border: "border-yellow-200 dark:border-yellow-800", plan: "gold", img: "https://media.base44.com/images/public/6995fb83472e84f2aaa7251a/91cafad47_lefi_logo_gold.png" },
+                ].map(({ name, credits: c, price, border, plan, img }) => (
                   <a
                     key={plan}
                     href={plan === 'bronze' ? `https://buy.stripe.com/cNi7sM0gq2zM7n9bwB3wQ02?client_reference_id=${encodeURIComponent(window.location.origin + '/payment-success?plan=bronze')}` : plan === 'silver' ? `https://buy.stripe.com/9B614o6EOfmy6j51W13wQ01?client_reference_id=${encodeURIComponent(window.location.origin + '/payment-success?plan=silver')}` : `https://buy.stripe.com/9B63cw7IS2zM5f1eIN3wQ00?client_reference_id=${encodeURIComponent(window.location.origin + '/payment-success?plan=gold')}`}
@@ -134,9 +134,7 @@ export default function Home() {
                     rel="noopener noreferrer"
                     className={`bg-white dark:bg-slate-900 rounded-2xl border ${border} p-4 flex flex-col items-center gap-2 shadow-sm hover:shadow-md transition-shadow`}
                   >
-                    <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${color} flex items-center justify-center shadow`}>
-                      <span className="text-white font-bold text-xs">{name[0]}</span>
-                    </div>
+                    <img src={img} alt={name} className="w-12 h-12 rounded-xl object-contain" />
                     <p className="font-semibold text-slate-900 dark:text-white text-sm">{name}</p>
                     <p className="text-violet-600 dark:text-violet-400 font-bold text-xs">{c} 🪙</p>
                     <p className="text-slate-500 dark:text-slate-400 text-xs">{price}</p>
