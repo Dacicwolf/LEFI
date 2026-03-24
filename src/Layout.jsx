@@ -4,7 +4,7 @@ import { createPageUrl } from "@/utils";
 import { Wand2, Settings, Sun, Moon, ChevronLeft } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { AnimatePresence, motion } from "framer-motion";
-import { getStack, pushToStack, popFromStack, resetStack } from "@/lib/navStore";
+import { pushToStack, popFromStack, resetStack, canGoBack, saveScroll, getScroll } from "@/lib/navStore";
 
 const ROOT_PAGES = {
   Home: createPageUrl("Home"),
@@ -69,9 +69,43 @@ export default function Layout({ children, currentPageName }) {
     }
   }, [currentPageName]);
 
+  // Scroll container ref for per-tab scroll save/restore
+  const scrollContainerRef = useRef(null);
+
+  // Save scroll on tab leave, restore on tab enter
+  const prevTabRef = useRef(currentPageName);
+  useEffect(() => {
+    const prev = prevTabRef.current;
+    if (prev !== currentPageName) {
+      // Save scroll of leaving tab
+      if (scrollContainerRef.current) {
+        saveScroll(prev, scrollContainerRef.current.scrollTop);
+      }
+      // Restore scroll of entering tab
+      const saved = getScroll(currentPageName);
+      if (scrollContainerRef.current) {
+        scrollContainerRef.current.scrollTop = saved;
+      }
+      prevTabRef.current = currentPageName;
+    }
+  }, [currentPageName]);
+
+  const activeTab = TAB_ORDER.find((t) => t === currentPageName) ?? TAB_ORDER[0];
   const isRootPage =
-    Object.values(ROOT_PAGES).includes(location.pathname) || location.pathname === "/";
+    !canGoBack(activeTab) ||
+    Object.values(ROOT_PAGES).includes(location.pathname) ||
+    location.pathname === "/";
   const pageTitle = PAGE_TITLES[currentPageName] || currentPageName || "ImagineAI";
+
+  // Hardware back button (Android) — use our stack, not browser history
+  useEffect(() => {
+    const handlePopState = () => {
+      const prev = popFromStack(activeTab);
+      if (prev) navigate(prev, { replace: true });
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [activeTab, navigate]);
 
   const handleTabClick = (tabName) => {
     if (currentPageName === tabName) {
@@ -109,7 +143,10 @@ export default function Layout({ children, currentPageName }) {
       <header className="sticky top-0 z-40 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 flex items-center px-4 h-14 gap-3">
         {!isRootPage && (
           <button
-            onClick={() => navigate(-1)}
+            onClick={() => {
+              const prev = popFromStack(activeTab);
+              if (prev) navigate(prev, { replace: true });
+            }}
             className="flex items-center justify-center min-w-[44px] min-h-[44px] -ml-2 text-violet-600 dark:text-violet-400 select-none"
             aria-label="Go back"
           >
@@ -133,7 +170,7 @@ export default function Layout({ children, currentPageName }) {
       </header>
 
       {/* Page content with transition animations */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden pb-20 relative">
+      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto overflow-x-hidden pb-20 relative">
         <AnimatePresence mode="wait" custom={direction}>
           <motion.div
             key={currentPageName}
