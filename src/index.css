@@ -80,10 +80,16 @@
 @layer base {
   * {
     @apply border-border;
+    /* Prevent browser context menu on long-press for all elements */
+    -webkit-touch-callout: none;
+    touch-action: manipulation;
   }
 
   body {
     @apply bg-background text-foreground;
+    /* Prevent text selection on UI chrome globally */
+    user-select: none;
+    -webkit-user-select: none;
   }
 
   /* High-contrast focus indicators for all interactive elements */

@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect, memo } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, Download, Copy, Check, ZoomIn, ZoomOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import ImageSkeleton from "@/components/ImageSkeleton";
 
 const ImageResult = memo(function ImageResult() {
   const navigate = useNavigate();
@@ -128,9 +129,11 @@ const ImageResult = memo(function ImageResult() {
           className="relative z-10 flex-1 flex items-center justify-center"
           style={{ overflow: scale > 1 ? "auto" : "hidden", minHeight: 0, contain: "strict" }}
         >
-          {!imgLoaded && (
-            <div className="w-72 h-72 sm:w-96 sm:h-96 rounded-2xl bg-slate-200 dark:bg-slate-800 animate-pulse" />
-          )}
+          <AnimatePresence mode="wait">
+            {!imgLoaded && (
+              <ImageSkeleton key="skeleton" />
+            )}
+          </AnimatePresence>
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: imgLoaded ? 1 : 0, scale: imgLoaded ? 1 : 0.95 }}
