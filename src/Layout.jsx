@@ -121,6 +121,18 @@ export default function Layout({ children, currentPageName }) {
 
   const activeTab = TAB_ORDER.find((t) => t === currentPageName) ?? TAB_ORDER[0];
 
+  // Update meta theme-color for status bar sync on theme toggle
+  useEffect(() => {
+    const themeColor = dark ? "#020617" : "#ffffff";
+    let metaTag = document.querySelector('meta[name="theme-color"]');
+    if (!metaTag) {
+      metaTag = document.createElement('meta');
+      metaTag.name = 'theme-color';
+      document.head.appendChild(metaTag);
+    }
+    metaTag.content = themeColor;
+  }, [dark]);
+
   // Unified Android hardware back button support
   useAndroidBack(activeTab);
   // Show back button if RR6 has history OR if we're on a child page (deep-linked).
@@ -180,6 +192,8 @@ export default function Layout({ children, currentPageName }) {
     <div
       className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 dark:bg-none dark:bg-slate-950 flex flex-col select-none overflow-hidden"
       style={{ paddingTop: "env(safe-area-inset-top)", overscrollBehavior: "none" }}
+      role="application"
+      aria-label="Lefi AI Image Generator Application"
     >
       <style>{`
         body { overscroll-behavior: none; background-color: transparent; }
@@ -190,7 +204,7 @@ export default function Layout({ children, currentPageName }) {
       `}</style>
 
       {/* Global Header */}
-      <header className="sticky top-0 z-40 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 flex items-center h-14 gap-3" style={{ paddingLeft: 'max(1rem, env(safe-area-inset-left))', paddingRight: 'max(1rem, env(safe-area-inset-right))' }}>
+      <header className="sticky top-0 z-40 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 flex items-center h-14 gap-3" style={{ paddingLeft: 'max(1rem, env(safe-area-inset-left))', paddingRight: 'max(1rem, env(safe-area-inset-right))' }} role="banner">
         {!isRootPage && (
           <button
             onClick={() => navigate(-1)}
@@ -217,7 +231,7 @@ export default function Layout({ children, currentPageName }) {
       </header>
 
       {/* Page content with transition animations */}
-      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto overflow-x-hidden pb-20 relative">
+      <main ref={scrollContainerRef} className="flex-1 overflow-y-auto overflow-x-hidden pb-20 relative" role="main">
         <AnimatePresence mode="wait" custom={direction}>
           <motion.div
             key={currentPageName}
@@ -231,7 +245,7 @@ export default function Layout({ children, currentPageName }) {
             {children}
           </motion.div>
         </AnimatePresence>
-      </div>
+      </main>
 
       {/* Bottom Navigation Bar */}
       <nav
