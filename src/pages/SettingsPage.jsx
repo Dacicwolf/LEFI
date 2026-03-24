@@ -108,7 +108,7 @@ export default function SettingsPage() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-red-100 dark:border-red-900/40 overflow-hidden"
+          className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-red-100 dark:border-red-900/40 overflow-hidden hover:shadow-xl hover:-translate-y-1 hover:scale-105 active:scale-95 transition-all duration-200"
         >
           <button
             onClick={handleDeleteAccount}
