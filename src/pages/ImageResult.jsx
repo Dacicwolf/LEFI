@@ -1,11 +1,11 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, memo } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ChevronLeft, Download, Copy, Check, ZoomIn, ZoomOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
-export default function ImageResult() {
+const ImageResult = memo(function ImageResult() {
   const navigate = useNavigate();
   const params = new URLSearchParams(window.location.search);
   const imageUrl = params.get("url");
@@ -135,7 +135,8 @@ export default function ImageResult() {
           >
             <img
               src={imageUrl}
-              alt={prompt}
+              alt={prompt ? `AI-generated image: ${prompt}` : "AI-generated image"}
+              aria-label={prompt ? `AI-generated image for prompt: ${prompt}` : "AI-generated image"}
               onLoad={() => setImgLoaded(true)}
               className="rounded-2xl shadow-2xl"
               style={{
@@ -178,4 +179,6 @@ export default function ImageResult() {
       </div>
     </div>
   );
-}
+});
+
+export default ImageResult;

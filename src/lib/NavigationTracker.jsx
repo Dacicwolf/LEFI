@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 import { base44 } from '@/api/base44Client';
@@ -7,6 +7,7 @@ import { pagesConfig } from '@/pages.config';
 export default function NavigationTracker() {
     const location = useLocation();
     const { isAuthenticated } = useAuth();
+    const pendingRef = useRef(false);
     const { Pages, mainPage } = pagesConfig;
     const mainPageKey = mainPage ?? Object.keys(Pages)[0];
 
@@ -31,10 +32,12 @@ export default function NavigationTracker() {
             pageName = matchedKey || null;
         }
 
-        if (isAuthenticated && pageName) {
-            // Non-blocking: defer logging so it doesn't delay navigation
+        if (isAuthenticated && pageName && !pendingRef.current) {
+            pendingRef.current = true;
             setTimeout(() => {
-                base44.appLogs.logUserInApp(pageName).catch(() => {});
+                base44.appLogs.logUserInApp(pageName).catch(() => {}).finally(() => {
+                    pendingRef.current = false;
+                });
             }, 0);
         }
     }, [location, isAuthenticated, Pages, mainPageKey]);
