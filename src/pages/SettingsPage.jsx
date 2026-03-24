@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
+import FadeImage from "@/components/FadeImage";
 import { motion } from "framer-motion";
 import { Trash2, LogOut, Loader2 } from "lucide-react";
 
 export default function SettingsPage() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
-  const [showConfirm, setShowConfirm] = useState(false);
+  const [confirmStep, setConfirmStep] = useState(0); // 0 = idle, 1 = first tap, 2 = confirmed
   const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
@@ -15,13 +16,18 @@ export default function SettingsPage() {
   }, []);
 
   const handleDeleteAccount = async () => {
-    if (!showConfirm) {
-      setShowConfirm(true);
+    if (confirmStep === 0) {
+      setConfirmStep(1);
+      // Auto-reset after 4 seconds if user doesn't confirm
+      setTimeout(() => setConfirmStep((s) => (s === 1 ? 0 : s)), 4000);
       return;
     }
-    setDeleting(true);
-    await base44.auth.updateMe({ deleted: true });
-    base44.auth.logout();
+    if (confirmStep === 1) {
+      setConfirmStep(2);
+      setDeleting(true);
+      await base44.auth.updateMe({ deleted: true });
+      base44.auth.logout();
+    }
   };
 
   return (
@@ -42,10 +48,11 @@ export default function SettingsPage() {
           transition={{ delay: 0.05 }}
           className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg shadow-violet-500/10 border border-slate-100 dark:border-slate-800 p-5 mb-6 flex items-center gap-4"
         >
-          <img
+          <FadeImage
             src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6995fb83472e84f2aaa7251a/81138c58f_ITonAI.png"
             alt="ITonAI Logo"
             className="w-14 h-14 rounded-xl object-contain"
+            skeletonClassName="w-14 h-14 rounded-xl"
           />
           <div>
             <p className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">ITonAI</p>
@@ -76,7 +83,7 @@ export default function SettingsPage() {
                 aria-label={`Buy ${name} plan – ${credits} credits for ${price}`}
                 className={`bg-white dark:bg-slate-900 rounded-2xl border ${border} p-4 min-h-[44px] flex flex-col items-center gap-2 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:scale-105 active:scale-95 transition-all duration-200`}
               >
-                <img src={img} alt={name} className="w-12 h-12 rounded-xl object-contain" />
+                <FadeImage src={img} alt={name} className="w-12 h-12 rounded-xl object-contain" skeletonClassName="w-12 h-12 rounded-xl" />
                 <p className="font-semibold text-slate-900 dark:text-white text-sm">{name}</p>
                 <p className="text-violet-600 dark:text-violet-400 font-bold text-xs">{credits} 🪙</p>
                 <p className="text-slate-500 dark:text-slate-400 text-xs">{price}</p>
@@ -111,7 +118,11 @@ export default function SettingsPage() {
           <button
             onClick={handleDeleteAccount}
             disabled={deleting}
-            className="w-full flex items-center gap-3 px-5 py-4 min-h-[56px] text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors duration-150 select-none disabled:opacity-60"
+            className={`w-full flex items-center gap-3 px-5 py-4 min-h-[56px] transition-colors duration-150 select-none disabled:opacity-60 ${
+              confirmStep === 1
+                ? "text-white bg-red-500 hover:bg-red-600"
+                : "text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40"
+            }`}
           >
             {deleting ? (
               <Loader2 className="w-5 h-5 animate-spin" />
@@ -119,14 +130,14 @@ export default function SettingsPage() {
               <Trash2 className="w-5 h-5" />
             )}
             <span className="font-medium">
-              {deleting ? "Processing..." : showConfirm ? "Tap again to confirm deletion" : "Delete Account"}
+              {deleting ? "Processing..." : confirmStep === 1 ? "Tap again to confirm — this is irreversible" : "Delete Account"}
             </span>
           </button>
         </motion.div>
 
-        {showConfirm && !deleting && (
-          <p className="text-xs text-slate-400 dark:text-slate-500 text-center mt-3">
-            This action is irreversible. Tap the button again to confirm.
+        {confirmStep === 1 && !deleting && (
+          <p className="text-xs text-red-400 text-center mt-3 animate-pulse">
+            Auto-cancels in 4 seconds. Tap again to permanently delete your account.
           </p>
         )}
       </div>

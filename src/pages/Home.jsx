@@ -1,5 +1,6 @@
 import React, { useState, useEffect, lazy, Suspense } from "react";
 import { useOptimistic } from "@/hooks/useOptimistic";
+import FadeImage from "@/components/FadeImage";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
@@ -96,7 +97,7 @@ export default function Home() {
           className="text-center mb-6"
         >
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl mb-3 overflow-hidden shadow-lg">
-              <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6995fb83472e84f2aaa7251a/77a5e07ff_lefi_logo.png" alt="Graphos Logo" className="w-full h-full object-cover" />
+              <FadeImage src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6995fb83472e84f2aaa7251a/77a5e07ff_lefi_logo.png" alt="Lefi Logo" className="w-full h-full object-cover" skeletonClassName="w-12 h-12" />
             </div>
           <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900 dark:text-white mb-2">
             Generate Images
@@ -140,7 +141,7 @@ export default function Home() {
                     aria-label={`Buy ${name} plan – ${c} credits for ${price}`}
                     className={`bg-white dark:bg-slate-900 rounded-2xl border ${border} p-4 min-h-[44px] flex flex-col items-center gap-2 shadow-sm hover:shadow-md transition-shadow`}
                   >
-                    <img src={img} alt={name} className="w-12 h-12 rounded-xl object-contain" />
+                    <FadeImage src={img} alt={name} className="w-12 h-12 rounded-xl object-contain" skeletonClassName="w-12 h-12 rounded-xl" />
                     <p className="font-semibold text-slate-900 dark:text-white text-sm">{name}</p>
                     <p className="text-violet-600 dark:text-violet-400 font-bold text-xs">{c} 🪙</p>
                     <p className="text-slate-500 dark:text-slate-400 text-xs">{price}</p>
