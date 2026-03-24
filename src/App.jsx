@@ -12,6 +12,7 @@ import React, { lazy, Suspense } from 'react';
 const ImageResult = lazy(() => import('./pages/ImageResult'));
 const AdminPanel = lazy(() => import('./pages/AdminPanel'));
 const PaymentSuccess = lazy(() => import('./pages/PaymentSuccess'));
+const SettingsPage = lazy(() => import('./pages/SettingsPage'));
 
 
 const PageLoader = () => (
@@ -77,6 +78,7 @@ const AuthenticatedApp = () => {
       <Route path="/ImageResult" element={<Suspense fallback={<PageLoader />}><LayoutWrapper currentPageName="ImageResult"><ImageResult /></LayoutWrapper></Suspense>} />
       <Route path="/AdminPanel" element={<Suspense fallback={<PageLoader />}><LayoutWrapper currentPageName="AdminPanel"><AdminPanel /></LayoutWrapper></Suspense>} />
       <Route path="/payment-success" element={<Suspense fallback={<PageLoader />}><LayoutWrapper currentPageName="PaymentSuccess"><PaymentSuccess /></LayoutWrapper></Suspense>} />
+      <Route path="/SettingsPage" element={<Suspense fallback={<PageLoader />}><LayoutWrapper currentPageName="SettingsPage"><SettingsPage /></LayoutWrapper></Suspense>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

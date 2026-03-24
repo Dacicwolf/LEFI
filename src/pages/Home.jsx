@@ -4,7 +4,7 @@ import FadeImage from "@/components/FadeImage";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
-import PullToRefresh from "react-simple-pull-to-refresh";
+import PullToRefreshWrapper from "@/components/PullToRefreshWrapper";
 import { toast } from "sonner";
 import PromptInput from "@/components/PromptInput";
 
@@ -80,7 +80,7 @@ export default function Home() {
   };
 
   return (
-    <PullToRefresh onRefresh={handleRefresh} pullingContent={<div className="flex justify-center py-2"><div className="w-5 h-5 rounded-full border-2 border-violet-400 border-t-transparent animate-spin" /></div>}>
+    <PullToRefreshWrapper onRefresh={handleRefresh}>
     <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 dark:bg-none dark:bg-slate-950">
       {/* Background blobs */}
       <div className="fixed inset-0 pointer-events-none">
@@ -102,7 +102,6 @@ export default function Home() {
           <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900 dark:text-white mb-2">
             Generate Images
           </h1>
-
         </motion.div>
 
         {/* Prompt Input */}
@@ -173,10 +172,8 @@ export default function Home() {
             </p>
           </motion.div>
         )}
-
-
       </div>
     </div>
-    </PullToRefresh>
+    </PullToRefreshWrapper>
   );
 }
