@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
 import PullToRefresh from "react-simple-pull-to-refresh";
 import { toast } from "sonner";
 import PromptInput from "@/components/PromptInput";
-import ImageSettings, { getCost } from "@/components/ImageSettings";
+import { getCost } from "@/components/ImageSettings";
+
+const ImageSettings = lazy(() => import("@/components/ImageSettings"));
 
 const DEFAULT_CREDITS = 40;
 
@@ -106,7 +108,9 @@ export default function Home() {
         />
 
         {/* Image Settings */}
-        <ImageSettings settings={settings} setSettings={setSettings} credits={credits} />
+        <Suspense fallback={<div className="w-full max-w-2xl mx-auto mt-3 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800 animate-pulse" />}>
+          <ImageSettings settings={settings} setSettings={setSettings} credits={credits} />
+        </Suspense>
 
         {/* No Credits — Buy Credits */}
         {credits === 0 && !isLoading && (

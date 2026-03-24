@@ -88,6 +88,7 @@ export default function ImageResult() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => setScale((s) => clamp(s - 0.25))}
+            aria-label="Zoom out"
             disabled={scale <= MIN_SCALE}
             className="flex items-center justify-center w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors disabled:opacity-30"
           >
@@ -98,6 +99,7 @@ export default function ImageResult() {
           </span>
           <button
             onClick={() => setScale((s) => clamp(s + 0.25))}
+            aria-label="Zoom in"
             disabled={scale >= MAX_SCALE}
             className="flex items-center justify-center w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors disabled:opacity-30"
           >
