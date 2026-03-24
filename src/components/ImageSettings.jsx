@@ -43,9 +43,11 @@ export default function ImageSettings({ settings, setSettings, credits }) {
 
   const toggle = (key, value) => setSettings((s) => ({ ...s, [key]: value }));
 
-  const Chip = ({ active, onClick, children }) => (
+  const Chip = ({ active, onClick, children, ariaLabel }) => (
     <button
       onClick={onClick}
+      aria-label={ariaLabel}
+      aria-pressed={active}
       className={`px-3 min-h-[44px] rounded-lg text-sm font-medium transition-all duration-200 select-none ${
         active
           ? "bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-md shadow-violet-500/20"
@@ -69,7 +71,7 @@ export default function ImageSettings({ settings, setSettings, credits }) {
           <span className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Resolution</span>
           <div className="flex gap-2">
             {["512", "1024"].map((r) => (
-              <Chip key={r} active={resolution === r} onClick={() => toggle("resolution", r)}>
+              <Chip key={r} active={resolution === r} onClick={() => toggle("resolution", r)} ariaLabel={`Resolution ${r}px`}>
                 {r}px
               </Chip>
             ))}

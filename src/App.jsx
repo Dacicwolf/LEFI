@@ -13,6 +13,7 @@ const ImageResult = lazy(() => import('./pages/ImageResult'));
 const AdminPanel = lazy(() => import('./pages/AdminPanel'));
 const PaymentSuccess = lazy(() => import('./pages/PaymentSuccess'));
 
+
 const PageLoader = () => (
   <div className="fixed inset-0 flex items-center justify-center">
     <div className="w-8 h-8 border-4 border-slate-200 border-t-violet-600 rounded-full animate-spin" />

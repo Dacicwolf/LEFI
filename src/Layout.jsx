@@ -67,18 +67,18 @@ export default function Layout({ children, currentPageName }) {
   const [direction, setDirection] = useState(1);
   const prevPageRef = useRef(currentPageName);
 
+  // Sync nav stack + animation direction on every location change
   useEffect(() => {
     const prev = prevPageRef.current;
     const prevIdx = getTabIndex(prev);
     const currIdx = getTabIndex(currentPageName);
     if (currentPageName !== prev) {
       setDirection(currIdx >= prevIdx ? 1 : -1);
-      // Push new page into the tab's stack
-      const tab = TAB_ORDER.find((t) => t === currentPageName) ?? TAB_ORDER[0];
-      pushToStack(tab, location.pathname);
-      prevPageRef.current = currentPageName;
     }
-  }, [currentPageName]);
+    const tab = TAB_ORDER.find((t) => t === currentPageName) ?? TAB_ORDER[0];
+    pushToStack(tab, location.pathname);
+    prevPageRef.current = currentPageName;
+  }, [location.pathname, currentPageName]);
 
   // Scroll container ref for per-tab scroll save/restore
   const scrollContainerRef = useRef(null);
