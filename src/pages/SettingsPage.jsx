@@ -53,6 +53,7 @@ export default function SettingsPage() {
             alt="ITonAI Logo"
             className="w-14 h-14 rounded-xl object-contain"
             skeletonClassName="w-14 h-14 rounded-xl"
+            aspectRatio="1/1"
           />
           <div>
             <p className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">ITonAI</p>
@@ -83,7 +84,7 @@ export default function SettingsPage() {
                 aria-label={`Buy ${name} plan – ${credits} credits for ${price}`}
                 className={`bg-white dark:bg-slate-900 rounded-2xl border ${border} p-4 min-h-[44px] flex flex-col items-center gap-2 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:scale-105 active:scale-95 transition-all duration-200`}
               >
-                <FadeImage src={img} alt={name} className="w-12 h-12 rounded-xl object-contain" skeletonClassName="w-12 h-12 rounded-xl" />
+                <FadeImage src={img} alt={name} className="w-12 h-12 rounded-xl object-contain" skeletonClassName="w-12 h-12 rounded-xl" aspectRatio="1/1" />
                 <p className="font-semibold text-slate-900 dark:text-white text-sm">{name}</p>
                 <p className="text-violet-600 dark:text-violet-400 font-bold text-xs">{credits} 🪙</p>
                 <p className="text-slate-500 dark:text-slate-400 text-xs">{price}</p>

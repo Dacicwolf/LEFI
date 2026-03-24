@@ -69,18 +69,32 @@ export default function Layout({ children, currentPageName }) {
   // Navigation direction for animation
   const [direction, setDirection] = useState(1);
   const prevPageRef = useRef(currentPageName);
+  // Track RR6 history index reactively so isRootPage updates on every nav
+  const [rrIdx, setRrIdx] = useState(() => window.history.state?.idx ?? 0);
+  const prevIdxRef = useRef(window.history.state?.idx ?? 0);
 
   // Sync nav stack + animation direction on every location change
   useEffect(() => {
+    const currentRrIdx = window.history.state?.idx ?? 0;
     const prev = prevPageRef.current;
-    const prevIdx = getTabIndex(prev);
-    const currIdx = getTabIndex(currentPageName);
+    const prevTabIdx = getTabIndex(prev);
+    const currTabIdx = getTabIndex(currentPageName);
+
     if (currentPageName !== prev) {
-      setDirection(currIdx >= prevIdx ? 1 : -1);
+      setDirection(currTabIdx >= prevTabIdx ? 1 : -1);
     }
+
     const tab = TAB_ORDER.find((t) => t === currentPageName) ?? TAB_ORDER[0];
-    pushToStack(tab, location.pathname);
+    // Detect direction: if RR6 idx decreased we went back — pop; otherwise push.
+    if (currentRrIdx < prevIdxRef.current) {
+      popFromStack(tab);
+    } else {
+      pushToStack(tab, location.pathname);
+    }
+
+    prevIdxRef.current = currentRrIdx;
     prevPageRef.current = currentPageName;
+    setRrIdx(currentRrIdx);
   }, [location.pathname, currentPageName]);
 
   // Scroll container ref for per-tab scroll save/restore
@@ -108,8 +122,8 @@ export default function Layout({ children, currentPageName }) {
 
   // Unified Android hardware back button support
   useAndroidBack(activeTab);
-  // Use RR6-managed history index: idx === 0 means we're at the stack root.
-  const isRootPage = !(window.history.state?.idx > 0);
+  // Reactive: derived from rrIdx state, updated in the location effect above.
+  const isRootPage = rrIdx <= 0;
   const pageTitle = PAGE_TITLES[currentPageName] || currentPageName || "ImagineAI";
 
   // Android back button is fully handled by useAndroidBack hook above.
