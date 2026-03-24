@@ -74,7 +74,7 @@ export default function SettingsPage() {
                 href={plan === 'bronze' ? `https://buy.stripe.com/cNi7sM0gq2zM7n9bwB3wQ02?client_reference_id=${user?.email}&success_url=${encodeURIComponent(window.location.origin + '/payment-success?plan=bronze')}` : plan === 'silver' ? `https://buy.stripe.com/9B614o6EOfmy6j51W13wQ01?client_reference_id=${user?.email}&success_url=${encodeURIComponent(window.location.origin + '/payment-success?plan=silver')}` : `https://buy.stripe.com/9B63cw7IS2zM5f1eIN3wQ00?client_reference_id=${user?.email}&success_url=${encodeURIComponent(window.location.origin + '/payment-success?plan=gold')}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`bg-white dark:bg-slate-900 rounded-2xl border ${border} p-4 flex flex-col items-center gap-2 shadow-sm hover:shadow-md transition-shadow`}
+                className={`bg-white dark:bg-slate-900 rounded-2xl border ${border} p-4 flex flex-col items-center gap-2 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:scale-105 active:scale-95 transition-all duration-200`}
               >
                 <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${color} flex items-center justify-center shadow`}>
                   <span className="text-white font-bold text-xs">{name[0]}</span>
