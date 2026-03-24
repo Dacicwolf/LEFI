@@ -27,6 +27,7 @@ export default function PromptInput({ prompt, setPrompt, onGenerate, isLoading }
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             onKeyDown={handleKeyDown}
+            inputMode="text"
             aria-label="Image generation prompt"
             aria-multiline="true"
             className="min-h-[120px] border-0 bg-slate-50/50 dark:bg-slate-800/50 rounded-xl text-base text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus-visible:ring-0 focus-visible:ring-offset-0 resize-none p-4"

@@ -33,7 +33,7 @@ const ImageResult = memo(function ImageResult() {
     return () => el.removeEventListener("wheel", onWheel);
   }, []);
 
-  // Pinch zoom
+  // Pinch zoom (non-passive touchmove for preventDefault)
   const handleTouchMove = (e) => {
     if (e.touches.length !== 2) return;
     e.preventDefault();
@@ -46,6 +46,18 @@ const ImageResult = memo(function ImageResult() {
     lastDist.current = dist;
   };
   const handleTouchEnd = () => { lastDist.current = null; };
+
+  // Register touch listeners with appropriate passive flags
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    el.addEventListener("touchmove", handleTouchMove, { passive: false });
+    el.addEventListener("touchend", handleTouchEnd, { passive: true });
+    return () => {
+      el.removeEventListener("touchmove", handleTouchMove);
+      el.removeEventListener("touchend", handleTouchEnd);
+    };
+  }, [handleTouchMove, handleTouchEnd]);
 
   const handleDownload = () => {
     const link = document.createElement("a");
@@ -114,8 +126,6 @@ const ImageResult = memo(function ImageResult() {
           ref={containerRef}
           className="relative z-10 flex-1 flex items-center justify-center"
           style={{ overflow: scale > 1 ? "auto" : "hidden", minHeight: 0, contain: "strict" }}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
         >
           {!imgLoaded && (
             <div className="w-72 h-72 sm:w-96 sm:h-96 rounded-2xl bg-slate-200 dark:bg-slate-800 animate-pulse" />
