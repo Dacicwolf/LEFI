@@ -10,6 +10,8 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import React, { lazy, Suspense } from 'react';
 
+const Home = lazy(() => import('./pages/Home'));
+
 const ImageResult = lazy(() => import('./pages/ImageResult'));
 const AdminPanel = lazy(() => import('./pages/AdminPanel'));
 const PaymentSuccess = lazy(() => import('./pages/PaymentSuccess'));
@@ -23,7 +25,6 @@ const PageLoader = () => (
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
-const MainPage = mainPageKey ? Pages[mainPageKey] : <></>;
 
 const LayoutWrapper = ({ children, currentPageName }) => Layout ?
   <Layout currentPageName={currentPageName}>{children}</Layout>
@@ -57,12 +58,12 @@ const AuthenticatedApp = () => {
     <Routes>
       <Route path="/" element={
         <Suspense fallback={<PageLoader />}>
-          <LayoutWrapper currentPageName={mainPageKey}>
-            <MainPage />
+          <LayoutWrapper currentPageName="Home">
+            <Home />
           </LayoutWrapper>
         </Suspense>
       } />
-      {Object.entries(Pages).map(([path, Page]) => (
+      {Object.entries(Pages).filter(([path]) => path !== 'Home').map(([path, Page]) => (
         <Route
           key={path}
           path={`/${path}`}

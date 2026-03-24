@@ -141,6 +141,16 @@ export default function Layout({ children, currentPageName }) {
   // Non-tab pages (e.g. ImageResult) are always children, even when rrIdx === 0.
   const isTabPage = TAB_ORDER.includes(currentPageName);
   const isRootPage = rrIdx <= 0 && isTabPage;
+
+  // Safe back handler: prevent blank pages by ensuring we go to a valid tab
+  const handleBackClick = () => {
+    if (canGoBack(activeTab)) {
+      navigate(-1);
+    } else {
+      // Fallback: if no history, go to Home tab
+      navigate(ROOT_PAGES.Home, { replace: true });
+    }
+  };
   const pageTitle = PAGE_TITLES[currentPageName] || currentPageName || "ImagineAI";
 
   // Android back button is fully handled by useAndroidBack hook above.
@@ -226,7 +236,7 @@ export default function Layout({ children, currentPageName }) {
       <header className="sticky top-0 z-40 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 flex items-center h-14 gap-3" style={{ paddingLeft: 'max(1rem, env(safe-area-inset-left))', paddingRight: 'max(1rem, env(safe-area-inset-right))' }} role="banner">
         {!isRootPage && (
           <button
-            onClick={() => navigate(-1)}
+            onClick={handleBackClick}
             className="flex items-center justify-center min-w-[44px] min-h-[44px] -ml-2 text-violet-600 dark:text-violet-400 select-none"
             aria-label="Go back"
           >
