@@ -143,7 +143,7 @@ export default function Layout({ children, currentPageName }) {
 
   // Android back button is fully handled by useAndroidBack hook above.
 
-  // Delegate asset preloading to service worker for intelligent caching
+  // Delegate asset preloading to service worker after page load completes
   useEffect(() => {
     const preloadAssets = () => {
       const urls = [
@@ -153,7 +153,7 @@ export default function Layout({ children, currentPageName }) {
         "https://media.base44.com/images/public/6995fb83472e84f2aaa7251a/91cafad47_lefi_logo_gold.png",
         "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6995fb83472e84f2aaa7251a/81138c58f_ITonAI.png",
       ];
-      // Delegate to service worker for caching if available
+      // Delegate to service worker for intelligent caching
       if (navigator.serviceWorker?.controller) {
         navigator.serviceWorker.controller.postMessage({
           type: "PRELOAD_ASSETS",
@@ -164,8 +164,23 @@ export default function Layout({ children, currentPageName }) {
         urls.forEach((url) => { const img = new Image(); img.src = url; });
       }
     };
-    const t = setTimeout(preloadAssets, 400);
-    return () => clearTimeout(t);
+    // Use requestIdleCallback if available for non-blocking preload
+    if (typeof requestIdleCallback !== "undefined") {
+      // Fire after window load to avoid early preloading
+      const onLoad = () => {
+        const id = requestIdleCallback(preloadAssets, { timeout: 3000 });
+        return () => cancelIdleCallback(id);
+      };
+      if (document.readyState === "complete") {
+        onLoad();
+      } else {
+        window.addEventListener("load", onLoad, { once: true });
+      }
+    } else {
+      // Fallback for older browsers: defer via setTimeout
+      const t = setTimeout(preloadAssets, 500);
+      return () => clearTimeout(t);
+    }
   }, []);
 
   const handleTabClick = (tabName) => {

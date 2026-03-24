@@ -21,6 +21,7 @@ export default function SettingsPage() {
   const [user, setUser] = useState(null);
   const [deleting, setDeleting] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [purchasingPlan, setPurchasingPlan] = useState(null);
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
@@ -77,21 +78,31 @@ export default function SettingsPage() {
               { name: "Bronze", credits: 40, price: "$2.9", border: "border-amber-200 dark:border-amber-800", plan: "bronze", img: "https://media.base44.com/images/public/6995fb83472e84f2aaa7251a/88cf9d6c2_lefi_logo_bronze.png" },
               { name: "Silver", credits: 88, price: "$5.9", border: "border-slate-200 dark:border-slate-700", plan: "silver", img: "https://media.base44.com/images/public/6995fb83472e84f2aaa7251a/451aba21c_lefi_logo_silver.png" },
               { name: "Gold", credits: 180, price: "$9.9", border: "border-yellow-200 dark:border-yellow-800", plan: "gold", img: "https://media.base44.com/images/public/6995fb83472e84f2aaa7251a/91cafad47_lefi_logo_gold.png" },
-            ].map(({ name, credits, price, border, plan, img }) => (
-              <a
-                key={plan}
-                href={plan === 'bronze' ? `https://buy.stripe.com/cNi7sM0gq2zM7n9bwB3wQ02?client_reference_id=${user?.email}&success_url=${encodeURIComponent(window.location.origin + '/payment-success?plan=bronze')}` : plan === 'silver' ? `https://buy.stripe.com/9B614o6EOfmy6j51W13wQ01?client_reference_id=${user?.email}&success_url=${encodeURIComponent(window.location.origin + '/payment-success?plan=silver')}` : `https://buy.stripe.com/9B63cw7IS2zM5f1eIN3wQ00?client_reference_id=${user?.email}&success_url=${encodeURIComponent(window.location.origin + '/payment-success?plan=gold')}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`Buy ${name} plan – ${credits} credits for ${price}`}
-                className={`bg-white dark:bg-slate-900 rounded-2xl border ${border} p-4 min-h-[44px] flex flex-col items-center gap-2 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:scale-105 active:scale-95 transition-all duration-200`}
-              >
-                <FadeImage src={img} alt={name} className="w-12 h-12 rounded-xl object-contain" skeletonClassName="w-12 h-12 rounded-xl" aspectRatio="1/1" />
-                <p className="font-semibold text-slate-900 dark:text-white text-sm">{name}</p>
-                <p className="text-violet-600 dark:text-violet-400 font-bold text-xs">{credits} 🪙</p>
-                <p className="text-slate-500 dark:text-slate-400 text-xs">{price}</p>
-              </a>
-            ))}
+            ].map(({ name, credits, price, border, plan, img }) => {
+              const isLoading = purchasingPlan === plan;
+              return (
+                <button
+                  key={plan}
+                  onClick={() => {
+                    setPurchasingPlan(plan);
+                    const href = plan === 'bronze' ? `https://buy.stripe.com/cNi7sM0gq2zM7n9bwB3wQ02?client_reference_id=${user?.email}&success_url=${encodeURIComponent(window.location.origin + '/payment-success?plan=bronze')}` : plan === 'silver' ? `https://buy.stripe.com/9B614o6EOfmy6j51W13wQ01?client_reference_id=${user?.email}&success_url=${encodeURIComponent(window.location.origin + '/payment-success?plan=silver')}` : `https://buy.stripe.com/9B63cw7IS2zM5f1eIN3wQ00?client_reference_id=${user?.email}&success_url=${encodeURIComponent(window.location.origin + '/payment-success?plan=gold')}`;
+                    window.open(href, '_blank', 'noopener,noreferrer');
+                  }}
+                  disabled={isLoading}
+                  aria-label={`Buy ${name} plan – ${credits} credits for ${price}`}
+                  className={`bg-white dark:bg-slate-900 rounded-2xl border ${border} p-4 min-h-[44px] flex flex-col items-center gap-2 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:scale-105 active:scale-95 transition-all duration-200 disabled:opacity-60 disabled:hover:shadow-sm disabled:hover:scale-100`}
+                >
+                  {isLoading ? (
+                    <div className="w-12 h-12 flex items-center justify-center"><div className="w-4 h-4 border-2 border-violet-300 border-t-violet-600 rounded-full animate-spin" /></div>
+                  ) : (
+                    <FadeImage src={img} alt={name} className="w-12 h-12 rounded-xl object-contain" skeletonClassName="w-12 h-12 rounded-xl" aspectRatio="1/1" />
+                  )}
+                  <p className="font-semibold text-slate-900 dark:text-white text-sm">{name}</p>
+                  <p className="text-violet-600 dark:text-violet-400 font-bold text-xs">{credits} 🪙</p>
+                  <p className="text-slate-500 dark:text-slate-400 text-xs">{isLoading ? 'Opening...' : price}</p>
+                </button>
+              );
+            })}
           </div>
         </motion.div>
 
