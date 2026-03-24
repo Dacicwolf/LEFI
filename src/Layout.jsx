@@ -57,9 +57,18 @@ export default function Layout({ children, currentPageName }) {
   useEffect(() => {
     if (!isAndroid) return;
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    const orientationMq = window.matchMedia("(orientation: landscape)");
     const handler = (e) => setDark(e.matches);
+    const orientationHandler = () => {
+      // Force layout recalculation on orientation change
+      window.dispatchEvent(new Event('resize'));
+    };
     mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
+    orientationMq.addEventListener("change", orientationHandler);
+    return () => {
+      mq.removeEventListener("change", handler);
+      orientationMq.removeEventListener("change", orientationHandler);
+    };
   }, [isAndroid]);
 
   useEffect(() => {
@@ -155,7 +164,7 @@ export default function Layout({ children, currentPageName }) {
 
   // Android back button is fully handled by useAndroidBack hook above.
 
-  // Delegate asset preloading to service worker after page load completes
+  // Defer asset preloading until after load event fully settles to avoid main thread contention
   useEffect(() => {
     const preloadAssets = () => {
       const urls = [
@@ -176,22 +185,23 @@ export default function Layout({ children, currentPageName }) {
         urls.forEach((url) => { const img = new Image(); img.src = url; });
       }
     };
-    // Use requestIdleCallback if available for non-blocking preload
-    if (typeof requestIdleCallback !== "undefined") {
-      // Fire after window load to avoid early preloading
-      const onLoad = () => {
-        const id = requestIdleCallback(preloadAssets, { timeout: 3000 });
-        return () => cancelIdleCallback(id);
-      };
-      if (document.readyState === "complete") {
-        onLoad();
+    // Schedule preload after load event fully settles
+    const schedulePreload = () => {
+      // Use requestIdleCallback for non-blocking execution
+      if (typeof requestIdleCallback !== "undefined") {
+        requestIdleCallback(preloadAssets, { timeout: 3000 });
       } else {
-        window.addEventListener("load", onLoad, { once: true });
+        // Fallback: defer via setTimeout after a brief delay
+        setTimeout(preloadAssets, 500);
       }
+    };
+    
+    if (document.readyState === "complete") {
+      // Page already loaded: defer to next task queue cycle
+      Promise.resolve().then(schedulePreload);
     } else {
-      // Fallback for older browsers: defer via setTimeout
-      const t = setTimeout(preloadAssets, 500);
-      return () => clearTimeout(t);
+      // Wait for load to complete before scheduling
+      window.addEventListener("load", schedulePreload, { once: true });
     }
   }, []);
 

@@ -90,6 +90,39 @@
     /* Prevent text selection on UI chrome globally */
     user-select: none;
     -webkit-user-select: none;
+    /* Responsive safe-area for notches/bezel in portrait */
+    padding-top: env(safe-area-inset-top);
+  }
+
+  /* Orientation-aware safe-area handling */
+  @media (orientation: landscape) {
+    body {
+      padding-left: env(safe-area-inset-left);
+      padding-right: env(safe-area-inset-right);
+    }
+  }
+
+  /* Graceful scrollbar fallback: thin indicator without blocking content */
+  @supports (scrollbar-width: thin) {
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: hsl(var(--muted)) transparent;
+    }
+  }
+
+  @supports not (scrollbar-width: thin) {
+    *::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    *::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    *::-webkit-scrollbar-thumb {
+      background: hsl(var(--muted));
+      border-radius: 3px;
+      opacity: 0.5;
+    }
   }
 
   /* High-contrast focus indicators for all interactive elements */
