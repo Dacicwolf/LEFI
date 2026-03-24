@@ -128,7 +128,7 @@ export default function Layout({ children, currentPageName }) {
 
   // Android back button is fully handled by useAndroidBack hook above.
 
-  // Preload key assets on mount (logo + tier images) for faster subsequent renders.
+  // Preload key assets after idle to avoid blocking the initial render.
   useEffect(() => {
     const urls = [
       "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6995fb83472e84f2aaa7251a/77a5e07ff_lefi_logo.png",
@@ -137,7 +137,14 @@ export default function Layout({ children, currentPageName }) {
       "https://media.base44.com/images/public/6995fb83472e84f2aaa7251a/91cafad47_lefi_logo_gold.png",
       "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6995fb83472e84f2aaa7251a/81138c58f_ITonAI.png",
     ];
-    urls.forEach((url) => { const img = new Image(); img.src = url; });
+    const preload = () => urls.forEach((url) => { const img = new Image(); img.src = url; });
+    if (typeof requestIdleCallback !== "undefined") {
+      const id = requestIdleCallback(preload);
+      return () => cancelIdleCallback(id);
+    } else {
+      const t = setTimeout(preload, 200);
+      return () => clearTimeout(t);
+    }
   }, []);
 
   const handleTabClick = (tabName) => {
@@ -228,7 +235,8 @@ export default function Layout({ children, currentPageName }) {
             <button
               key={name}
               onClick={() => handleTabClick(name)}
-              aria-label={label}
+              aria-label={`Navigate to ${label}`}
+              aria-current={active ? "page" : undefined}
               className={`flex-1 flex flex-col items-center justify-center min-h-[56px] gap-0.5 transition-all duration-200 select-none ${
                 active
                   ? "text-violet-600 dark:text-violet-400 scale-110"

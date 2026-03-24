@@ -90,7 +90,7 @@ const ImageResult = memo(function ImageResult() {
             onClick={() => setScale((s) => clamp(s - 0.25))}
             aria-label="Zoom out"
             disabled={scale <= MIN_SCALE}
-            className="flex items-center justify-center w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors disabled:opacity-30"
+            className="flex items-center justify-center w-11 h-11 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors disabled:opacity-30"
           >
             <ZoomOut className="w-4 h-4" />
           </button>
@@ -101,19 +101,19 @@ const ImageResult = memo(function ImageResult() {
             onClick={() => setScale((s) => clamp(s + 0.25))}
             aria-label="Zoom in"
             disabled={scale >= MAX_SCALE}
-            className="flex items-center justify-center w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors disabled:opacity-30"
+            className="flex items-center justify-center w-11 h-11 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors disabled:opacity-30"
           >
             <ZoomIn className="w-4 h-4" />
           </button>
         </div>
       </div>
 
-      {/* Image area */}
+      {/* Image area — fixed height container prevents layout shifts during pinch-zoom */}
       {imageUrl ? (
         <div
           ref={containerRef}
           className="relative z-10 flex-1 flex items-center justify-center"
-          style={{ overflow: scale > 1 ? "auto" : "hidden" }}
+          style={{ overflow: scale > 1 ? "auto" : "hidden", minHeight: 0, contain: "strict" }}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
         >
@@ -129,8 +129,8 @@ const ImageResult = memo(function ImageResult() {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              width: scale > 1 ? `${scale * 100}%` : "100%",
-              height: scale > 1 ? `${scale * 100}%` : "100%",
+              width: "100%",
+              height: "100%",
             }}
           >
             <img
