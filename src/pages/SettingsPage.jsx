@@ -92,7 +92,7 @@ export default function SettingsPage() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
-          className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 mb-4 overflow-hidden"
+          className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 mb-4 overflow-hidden hover:shadow-xl hover:-translate-y-1 hover:scale-105 active:scale-95 transition-all duration-200"
         >
           <button
             onClick={() => base44.auth.logout()}
