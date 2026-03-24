@@ -89,7 +89,8 @@ const ImageResult = memo(function ImageResult() {
         <motion.button
           initial={{ opacity: 0, x: -10 }}
           animate={{ opacity: 1, x: 0 }}
-          onClick={() => navigate("/")}
+          transition={{ type: "tween", duration: 0.1 }}
+          onClick={() => navigate("/ ")}
           className="flex items-center gap-1 text-violet-600 dark:text-violet-400 font-medium hover:opacity-70 transition-opacity min-h-[44px]"
         >
           <ChevronLeft className="w-5 h-5" />
@@ -133,7 +134,7 @@ const ImageResult = memo(function ImageResult() {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: imgLoaded ? 1 : 0, scale: imgLoaded ? 1 : 0.95 }}
-            transition={{ duration: 0.4 }}
+            transition={{ type: "tween", duration: 0.15 }}
             style={{
               flexShrink: 0,
               display: "flex",

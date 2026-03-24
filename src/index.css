@@ -79,11 +79,37 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
   }
 
   body {
     @apply bg-background text-foreground;
+  }
+
+  /* High-contrast focus indicators for all interactive elements */
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  [role="button"]:focus-visible,
+  [role="tab"]:focus-visible,
+  [role="checkbox"]:focus-visible,
+  [role="radio"]:focus-visible,
+  a:focus-visible {
+    outline: 3px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+
+  .dark button:focus-visible,
+  .dark input:focus-visible,
+  .dark select:focus-visible,
+  .dark textarea:focus-visible,
+  .dark [role="button"]:focus-visible,
+  .dark [role="tab"]:focus-visible,
+  .dark [role="checkbox"]:focus-visible,
+  .dark [role="radio"]:focus-visible,
+  .dark a:focus-visible {
+    outline-color: hsl(var(--ring));
   }
 
   /* Global minimum tap target for all interactive elements */

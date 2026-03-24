@@ -3,6 +3,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Wand2, Settings, Sun, Moon, ChevronLeft } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { AnimatePresence, motion } from "framer-motion";
+import { usePrefetchPages } from "@/hooks/usePrefetchPages";
+import { pagesConfig } from "./pages.config";
 import { pushToStack, popFromStack, resetStack, canGoBack, saveScroll, getScroll } from "@/lib/navStore";
 import { useAndroidBack } from "@/hooks/useAndroidBack";
 // Icon is used via the `tabs` array below — no extra import needed.
@@ -192,14 +194,16 @@ export default function Layout({ children, currentPageName }) {
     }
   };
 
+  // Prefetch lazy-loaded pages after mount for better navigation performance
+  usePrefetchPages(pagesConfig);
+
   const pageVariants = {
-    initial: (dir) => ({ x: dir > 0 ? "100%" : "-100%", opacity: 0, willChange: "transform" }),
-    animate: { x: 0, opacity: 1, willChange: "transform", transition: { type: "tween", duration: 0.28, ease: "easeOut" } },
+    initial: (dir) => ({ x: dir > 0 ? "100%" : "-100%", opacity: 0 }),
+    animate: { x: 0, opacity: 1, transition: { type: "tween", duration: 0.2, ease: "easeOut" } },
     exit: (dir) => ({
-      x: dir > 0 ? "-40%" : "40%",
+      x: dir > 0 ? "-30%" : "30%",
       opacity: 0,
-      willChange: "transform",
-      transition: { type: "tween", duration: 0.22, ease: "easeIn" },
+      transition: { type: "tween", duration: 0.15, ease: "easeIn" },
     }),
   };
 
