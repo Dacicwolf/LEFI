@@ -1,26 +1,47 @@
-// Centralized navigation history store (module-level, persistent across tab switches)
-const stacks = {
-  Home: ["/"],
-  SettingsPage: ["/SettingsPage"],
+// Centralized navigation store — isolated stack + scroll position per tab
+const state = {
+  Home: { stack: ["/"], scroll: 0 },
+  SettingsPage: { stack: ["/SettingsPage"], scroll: 0 },
 };
 
+function getState(tab) {
+  if (!state[tab]) state[tab] = { stack: ["/"], scroll: 0 };
+  return state[tab];
+}
+
 export function getStack(tab) {
-  return stacks[tab] ?? ["/"];
+  return getState(tab).stack;
 }
 
 export function pushToStack(tab, path) {
-  if (!stacks[tab]) stacks[tab] = ["/"];
-  stacks[tab] = [...stacks[tab], path];
+  const s = getState(tab);
+  // Avoid duplicate consecutive entries
+  if (s.stack[s.stack.length - 1] !== path) {
+    s.stack = [...s.stack, path];
+  }
 }
 
 export function popFromStack(tab) {
-  if (!stacks[tab] || stacks[tab].length <= 1) return null;
-  const next = [...stacks[tab]];
+  const s = getState(tab);
+  if (s.stack.length <= 1) return null;
+  const next = [...s.stack];
   next.pop();
-  stacks[tab] = next;
+  s.stack = next;
   return next[next.length - 1];
 }
 
 export function resetStack(tab, rootPath) {
-  stacks[tab] = [rootPath];
+  getState(tab).stack = [rootPath];
+}
+
+export function canGoBack(tab) {
+  return getState(tab).stack.length > 1;
+}
+
+export function saveScroll(tab, scrollTop) {
+  getState(tab).scroll = scrollTop;
+}
+
+export function getScroll(tab) {
+  return getState(tab).scroll;
 }
