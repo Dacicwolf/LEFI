@@ -69,9 +69,9 @@ const AuthenticatedApp = () => {
           }
         />
       ))}
-      <Route path="/ImageResult" element={<LayoutWrapper currentPageName="ImageResult"><ImageResult /></LayoutWrapper>} />
-      <Route path="/AdminPanel" element={<LayoutWrapper currentPageName="AdminPanel"><AdminPanel /></LayoutWrapper>} />
-      <Route path="/payment-success" element={<LayoutWrapper currentPageName="PaymentSuccess"><PaymentSuccess /></LayoutWrapper>} />
+      <Route path="/ImageResult" element={<Suspense fallback={<PageLoader />}><LayoutWrapper currentPageName="ImageResult"><ImageResult /></LayoutWrapper></Suspense>} />
+      <Route path="/AdminPanel" element={<Suspense fallback={<PageLoader />}><LayoutWrapper currentPageName="AdminPanel"><AdminPanel /></LayoutWrapper></Suspense>} />
+      <Route path="/payment-success" element={<Suspense fallback={<PageLoader />}><LayoutWrapper currentPageName="PaymentSuccess"><PaymentSuccess /></LayoutWrapper></Suspense>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
