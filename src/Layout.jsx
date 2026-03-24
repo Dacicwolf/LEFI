@@ -109,10 +109,11 @@ export default function Layout({ children, currentPageName }) {
       if (scrollContainerRef.current) {
         saveScroll(prev, scrollContainerRef.current.scrollTop);
       }
-      // Restore scroll of entering tab
+      // Restore scroll of entering tab via rAF for smooth perf on low-end devices
       const saved = getScroll(currentPageName);
       if (scrollContainerRef.current) {
-        scrollContainerRef.current.scrollTop = saved;
+        const el = scrollContainerRef.current;
+        requestAnimationFrame(() => { el.scrollTop = saved; });
       }
       prevTabRef.current = currentPageName;
     }

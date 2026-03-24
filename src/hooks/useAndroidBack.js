@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { canGoBack, popFromStack } from "@/lib/navStore";
 
@@ -23,12 +23,17 @@ const isAndroid = /android/i.test(navigator.userAgent);
  */
 export function useAndroidBack(currentTab) {
   const navigate = useNavigate();
+  // Use a ref to snapshot the idx at listener-bind time, avoiding stale
+  // closures and async race conditions on rapid back-button presses.
+  const idxRef = useRef(window.history.state?.idx ?? 0);
 
   useEffect(() => {
     if (!isAndroid) return;
 
     const handlePopState = () => {
       const rrIdx = window.history.state?.idx ?? 0;
+      // Always keep ref current so subsequent presses have accurate baseline.
+      idxRef.current = rrIdx;
 
       // RR6 has history — let it handle this popstate naturally.
       if (rrIdx > 0) return;
