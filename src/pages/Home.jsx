@@ -40,6 +40,7 @@ export default function Home() {
   const [refreshing, setRefreshing] = useState(false);
   const touchStartY = useRef(null);
   const scrollRef = useRef(null);
+  const pullYRef = useRef(0);
 
   const handleTouchStart = (e) => {
     if (scrollRef.current?.scrollTop === 0) {
@@ -50,19 +51,21 @@ export default function Home() {
   const handleTouchMove = (e) => {
     if (touchStartY.current === null) return;
     const delta = e.touches[0].clientY - touchStartY.current;
-    if (delta > 0) setPullY(Math.min(delta, PULL_THRESHOLD * 1.5));
+    if (delta > 0) {
+      const clamped = Math.min(delta * 0.5, PULL_THRESHOLD * 1.5);
+      pullYRef.current = clamped;
+      setPullY(clamped);
+    }
   };
 
   const handleTouchEnd = () => {
-    if (pullY >= PULL_THRESHOLD && !refreshing) {
+    if (pullYRef.current >= PULL_THRESHOLD && !refreshing) {
       setRefreshing(true);
       setPrompt("");
-      setImageUrl(null);
       setLastPrompt("");
-      setTimeout(() => {
-        setRefreshing(false);
-      }, 600);
+      setTimeout(() => setRefreshing(false), 600);
     }
+    pullYRef.current = 0;
     setPullY(0);
     touchStartY.current = null;
   };

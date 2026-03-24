@@ -4,6 +4,7 @@ import { createPageUrl } from "@/utils";
 import { Wand2, Settings, Sun, Moon, ChevronLeft } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { AnimatePresence, motion } from "framer-motion";
+import { getStack, pushToStack, popFromStack, resetStack } from "@/lib/navStore";
 
 const ROOT_PAGES = {
   Home: createPageUrl("Home"),
@@ -51,13 +52,7 @@ export default function Layout({ children, currentPageName }) {
     localStorage.setItem("theme", dark ? "dark" : "light");
   }, [dark]);
 
-  // Independent history stack per tab
-  const tabStacks = useRef({
-    Home: [ROOT_PAGES.Home],
-    SettingsPage: [ROOT_PAGES.SettingsPage],
-  });
-
-  // Track navigation direction for animation: 1 = forward/right, -1 = back/left
+  // Navigation direction for animation
   const [direction, setDirection] = useState(1);
   const prevPageRef = useRef(currentPageName);
 
@@ -67,22 +62,11 @@ export default function Layout({ children, currentPageName }) {
     const currIdx = getTabIndex(currentPageName);
     if (currentPageName !== prev) {
       setDirection(currIdx >= prevIdx ? 1 : -1);
+      // Push new page into the tab's stack
+      const tab = TAB_ORDER.find((t) => t === currentPageName) ?? TAB_ORDER[0];
+      pushToStack(tab, location.pathname);
       prevPageRef.current = currentPageName;
     }
-  }, [currentPageName]);
-
-  // Hardware back button (Android)
-  useEffect(() => {
-    const handlePopState = () => {
-      const currentTab = currentPageName;
-      const stack = tabStacks.current[currentTab];
-      if (stack && stack.length > 1) {
-        stack.pop();
-        tabStacks.current[currentTab] = [...stack];
-      }
-    };
-    window.addEventListener("popstate", handlePopState);
-    return () => window.removeEventListener("popstate", handlePopState);
   }, [currentPageName]);
 
   const isRootPage =
@@ -91,13 +75,9 @@ export default function Layout({ children, currentPageName }) {
 
   const handleTabClick = (tabName) => {
     if (currentPageName === tabName) {
-      tabStacks.current[tabName] = [ROOT_PAGES[tabName]];
+      resetStack(tabName, ROOT_PAGES[tabName]);
       navigate(ROOT_PAGES[tabName], { replace: true });
     } else {
-      setDirection(getTabIndex(tabName) > getTabIndex(currentPageName) ? 1 : -1);
-      navigate(ROOT_PAGES[tabName]);
-    }
-  };
 
   const pageVariants = {
     initial: (dir) => ({ x: dir > 0 ? "100%" : "-100%", opacity: 0 }),
@@ -128,7 +108,7 @@ export default function Layout({ children, currentPageName }) {
           <button
             onClick={() => navigate(-1)}
             className="flex items-center justify-center min-w-[44px] min-h-[44px] -ml-2 text-violet-600 dark:text-violet-400 select-none"
-            aria-label="Back"
+            aria-label="Go back"
           >
             <ChevronLeft className="w-6 h-6" />
           </button>
@@ -143,7 +123,7 @@ export default function Layout({ children, currentPageName }) {
         <button
           onClick={() => setDark((d) => !d)}
           className="flex items-center justify-center min-w-[44px] min-h-[44px] text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors select-none"
-          aria-label="Toggle theme"
+          aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
         >
           {dark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
         </button>
@@ -177,12 +157,8 @@ export default function Layout({ children, currentPageName }) {
             <button
               key={name}
               onClick={() => handleTabClick(name)}
+              aria-label={label}
               className={`flex-1 flex flex-col items-center justify-center min-h-[56px] gap-0.5 transition-colors duration-200 select-none ${
-                active
-                  ? "text-violet-600 dark:text-violet-400"
-                  : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
-              }`}
-            >
               <Icon className="w-5 h-5" />
               <span className="text-[10px] font-medium">{label}</span>
             </button>
