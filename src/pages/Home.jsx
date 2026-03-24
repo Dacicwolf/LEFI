@@ -1,4 +1,5 @@
 import React, { useState, useEffect, lazy, Suspense } from "react";
+import { useOptimistic } from "@/hooks/useOptimistic";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
@@ -16,7 +17,8 @@ export default function Home() {
   const [prompt, setPrompt] = useState("");
   const [lastPrompt, setLastPrompt] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [credits, setCredits] = useState(null); // null = loading
+  const [realCredits, setRealCredits] = useState(null);
+  const [credits, runOptimisticCredits, setCredits] = useOptimistic(realCredits);
   const [settings, setSettings] = useState({
     orientation: "Portrait",
     format: "1:1",
@@ -27,13 +29,14 @@ export default function Home() {
   useEffect(() => {
     base44.auth.me().then(async (user) => {
       if (user.credits === undefined || user.credits === null) {
-        // First time: initialize credits
         await base44.auth.updateMe({ credits: DEFAULT_CREDITS });
+        setRealCredits(DEFAULT_CREDITS);
         setCredits(DEFAULT_CREDITS);
       } else {
+        setRealCredits(user.credits);
         setCredits(user.credits);
       }
-    }).catch(() => setCredits(DEFAULT_CREDITS));
+    }).catch(() => { setRealCredits(DEFAULT_CREDITS); setCredits(DEFAULT_CREDITS); });
   }, []);
 
   const handleRefresh = () => {
@@ -55,22 +58,21 @@ export default function Home() {
       return;
     }
     const newCredits = Math.max(0, credits - cost);
-    // Optimistic update
-    setCredits(newCredits);
     setIsLoading(true);
     setLastPrompt(prompt);
-    const result = await base44.integrations.Core.GenerateImage({ prompt });
-    if (!result?.url) {
-      // Rollback credits
-      setCredits(credits);
+    try {
+      await runOptimisticCredits(newCredits, async () => {
+        const result = await base44.integrations.Core.GenerateImage({ prompt });
+        if (!result?.url) throw new Error("No image returned");
+        await base44.auth.updateMe({ credits: newCredits });
+        setRealCredits(newCredits);
+        setIsLoading(false);
+        navigate(`/ImageResult?url=${encodeURIComponent(result.url)}&prompt=${encodeURIComponent(prompt)}`);
+      });
+    } catch {
       toast.error("Image generation failed. Credits restored.");
       setIsLoading(false);
-      return;
     }
-    // Save new credit balance to DB
-    await base44.auth.updateMe({ credits: newCredits });
-    setIsLoading(false);
-    navigate(`/ImageResult?url=${encodeURIComponent(result.url)}&prompt=${encodeURIComponent(prompt)}`);
   };
 
   return (
