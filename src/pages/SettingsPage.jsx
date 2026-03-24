@@ -40,8 +40,7 @@ export default function SettingsPage() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.05 }}
-          className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-slate-100 dark:border-slate-800 p-5 mb-6 flex items-center gap-4"
-          className="shadow-lg shadow-violet-500/10"
+          className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg shadow-violet-500/10 border border-slate-100 dark:border-slate-800 p-5 mb-6 flex items-center gap-4"
         >
           <img
             src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6995fb83472e84f2aaa7251a/81138c58f_ITonAI.png"
