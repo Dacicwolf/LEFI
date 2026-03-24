@@ -72,10 +72,20 @@ export default function Layout({ children, currentPageName }) {
   }, [isAndroid]);
 
   useEffect(() => {
+    // Respect prefers-reduced-motion to disable animations during theme switch for low-end devices
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!prefersReducedMotion) {
+      document.documentElement.style.transition = "background-color 0.15s ease";
+    }
     document.documentElement.classList.toggle("dark", dark);
+    // Cleanup transition style after switch
+    const timer = setTimeout(() => {
+      document.documentElement.style.transition = "";
+    }, 150);
     // Never persist theme preference on Android — system setting is the source of truth.
     if (!isAndroid) localStorage.setItem("theme", dark ? "dark" : "light");
-  }, [dark]);
+    return () => clearTimeout(timer);
+  }, [dark, isAndroid]);
 
   // Navigation direction for animation
   const [direction, setDirection] = useState(1);
