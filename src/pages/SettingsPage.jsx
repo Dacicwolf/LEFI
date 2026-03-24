@@ -33,13 +33,7 @@ export default function SettingsPage() {
       </div>
 
       <div className="relative z-10 max-w-lg mx-auto px-4 py-12">
-        <motion.h1
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-3xl font-bold text-slate-900 dark:text-white mb-8"
-        >
-          Settings
-        </motion.h1>
+
 
         {/* Buy Credits */}
         <motion.div
