@@ -13,6 +13,7 @@ const ImageResult = memo(function ImageResult() {
   const prompt = params.get("prompt");
   const [copied, setCopied] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
+  const liveRegionRef = useRef(null);
 
   const [scale, setScale] = useState(1);
   const MIN_SCALE = 1;
@@ -72,12 +73,34 @@ const ImageResult = memo(function ImageResult() {
     await navigator.clipboard.writeText(imageUrl);
     setCopied(true);
     toast.success("Link copied!");
+    if (liveRegionRef.current) {
+      liveRegionRef.current.textContent = "Image link copied to clipboard";
+    }
     setTimeout(() => setCopied(false), 2000);
   };
 
+  // Announce image load to screen readers
+  useEffect(() => {
+    if (imgLoaded && liveRegionRef.current) {
+      liveRegionRef.current.textContent = prompt 
+        ? `Image generated: ${prompt}` 
+        : "Image loaded";
+    }
+  }, [imgLoaded, prompt]);
+
   return (
     <div className="flex flex-col bg-gradient-to-b from-slate-50 via-white to-slate-50 dark:bg-none dark:bg-slate-950"
-      style={{ height: "100dvh" }}>
+      style={{ height: "100dvh" }}
+      role="region"
+      aria-label="Image generation result"
+    >
+      {/* Screen reader announcements */}
+      <div
+        ref={liveRegionRef}
+        className="sr-only"
+        aria-live="polite"
+        aria-atomic="true"
+      />
 
       {/* Background blobs */}
       <div className="fixed inset-0 pointer-events-none">
@@ -151,7 +174,14 @@ const ImageResult = memo(function ImageResult() {
               src={imageUrl}
               alt={prompt ? `AI-generated image: ${prompt}` : "AI-generated image"}
               aria-label={prompt ? `AI-generated image for prompt: ${prompt}` : "AI-generated image"}
-              onLoad={() => setImgLoaded(true)}
+              onLoad={() => {
+                setImgLoaded(true);
+                // Move focus to image for screen readers
+                setTimeout(() => {
+                  const img = document.querySelector('img[src="' + imageUrl + '"]');
+                  if (img) img.focus();
+                }, 100);
+              }}
               className="rounded-2xl shadow-2xl"
               style={{
                 transform: `scale(${scale})`,

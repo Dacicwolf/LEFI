@@ -1,4 +1,4 @@
-import React, { useState, useEffect, lazy, Suspense } from "react";
+import React, { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { useOptimistic } from "@/hooks/useOptimistic";
 import FadeImage from "@/components/FadeImage";
 import { useNavigate } from "react-router-dom";
@@ -28,6 +28,7 @@ export default function Home() {
     format: "1:1",
     resolution: "1024",
   });
+  const liveRegionRef = useRef(null);
 
   // Load credits from DB on mount
   useEffect(() => {
@@ -64,6 +65,10 @@ export default function Home() {
     const newCredits = Math.max(0, credits - cost);
     setIsLoading(true);
     setLastPrompt(prompt);
+    // Announce generation start to screen readers
+    if (liveRegionRef.current) {
+      liveRegionRef.current.textContent = `Starting image generation: ${prompt}`;
+    }
     try {
       await runOptimisticCredits(newCredits, async () => {
         const result = await base44.integrations.Core.GenerateImage({ prompt });
@@ -71,17 +76,34 @@ export default function Home() {
         await base44.auth.updateMe({ credits: newCredits });
         setRealCredits(newCredits);
         setIsLoading(false);
+        // Announce success before navigation
+        if (liveRegionRef.current) {
+          liveRegionRef.current.textContent = "Image generated successfully. Navigating to result.";
+        }
         navigate(`/ImageResult?url=${encodeURIComponent(result.url)}&prompt=${encodeURIComponent(prompt)}`);
       });
     } catch {
       toast.error("Image generation failed. Credits restored.");
       setIsLoading(false);
+      if (liveRegionRef.current) {
+        liveRegionRef.current.textContent = "Image generation failed. Credits restored.";
+      }
     }
   };
 
   return (
     <PullToRefreshWrapper onRefresh={handleRefresh}>
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 dark:bg-none dark:bg-slate-950">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 dark:bg-none dark:bg-slate-950"
+      role="region"
+      aria-label="Image generation"
+    >
+      {/* Screen reader announcements */}
+      <div
+        ref={liveRegionRef}
+        className="sr-only"
+        aria-live="polite"
+        aria-atomic="true"
+      />
       {/* Background blobs */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-violet-100/40 dark:bg-violet-900/10 rounded-full blur-3xl" />
