@@ -74,7 +74,8 @@ export default function SettingsPage() {
                 href={plan === 'bronze' ? `https://buy.stripe.com/cNi7sM0gq2zM7n9bwB3wQ02?client_reference_id=${user?.email}&success_url=${encodeURIComponent(window.location.origin + '/payment-success?plan=bronze')}` : plan === 'silver' ? `https://buy.stripe.com/9B614o6EOfmy6j51W13wQ01?client_reference_id=${user?.email}&success_url=${encodeURIComponent(window.location.origin + '/payment-success?plan=silver')}` : `https://buy.stripe.com/9B63cw7IS2zM5f1eIN3wQ00?client_reference_id=${user?.email}&success_url=${encodeURIComponent(window.location.origin + '/payment-success?plan=gold')}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`bg-white dark:bg-slate-900 rounded-2xl border ${border} p-4 flex flex-col items-center gap-2 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:scale-105 active:scale-95 transition-all duration-200`}
+                aria-label={`Buy ${name} plan – ${credits} credits for ${price}`}
+                className={`bg-white dark:bg-slate-900 rounded-2xl border ${border} p-4 min-h-[44px] flex flex-col items-center gap-2 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:scale-105 active:scale-95 transition-all duration-200`}
               >
                 <img src={img} alt={name} className="w-12 h-12 rounded-xl object-contain" />
                 <p className="font-semibold text-slate-900 dark:text-white text-sm">{name}</p>
