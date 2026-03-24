@@ -1,22 +1,25 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { canGoBack } from "@/lib/navStore";
+import { canGoBack, popFromStack } from "@/lib/navStore";
 
 const isAndroid = /android/i.test(navigator.userAgent);
 
 /**
- * useAndroidBack — unified hook for Android hardware back button support.
+ * useAndroidBack — Android hardware back button support.
  *
- * Strategy:
- *  1. On Android, keep a sentinel history entry at the top of the browser stack
- *     so the hardware back button fires `popstate` instead of exiting the WebView.
- *  2. When `popstate` fires and our navStore stack has entries, we consume the event,
- *     navigate(-1) via React Router, and immediately re-push the sentinel so the
- *     next back press is also intercepted.
- *  3. When the navStore stack is exhausted, we do NOT re-push the sentinel —
- *     the next hardware back press exits the WebView naturally (correct behaviour).
+ * Strategy (no sentinel, fully RR6-compatible):
  *
- * On non-Android platforms this hook is a no-op, so browser navigation is unaffected.
+ * React Router 6 sets `window.history.state.idx` on every navigation.
+ * When idx > 0, RR6 owns the history stack and its own popstate listener
+ * will fire `navigate(-1)` — we do nothing.
+ *
+ * When idx === 0 (RR6 thinks we're at the root) but our navStore still has
+ * entries (e.g. the user deep-linked in), we intercept popstate and
+ * navigate to the previous navStore path directly, keeping RR6 in sync.
+ *
+ * When both are exhausted the event goes unhandled and the WebView exits — correct.
+ *
+ * Non-Android: complete no-op.
  */
 export function useAndroidBack(currentTab) {
   const navigate = useNavigate();
@@ -24,21 +27,21 @@ export function useAndroidBack(currentTab) {
   useEffect(() => {
     if (!isAndroid) return;
 
-    // Push the sentinel so the hardware back button has something to pop.
-    window.history.pushState({ sentinel: true }, "");
+    const handlePopState = () => {
+      const rrIdx = window.history.state?.idx ?? 0;
 
-    const handlePopState = (e) => {
+      // RR6 has history — let it handle this popstate naturally.
+      if (rrIdx > 0) return;
+
+      // RR6 is at root but our stack has entries — navigate manually.
       if (canGoBack(currentTab)) {
-        // Consume this pop: navigate back inside the app and re-arm the sentinel.
-        navigate(-1);
-        window.history.pushState({ sentinel: true }, "");
+        const prev = popFromStack(currentTab);
+        if (prev) navigate(prev, { replace: true });
       }
-      // If stack is empty — don't re-push, hardware back will close WebView.
+      // Both exhausted — WebView exits naturally. No action needed.
     };
 
     window.addEventListener("popstate", handlePopState);
-    return () => {
-      window.removeEventListener("popstate", handlePopState);
-    };
+    return () => window.removeEventListener("popstate", handlePopState);
   }, [currentTab, navigate]);
 }

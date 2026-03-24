@@ -9,8 +9,10 @@
     <script>
       (function() {
         try {
-          var stored = localStorage.getItem('theme');
           var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          var isAndroid = /android/i.test(navigator.userAgent);
+          // On Android WebView always honour system preference; ignore stored setting.
+          var stored = isAndroid ? null : localStorage.getItem('theme');
           if (stored === 'dark' || (!stored && prefersDark)) {
             document.documentElement.classList.add('dark');
           }

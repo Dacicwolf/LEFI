@@ -43,7 +43,8 @@ export default function Layout({ children, currentPageName }) {
 
   const isAndroid = /android/i.test(navigator.userAgent);
 
-  // On Android: always follow system preference. On other platforms: allow manual toggle.
+  // On Android: always follow system preference (WebView context — ignore localStorage).
+  // On other platforms: honour saved user preference, then fall back to system.
   const [dark, setDark] = useState(() => {
     if (isAndroid) return window.matchMedia("(prefers-color-scheme: dark)").matches;
     const saved = localStorage.getItem("theme");
@@ -61,7 +62,8 @@ export default function Layout({ children, currentPageName }) {
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", dark);
-    localStorage.setItem("theme", dark ? "dark" : "light");
+    // Never persist theme preference on Android — system setting is the source of truth.
+    if (!isAndroid) localStorage.setItem("theme", dark ? "dark" : "light");
   }, [dark]);
 
   // Navigation direction for animation
@@ -111,6 +113,18 @@ export default function Layout({ children, currentPageName }) {
   const pageTitle = PAGE_TITLES[currentPageName] || currentPageName || "ImagineAI";
 
   // Android back button is fully handled by useAndroidBack hook above.
+
+  // Preload key assets on mount (logo + tier images) for faster subsequent renders.
+  useEffect(() => {
+    const urls = [
+      "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6995fb83472e84f2aaa7251a/77a5e07ff_lefi_logo.png",
+      "https://media.base44.com/images/public/6995fb83472e84f2aaa7251a/88cf9d6c2_lefi_logo_bronze.png",
+      "https://media.base44.com/images/public/6995fb83472e84f2aaa7251a/451aba21c_lefi_logo_silver.png",
+      "https://media.base44.com/images/public/6995fb83472e84f2aaa7251a/91cafad47_lefi_logo_gold.png",
+      "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6995fb83472e84f2aaa7251a/81138c58f_ITonAI.png",
+    ];
+    urls.forEach((url) => { const img = new Image(); img.src = url; });
+  }, []);
 
   const handleTabClick = (tabName) => {
     if (currentPageName === tabName) {
