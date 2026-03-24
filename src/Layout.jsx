@@ -159,6 +159,11 @@ export default function Layout({ children, currentPageName }) {
               onClick={() => handleTabClick(name)}
               aria-label={label}
               className={`flex-1 flex flex-col items-center justify-center min-h-[56px] gap-0.5 transition-colors duration-200 select-none ${
+                active
+                  ? "text-violet-600 dark:text-violet-400"
+                  : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
+              }`}
+            >
               <Icon className="w-5 h-5" />
               <span className="text-[10px] font-medium">{label}</span>
             </button>
