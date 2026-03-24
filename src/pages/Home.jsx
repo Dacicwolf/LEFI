@@ -6,7 +6,10 @@ import { motion } from "framer-motion";
 import PullToRefresh from "react-simple-pull-to-refresh";
 import { toast } from "sonner";
 import PromptInput from "@/components/PromptInput";
-import { getCost } from "@/components/ImageSettings";
+
+// Inlined to avoid eagerly loading the lazy ImageSettings chunk
+const RESOLUTION_COSTS = { "512": 2, "1024": 4 };
+const getCost = (resolution) => RESOLUTION_COSTS[resolution] ?? 0;
 
 const ImageSettings = lazy(() => import("@/components/ImageSettings"));
 

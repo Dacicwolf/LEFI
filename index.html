@@ -5,7 +5,19 @@
     <link rel="icon" type="image/svg+xml" href="https://base44.com/logo_v2.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <link rel="manifest" href="/manifest.json" />
-    <title>Base44 APP</title>
+    <!-- Blocking theme script: apply dark class before first paint to avoid FOUC -->
+    <script>
+      (function() {
+        try {
+          var stored = localStorage.getItem('theme');
+          var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          if (stored === 'dark' || (!stored && prefersDark)) {
+            document.documentElement.classList.add('dark');
+          }
+        } catch(e) {}
+      })();
+    </script>
+    <title>Lefi - AI Image Generator</title>
   </head>
   <body>
     <div id="root"></div>

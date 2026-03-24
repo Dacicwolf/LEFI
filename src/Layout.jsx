@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { createPageUrl } from "@/utils";
 import { Wand2, Settings, Sun, Moon, ChevronLeft } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { AnimatePresence, motion } from "framer-motion";
@@ -8,8 +7,8 @@ import { pushToStack, popFromStack, resetStack, canGoBack, saveScroll, getScroll
 // Icon is used via the `tabs` array below — no extra import needed.
 
 const ROOT_PAGES = {
-  Home: createPageUrl("Home"),
-  SettingsPage: createPageUrl("SettingsPage"),
+  Home: "/",
+  SettingsPage: "/SettingsPage",
 };
 
 const tabs = [
@@ -103,30 +102,21 @@ export default function Layout({ children, currentPageName }) {
   }, [currentPageName]);
 
   const activeTab = TAB_ORDER.find((t) => t === currentPageName) ?? TAB_ORDER[0];
-  // Root if stack has only 1 entry (we're at the tab root)
-  const isRootPage = !canGoBack(activeTab);
+  // Use RR6-managed history index: idx === 0 means we're at the stack root.
+  const isRootPage = !(window.history.state?.idx > 0);
   const pageTitle = PAGE_TITLES[currentPageName] || currentPageName || "ImagineAI";
 
-  // Android hardware back button via WebView fires 'popstate'.
-  // Push a sentinel entry whenever we have back history, so Android intercepts
-  // the back press instead of exiting the app.
+  // Android hardware back button fires 'popstate'.
+  // Delegate entirely to React Router's history — navigate(-1) is sufficient.
   useEffect(() => {
-    if (canGoBack(activeTab)) {
-      window.history.pushState({ sentinel: true }, "");
-    }
-  }, [location.pathname]);
-
-  useEffect(() => {
-    const handlePopState = (e) => {
-      if (e.state?.sentinel) return; // Browser managed this
-      const prev = popFromStack(activeTab);
-      if (prev) {
-        navigate(prev, { replace: true });
-      }
+    const handlePopState = () => {
+      // RR6 manages the history stack; no manual sentinel needed.
+      // This only fires on hardware back (Android WebView) when RR6 hasn't
+      // already handled the event via its own listener.
     };
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
-  }, [activeTab, navigate]);
+  }, []);
 
   const handleTabClick = (tabName) => {
     if (currentPageName === tabName) {
@@ -165,10 +155,7 @@ export default function Layout({ children, currentPageName }) {
       <header className="sticky top-0 z-40 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 flex items-center h-14 gap-3" style={{ paddingLeft: 'max(1rem, env(safe-area-inset-left))', paddingRight: 'max(1rem, env(safe-area-inset-right))' }}>
         {!isRootPage && (
           <button
-            onClick={() => {
-              const prev = popFromStack(activeTab);
-              navigate(prev ?? -1, { replace: !!prev });
-            }}
+            onClick={() => navigate(-1)}
             className="flex items-center justify-center min-w-[44px] min-h-[44px] -ml-2 text-violet-600 dark:text-violet-400 select-none"
             aria-label="Go back"
           >
