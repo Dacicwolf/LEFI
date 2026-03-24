@@ -66,7 +66,7 @@ export default function ImageSettings({ settings, setSettings, credits }) {
       <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 px-5 py-4 flex flex-wrap gap-5 items-center justify-between">
         {/* Resolution */}
         <div className="flex flex-col gap-1.5 items-center">
-          <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Resolution</span>
+          <span className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Resolution</span>
           <div className="flex gap-2">
             {["512", "1024"].map((r) => (
               <Chip key={r} active={resolution === r} onClick={() => toggle("resolution", r)}>
@@ -78,7 +78,7 @@ export default function ImageSettings({ settings, setSettings, credits }) {
 
         {/* Cost */}
         <div className="flex flex-col gap-1.5 items-center">
-          <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Cost</span>
+          <span className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Cost</span>
           <div className="flex items-center gap-1.5 bg-violet-50 dark:bg-violet-900/20 border border-violet-100 dark:border-violet-800 rounded-xl px-3 py-1.5">
             <span className="text-sm font-bold text-violet-700 dark:text-violet-300">{cost}</span>
             <span className="text-sm">🪙</span>
@@ -88,7 +88,7 @@ export default function ImageSettings({ settings, setSettings, credits }) {
 
         {/* Credits */}
         <div className="flex flex-col gap-1.5 items-center">
-          <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Credits</span>
+          <span className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Credits</span>
           {credits === null ? (
             <div className="flex items-center gap-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-1.5">
               <span className="text-sm text-slate-400">Loading...</span>
