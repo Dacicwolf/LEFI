@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 const ADMIN_EMAIL = "theodorfl@gmail.com";
-const MAX_CREDITS = 50;
+const MAX_CREDITS = 40;
 
 export default function AdminPanel() {
   const navigate = useNavigate();
