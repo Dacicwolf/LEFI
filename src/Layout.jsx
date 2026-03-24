@@ -78,6 +78,9 @@ export default function Layout({ children, currentPageName }) {
       resetStack(tabName, ROOT_PAGES[tabName]);
       navigate(ROOT_PAGES[tabName], { replace: true });
     } else {
+      navigate(ROOT_PAGES[tabName]);
+    }
+  };
 
   const pageVariants = {
     initial: (dir) => ({ x: dir > 0 ? "100%" : "-100%", opacity: 0 }),
