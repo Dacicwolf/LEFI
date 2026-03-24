@@ -48,7 +48,7 @@ export default function ImageSettings({ settings, setSettings, credits }) {
       onClick={onClick}
       aria-label={ariaLabel}
       aria-pressed={active}
-      className={`px-3 min-h-[44px] rounded-lg text-sm font-medium transition-all duration-200 select-none ${
+      className={`px-3 min-h-[44px] min-w-[44px] rounded-lg text-sm font-medium transition-all duration-200 select-none ${
         active
           ? "bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-md shadow-violet-500/20"
           : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"

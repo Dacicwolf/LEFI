@@ -123,8 +123,10 @@ export default function Layout({ children, currentPageName }) {
 
   // Unified Android hardware back button support
   useAndroidBack(activeTab);
-  // Reactive: derived from rrIdx state, updated in the location effect above.
-  const isRootPage = rrIdx <= 0;
+  // Show back button if RR6 has history OR if we're on a child page (deep-linked).
+  // Non-tab pages (e.g. ImageResult) are always children, even when rrIdx === 0.
+  const isTabPage = TAB_ORDER.includes(currentPageName);
+  const isRootPage = rrIdx <= 0 && isTabPage;
   const pageTitle = PAGE_TITLES[currentPageName] || currentPageName || "ImagineAI";
 
   // Android back button is fully handled by useAndroidBack hook above.

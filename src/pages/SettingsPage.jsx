@@ -4,11 +4,21 @@ import { base44 } from "@/api/base44Client";
 import FadeImage from "@/components/FadeImage";
 import { motion } from "framer-motion";
 import { Trash2, LogOut, Loader2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export default function SettingsPage() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
-  const [confirmStep, setConfirmStep] = useState(0); // 0 = idle, 1 = first tap, 2 = confirmed
   const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
@@ -16,18 +26,9 @@ export default function SettingsPage() {
   }, []);
 
   const handleDeleteAccount = async () => {
-    if (confirmStep === 0) {
-      setConfirmStep(1);
-      // Auto-reset after 4 seconds if user doesn't confirm
-      setTimeout(() => setConfirmStep((s) => (s === 1 ? 0 : s)), 4000);
-      return;
-    }
-    if (confirmStep === 1) {
-      setConfirmStep(2);
-      setDeleting(true);
-      await base44.auth.updateMe({ deleted: true });
-      base44.auth.logout();
-    }
+    setDeleting(true);
+    await base44.auth.updateMe({ deleted: true });
+    base44.auth.logout();
   };
 
   return (
@@ -115,34 +116,43 @@ export default function SettingsPage() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-red-100 dark:border-red-900/40 overflow-hidden hover:shadow-xl hover:-translate-y-1 hover:scale-105 active:scale-95 transition-all duration-200"
+          className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-red-100 dark:border-red-900/40 overflow-hidden"
         >
-          <button
-            onClick={handleDeleteAccount}
-            disabled={deleting}
-            aria-label={confirmStep === 1 ? "Confirm account deletion — this is irreversible" : "Delete your account permanently"}
-            className={`w-full flex items-center gap-3 px-5 py-4 min-h-[56px] transition-colors duration-150 select-none disabled:opacity-60 ${
-              confirmStep === 1
-                ? "text-white bg-red-500 hover:bg-red-600"
-                : "text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40"
-            }`}
-          >
-            {deleting ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
-            ) : (
-              <Trash2 className="w-5 h-5" />
-            )}
-            <span className="font-medium">
-              {deleting ? "Processing..." : confirmStep === 1 ? "Tap again to confirm — this is irreversible" : "Delete Account"}
-            </span>
-          </button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <button
+                disabled={deleting}
+                aria-label="Delete your account permanently"
+                className="w-full flex items-center gap-3 px-5 py-4 min-h-[56px] text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors duration-150 select-none disabled:opacity-60"
+              >
+                {deleting ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <Trash2 className="w-5 h-5" />
+                )}
+                <span className="font-medium">{deleting ? "Processing..." : "Delete Account"}</span>
+              </button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle className="text-red-600">Delete Account?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action is <strong>permanent and irreversible</strong>. All your data, including credits and generated images, will be lost.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleDeleteAccount}
+                  className="bg-red-600 hover:bg-red-700 text-white focus:ring-red-500"
+                  aria-label="Confirm permanent account deletion"
+                >
+                  Yes, Delete My Account
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </motion.div>
-
-        {confirmStep === 1 && !deleting && (
-          <p className="text-xs text-red-400 text-center mt-3 animate-pulse">
-            Auto-cancels in 4 seconds. Tap again to permanently delete your account.
-          </p>
-        )}
       </div>
     </div>
   );
