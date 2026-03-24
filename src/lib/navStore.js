@@ -18,6 +18,8 @@ export function pushToStack(tab, path) {
   // Avoid duplicate consecutive entries
   if (s.stack[s.stack.length - 1] !== path) {
     s.stack = [...s.stack, path];
+    // Keep browser History API in sync so popstate fires on native back
+    window.history.pushState({ tab, path }, "", path);
   }
 }
 

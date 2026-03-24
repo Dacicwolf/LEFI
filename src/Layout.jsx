@@ -97,11 +97,13 @@ export default function Layout({ children, currentPageName }) {
     location.pathname === "/";
   const pageTitle = PAGE_TITLES[currentPageName] || currentPageName || "ImagineAI";
 
-  // Hardware back button (Android) — use our stack, not browser history
+  // Hardware back button (Android) + browser back — single source of truth via popstate
   useEffect(() => {
     const handlePopState = () => {
       const prev = popFromStack(activeTab);
-      if (prev) navigate(prev, { replace: true });
+      if (prev) {
+        navigate(prev, { replace: true });
+      }
     };
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
@@ -143,10 +145,7 @@ export default function Layout({ children, currentPageName }) {
       <header className="sticky top-0 z-40 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 flex items-center px-4 h-14 gap-3">
         {!isRootPage && (
           <button
-            onClick={() => {
-              const prev = popFromStack(activeTab);
-              if (prev) navigate(prev, { replace: true });
-            }}
+            onClick={() => window.history.back()}
             className="flex items-center justify-center min-w-[44px] min-h-[44px] -ml-2 text-violet-600 dark:text-violet-400 select-none"
             aria-label="Go back"
           >
