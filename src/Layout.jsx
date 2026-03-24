@@ -40,14 +40,23 @@ export default function Layout({ children, currentPageName }) {
     });
   }, []);
 
-  // Dark mode — on Android always follow system preference
+  const isAndroid = /android/i.test(navigator.userAgent);
+
+  // On Android: always follow system preference. On other platforms: allow manual toggle.
   const [dark, setDark] = useState(() => {
-    const isAndroid = /android/i.test(navigator.userAgent);
     if (isAndroid) return window.matchMedia("(prefers-color-scheme: dark)").matches;
     const saved = localStorage.getItem("theme");
-    if (saved) return saved === "dark";
-    return window.matchMedia("(prefers-color-scheme: dark)").matches;
+    return saved ? saved === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
   });
+
+  // On Android, keep in sync with system preference changes
+  useEffect(() => {
+    if (!isAndroid) return;
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    const handler = (e) => setDark(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, [isAndroid]);
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", dark);
@@ -93,10 +102,8 @@ export default function Layout({ children, currentPageName }) {
   }, [currentPageName]);
 
   const activeTab = TAB_ORDER.find((t) => t === currentPageName) ?? TAB_ORDER[0];
-  const isRootPage =
-    !canGoBack(activeTab) ||
-    Object.values(ROOT_PAGES).includes(location.pathname) ||
-    location.pathname === "/";
+  // Root if stack has only 1 entry (we're at the tab root)
+  const isRootPage = !canGoBack(activeTab);
   const pageTitle = PAGE_TITLES[currentPageName] || currentPageName || "ImagineAI";
 
   // React Router handles browser history — no popstate listener needed.
