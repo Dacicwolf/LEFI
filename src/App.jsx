@@ -7,9 +7,17 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
-import ImageResult from './pages/ImageResult';
-import AdminPanel from './pages/AdminPanel';
-import PaymentSuccess from './pages/PaymentSuccess';
+import React, { lazy, Suspense } from 'react';
+
+const ImageResult = lazy(() => import('./pages/ImageResult'));
+const AdminPanel = lazy(() => import('./pages/AdminPanel'));
+const PaymentSuccess = lazy(() => import('./pages/PaymentSuccess'));
+
+const PageLoader = () => (
+  <div className="fixed inset-0 flex items-center justify-center">
+    <div className="w-8 h-8 border-4 border-slate-200 border-t-violet-600 rounded-full animate-spin" />
+  </div>
+);
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
