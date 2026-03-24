@@ -20,6 +20,7 @@ export default function SettingsPage() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [deleting, setDeleting] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
@@ -118,7 +119,7 @@ export default function SettingsPage() {
           transition={{ delay: 0.2 }}
           className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-red-100 dark:border-red-900/40 overflow-hidden"
         >
-          <AlertDialog>
+          <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
             <AlertDialogTrigger asChild>
               <button
                 disabled={deleting}
@@ -143,7 +144,10 @@ export default function SettingsPage() {
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                 <AlertDialogAction
-                  onClick={handleDeleteAccount}
+                  onClick={() => {
+                    handleDeleteAccount();
+                    setDeleteDialogOpen(false);
+                  }}
                   className="bg-red-600 hover:bg-red-700 text-white focus:ring-red-500"
                   aria-label="Confirm permanent account deletion"
                 >
