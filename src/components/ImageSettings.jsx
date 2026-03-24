@@ -1,5 +1,4 @@
 import React from "react";
-import { motion } from "framer-motion";
 
 const COSTS = {
   "512": 2,
@@ -59,12 +58,7 @@ export default function ImageSettings({ settings, setSettings, credits }) {
   );
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: 0.1 }}
-      className="w-full max-w-2xl mx-auto mt-3 px-1"
-    >
+    <div className="w-full max-w-2xl mx-auto mt-3 px-1 animate-in fade-in slide-in-from-bottom-2 duration-400">
       <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 px-5 py-4 flex flex-wrap gap-5 items-center justify-between">
         {/* Resolution */}
         <div className="flex flex-col gap-1.5 items-center">
@@ -105,6 +99,6 @@ export default function ImageSettings({ settings, setSettings, credits }) {
           )}
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }
