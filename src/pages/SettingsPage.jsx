@@ -101,6 +101,7 @@ export default function SettingsPage() {
         >
           <button
             onClick={() => base44.auth.logout()}
+            aria-label="Log out of your account"
             className="w-full flex items-center gap-3 px-5 py-4 min-h-[56px] text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors duration-150 select-none"
           >
             <LogOut className="w-5 h-5 text-slate-400" />
@@ -118,6 +119,7 @@ export default function SettingsPage() {
           <button
             onClick={handleDeleteAccount}
             disabled={deleting}
+            aria-label={confirmStep === 1 ? "Confirm account deletion — this is irreversible" : "Delete your account permanently"}
             className={`w-full flex items-center gap-3 px-5 py-4 min-h-[56px] transition-colors duration-150 select-none disabled:opacity-60 ${
               confirmStep === 1
                 ? "text-white bg-red-500 hover:bg-red-600"

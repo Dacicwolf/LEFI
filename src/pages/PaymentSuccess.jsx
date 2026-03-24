@@ -69,7 +69,7 @@ export default function PaymentSuccess() {
         {status === "error" && (
           <>
             <p className="text-red-500 font-medium">Something went wrong. Please contact support.</p>
-            <Button variant="outline" onClick={() => navigate("/")} className="w-full">
+            <Button variant="outline" onClick={() => navigate("/")} aria-label="Go back to home page" className="w-full min-h-[44px]">
               Go Home
             </Button>
           </>
