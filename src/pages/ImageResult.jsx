@@ -137,6 +137,7 @@ export default function ImageResult() {
               src={imageUrl}
               alt={prompt}
               onLoad={() => setImgLoaded(true)}
+              className="rounded-2xl shadow-2xl"
               style={{
                 transform: `scale(${scale})`,
                 transformOrigin: "center center",
@@ -146,8 +147,6 @@ export default function ImageResult() {
                 width: "auto",
                 height: "auto",
                 objectFit: "contain",
-                borderRadius: "1rem",
-                boxShadow: "0 20px 60px rgba(0,0,0,0.15)",
               }}
             />
           </motion.div>

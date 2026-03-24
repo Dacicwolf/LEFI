@@ -92,9 +92,7 @@ export default function ImageSettings({ settings, setSettings, credits }) {
         <div className="flex flex-col gap-1.5 items-center">
           <span className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Credits</span>
           {credits === null ? (
-            <div className="flex items-center gap-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-1.5">
-              <span className="text-sm text-slate-400">Loading...</span>
-            </div>
+            <div className="h-8 w-20 rounded-xl bg-slate-200 dark:bg-slate-700 animate-pulse" />
           ) : credits === 0 ? (
             <div className="flex items-center gap-1.5 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl px-3 py-1.5">
               <span className="text-sm font-semibold text-red-500 dark:text-red-400">No credits left</span>

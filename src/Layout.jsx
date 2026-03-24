@@ -5,6 +5,7 @@ import { Wand2, Settings, Sun, Moon, ChevronLeft } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { AnimatePresence, motion } from "framer-motion";
 import { pushToStack, popFromStack, resetStack, canGoBack, saveScroll, getScroll } from "@/lib/navStore";
+// Icon is used via the `tabs` array below — no extra import needed.
 
 const ROOT_PAGES = {
   Home: createPageUrl("Home"),
@@ -106,7 +107,26 @@ export default function Layout({ children, currentPageName }) {
   const isRootPage = !canGoBack(activeTab);
   const pageTitle = PAGE_TITLES[currentPageName] || currentPageName || "ImagineAI";
 
-  // React Router handles browser history — no popstate listener needed.
+  // Android hardware back button via WebView fires 'popstate'.
+  // Push a sentinel entry whenever we have back history, so Android intercepts
+  // the back press instead of exiting the app.
+  useEffect(() => {
+    if (canGoBack(activeTab)) {
+      window.history.pushState({ sentinel: true }, "");
+    }
+  }, [location.pathname]);
+
+  useEffect(() => {
+    const handlePopState = (e) => {
+      if (e.state?.sentinel) return; // Browser managed this
+      const prev = popFromStack(activeTab);
+      if (prev) {
+        navigate(prev, { replace: true });
+      }
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [activeTab, navigate]);
 
   const handleTabClick = (tabName) => {
     if (currentPageName === tabName) {

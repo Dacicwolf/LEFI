@@ -110,7 +110,7 @@ export default function Home() {
         />
 
         {/* Image Settings */}
-        <Suspense fallback={<div className="w-full max-w-2xl mx-auto mt-3 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800 animate-pulse" />}>
+        <Suspense fallback={<div className="w-full max-w-2xl mx-auto mt-3 h-[76px] rounded-2xl bg-slate-100 dark:bg-slate-800 animate-pulse" />}>
           <ImageSettings settings={settings} setSettings={setSettings} credits={credits} />
         </Suspense>
 
