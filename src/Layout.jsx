@@ -4,6 +4,7 @@ import { Wand2, Settings, Sun, Moon, ChevronLeft } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { AnimatePresence, motion } from "framer-motion";
 import { pushToStack, popFromStack, resetStack, canGoBack, saveScroll, getScroll } from "@/lib/navStore";
+import { useAndroidBack } from "@/hooks/useAndroidBack";
 // Icon is used via the `tabs` array below — no extra import needed.
 
 const ROOT_PAGES = {
@@ -101,22 +102,15 @@ export default function Layout({ children, currentPageName }) {
     }
   }, [currentPageName]);
 
+  // Unified Android hardware back button support
+  useAndroidBack(activeTab);
+
   const activeTab = TAB_ORDER.find((t) => t === currentPageName) ?? TAB_ORDER[0];
   // Use RR6-managed history index: idx === 0 means we're at the stack root.
   const isRootPage = !(window.history.state?.idx > 0);
   const pageTitle = PAGE_TITLES[currentPageName] || currentPageName || "ImagineAI";
 
-  // Android hardware back button fires 'popstate'.
-  // Delegate entirely to React Router's history — navigate(-1) is sufficient.
-  useEffect(() => {
-    const handlePopState = () => {
-      // RR6 manages the history stack; no manual sentinel needed.
-      // This only fires on hardware back (Android WebView) when RR6 hasn't
-      // already handled the event via its own listener.
-    };
-    window.addEventListener("popstate", handlePopState);
-    return () => window.removeEventListener("popstate", handlePopState);
-  }, []);
+  // Android back button is fully handled by useAndroidBack hook above.
 
   const handleTabClick = (tabName) => {
     if (currentPageName === tabName) {
