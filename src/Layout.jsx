@@ -102,10 +102,10 @@ export default function Layout({ children, currentPageName }) {
     }
   }, [currentPageName]);
 
+  const activeTab = TAB_ORDER.find((t) => t === currentPageName) ?? TAB_ORDER[0];
+
   // Unified Android hardware back button support
   useAndroidBack(activeTab);
-
-  const activeTab = TAB_ORDER.find((t) => t === currentPageName) ?? TAB_ORDER[0];
   // Use RR6-managed history index: idx === 0 means we're at the stack root.
   const isRootPage = !(window.history.state?.idx > 0);
   const pageTitle = PAGE_TITLES[currentPageName] || currentPageName || "ImagineAI";
