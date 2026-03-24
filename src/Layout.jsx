@@ -131,23 +131,29 @@ export default function Layout({ children, currentPageName }) {
 
   // Android back button is fully handled by useAndroidBack hook above.
 
-  // Preload key assets after idle to avoid blocking the initial render.
+  // Delegate asset preloading to service worker for intelligent caching
   useEffect(() => {
-    const urls = [
-      "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6995fb83472e84f2aaa7251a/77a5e07ff_lefi_logo.png",
-      "https://media.base44.com/images/public/6995fb83472e84f2aaa7251a/88cf9d6c2_lefi_logo_bronze.png",
-      "https://media.base44.com/images/public/6995fb83472e84f2aaa7251a/451aba21c_lefi_logo_silver.png",
-      "https://media.base44.com/images/public/6995fb83472e84f2aaa7251a/91cafad47_lefi_logo_gold.png",
-      "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6995fb83472e84f2aaa7251a/81138c58f_ITonAI.png",
-    ];
-    const preload = () => urls.forEach((url) => { const img = new Image(); img.src = url; });
-    if (typeof requestIdleCallback !== "undefined") {
-      const id = requestIdleCallback(preload);
-      return () => cancelIdleCallback(id);
-    } else {
-      const t = setTimeout(preload, 200);
-      return () => clearTimeout(t);
-    }
+    const preloadAssets = () => {
+      const urls = [
+        "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6995fb83472e84f2aaa7251a/77a5e07ff_lefi_logo.png",
+        "https://media.base44.com/images/public/6995fb83472e84f2aaa7251a/88cf9d6c2_lefi_logo_bronze.png",
+        "https://media.base44.com/images/public/6995fb83472e84f2aaa7251a/451aba21c_lefi_logo_silver.png",
+        "https://media.base44.com/images/public/6995fb83472e84f2aaa7251a/91cafad47_lefi_logo_gold.png",
+        "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6995fb83472e84f2aaa7251a/81138c58f_ITonAI.png",
+      ];
+      // Delegate to service worker for caching if available
+      if (navigator.serviceWorker?.controller) {
+        navigator.serviceWorker.controller.postMessage({
+          type: "PRELOAD_ASSETS",
+          urls,
+        });
+      } else {
+        // Fallback: preload locally if service worker unavailable
+        urls.forEach((url) => { const img = new Image(); img.src = url; });
+      }
+    };
+    const t = setTimeout(preloadAssets, 400);
+    return () => clearTimeout(t);
   }, []);
 
   const handleTabClick = (tabName) => {
