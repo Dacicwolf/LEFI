@@ -1,13 +1,12 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { motion, AnimatePresence } from "framer-motion";
-import { Wand2, RefreshCw } from "lucide-react";
+import { motion } from "framer-motion";
+import PullToRefresh from "react-simple-pull-to-refresh";
 import { toast } from "sonner";
 import PromptInput from "@/components/PromptInput";
 import ImageSettings, { getCost } from "@/components/ImageSettings";
 
-const PULL_THRESHOLD = 70;
 const DEFAULT_CREDITS = 40;
 
 export default function Home() {
@@ -35,39 +34,10 @@ export default function Home() {
     }).catch(() => setCredits(DEFAULT_CREDITS));
   }, []);
 
-  // Pull-to-refresh
-  const [pullY, setPullY] = useState(0);
-  const [refreshing, setRefreshing] = useState(false);
-  const touchStartY = useRef(null);
-  const scrollRef = useRef(null);
-  const pullYRef = useRef(0);
-
-  const handleTouchStart = (e) => {
-    if (scrollRef.current?.scrollTop === 0) {
-      touchStartY.current = e.touches[0].clientY;
-    }
-  };
-
-  const handleTouchMove = (e) => {
-    if (touchStartY.current === null) return;
-    const delta = e.touches[0].clientY - touchStartY.current;
-    if (delta > 0) {
-      const clamped = Math.min(delta * 0.5, PULL_THRESHOLD * 1.5);
-      pullYRef.current = clamped;
-      setPullY(clamped);
-    }
-  };
-
-  const handleTouchEnd = () => {
-    if (pullYRef.current >= PULL_THRESHOLD && !refreshing) {
-      setRefreshing(true);
-      setPrompt("");
-      setLastPrompt("");
-      setTimeout(() => setRefreshing(false), 600);
-    }
-    pullYRef.current = 0;
-    setPullY(0);
-    touchStartY.current = null;
+  const handleRefresh = () => {
+    setPrompt("");
+    setLastPrompt("");
+    return new Promise((resolve) => setTimeout(resolve, 600));
   };
 
   const handleGenerate = async () => {
@@ -101,39 +71,14 @@ export default function Home() {
     navigate(`/ImageResult?url=${encodeURIComponent(result.url)}&prompt=${encodeURIComponent(prompt)}`);
   };
 
-  const pullProgress = Math.min(pullY / PULL_THRESHOLD, 1);
-
   return (
-    <div
-      ref={scrollRef}
-      className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 dark:bg-none dark:bg-slate-950 overflow-y-auto"
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
-    >
+    <PullToRefresh onRefresh={handleRefresh} pullingContent={<div className="flex justify-center py-2"><div className="w-5 h-5 rounded-full border-2 border-violet-400 border-t-transparent animate-spin" /></div>}>
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 dark:bg-none dark:bg-slate-950">
       {/* Background blobs */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-violet-100/40 dark:bg-violet-900/10 rounded-full blur-3xl" />
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-indigo-100/40 dark:bg-indigo-900/10 rounded-full blur-3xl" />
       </div>
-
-      {/* Pull-to-refresh indicator */}
-      <AnimatePresence>
-        {(pullY > 0 || refreshing) && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: pullProgress }}
-            exit={{ opacity: 0 }}
-            className="flex justify-center pt-4"
-            style={{ height: refreshing ? 48 : pullY * 0.6 }}
-          >
-            <RefreshCw
-              className={`w-5 h-5 text-violet-500 ${refreshing ? "animate-spin" : ""}`}
-              style={{ transform: `rotate(${pullProgress * 360}deg)` }}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       <div className="relative z-10 px-4 py-4 sm:py-10">
         {/* Header */}
@@ -223,5 +168,6 @@ export default function Home() {
 
       </div>
     </div>
+    </PullToRefresh>
   );
 }

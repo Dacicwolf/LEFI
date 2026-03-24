@@ -102,7 +102,7 @@ export default function SettingsPage() {
         >
           <button
             onClick={() => base44.auth.logout()}
-            className="w-full flex items-center gap-3 px-5 min-h-[56px] text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors duration-150 select-none"
+            className="w-full flex items-center gap-3 px-5 py-4 min-h-[56px] text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors duration-150 select-none"
           >
             <LogOut className="w-5 h-5 text-slate-400" />
             <span className="font-medium">Log Out</span>
@@ -119,7 +119,7 @@ export default function SettingsPage() {
           <button
             onClick={handleDeleteAccount}
             disabled={deleting}
-            className="w-full flex items-center gap-3 px-5 min-h-[56px] text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors duration-150 select-none disabled:opacity-60"
+            className="w-full flex items-center gap-3 px-5 py-4 min-h-[56px] text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors duration-150 select-none disabled:opacity-60"
           >
             {deleting ? (
               <Loader2 className="w-5 h-5 animate-spin" />

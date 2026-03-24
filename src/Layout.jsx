@@ -40,8 +40,10 @@ export default function Layout({ children, currentPageName }) {
     });
   }, []);
 
-  // Dark mode
+  // Dark mode — on Android always follow system preference
   const [dark, setDark] = useState(() => {
+    const isAndroid = /android/i.test(navigator.userAgent);
+    if (isAndroid) return window.matchMedia("(prefers-color-scheme: dark)").matches;
     const saved = localStorage.getItem("theme");
     if (saved) return saved === "dark";
     return window.matchMedia("(prefers-color-scheme: dark)").matches;
