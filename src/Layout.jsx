@@ -36,12 +36,7 @@ export default function Layout({ children, currentPageName }) {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Auth check
-  useEffect(() => {
-    base44.auth.isAuthenticated().then((auth) => {
-      if (!auth) base44.auth.redirectToLogin(window.location.pathname);
-    });
-  }, []);
+  // Auth is handled globally by AuthContext — no duplicate check needed here.
 
   const isAndroid = /android/i.test(navigator.userAgent);
 
