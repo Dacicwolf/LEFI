@@ -1,5 +1,6 @@
 import { Toaster } from "@/components/ui/toaster"
-import { QueryClientProvider, QueryClient } from '@tanstack/react-query'
+import { QueryClientProvider } from '@tanstack/react-query'
+import { queryClientInstance } from '@/lib/query-client'
 import NavigationTracker from '@/lib/NavigationTracker'
 import { pagesConfig } from './pages.config'
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
@@ -32,13 +33,6 @@ const LayoutWrapper = ({ children, currentPageName }) => Layout ?
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
 
-  // Use effect to redirect — never call navigateToLogin during render to avoid loops
-  React.useEffect(() => {
-    if (!isLoadingAuth && !isLoadingPublicSettings && authError?.type === 'auth_required') {
-      navigateToLogin();
-    }
-  }, [isLoadingAuth, isLoadingPublicSettings, authError]);
-
   // Show loading spinner while checking app public settings or auth
   if (isLoadingPublicSettings || isLoadingAuth) {
     return (
@@ -53,7 +47,9 @@ const AuthenticatedApp = () => {
     if (authError.type === 'user_not_registered') {
       return <UserNotRegisteredError />;
     } else if (authError.type === 'auth_required') {
-      return null; // useEffect above handles redirect
+      // Redirect to login automatically
+      navigateToLogin();
+      return null;
     }
   }
 
@@ -91,13 +87,9 @@ const AuthenticatedApp = () => {
 
 
 function App() {
-  const [queryClient] = React.useState(() => new QueryClient({
-    defaultOptions: { queries: { refetchOnWindowFocus: false, retry: 1 } }
-  }));
-
   return (
     <AuthProvider>
-      <QueryClientProvider client={queryClient}>
+      <QueryClientProvider client={queryClientInstance}>
         <Router>
           <NavigationTracker />
           <ErrorBoundary>

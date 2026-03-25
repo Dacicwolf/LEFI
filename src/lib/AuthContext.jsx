@@ -41,9 +41,7 @@ export const AuthProvider = ({ children }) => {
       setIsAuthenticated(false);
       
       // If user auth fails, it might be an expired token
-      // Only trigger auth redirect on explicit 401/403, not on network errors or other failures
-      const status = error?.status || error?.response?.status;
-      if (status === 401 || status === 403) {
+      if (error.status === 401 || error.status === 403) {
         setAuthError({
           type: 'auth_required',
           message: 'Authentication required'
