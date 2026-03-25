@@ -36,7 +36,12 @@ export default function Layout({ children, currentPageName }) {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Auth is handled centrally by AuthContext → App.jsx
+  // Auth check
+  useEffect(() => {
+    base44.auth.isAuthenticated().then((auth) => {
+      if (!auth) base44.auth.redirectToLogin(window.location.pathname);
+    });
+  }, []);
 
   const isAndroid = /android/i.test(navigator.userAgent);
 
