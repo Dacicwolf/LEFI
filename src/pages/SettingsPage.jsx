@@ -54,7 +54,7 @@ export default function SettingsPage() {
               aspectRatio="1/1"
             />
             <div>
-              <p className="text-xl font-bold text-indigo-600 tracking-widest">LEFI</p>
+              <p className="text-xl font-bold text-slate-900 dark:text-white tracking-widest">LEFI</p>
               <p className="text-sm text-slate-500 dark:text-slate-400">ver. 1.4</p>
             </div>
           </div>
