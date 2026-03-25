@@ -44,17 +44,35 @@ export default function SettingsPage() {
           transition={{ delay: 0.05 }}
           className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg shadow-violet-500/10 border border-slate-100 dark:border-slate-800 p-5 mb-6 flex items-center gap-4"
         >
-          <FadeImage
-            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6995fb83472e84f2aaa7251a/81138c58f_ITonAI.png"
-            alt="ITonAI Logo"
-            className="w-14 h-14 rounded-xl object-contain"
-            skeletonClassName="w-14 h-14 rounded-xl"
-            aspectRatio="1/1"
-          />
-          <div>
-            <p className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">ITonAI</p>
-            <p className="text-sm text-slate-500 dark:text-slate-400">office@itonai.ro</p>
-            <p className="text-sm text-slate-500 dark:text-slate-400">www.itonai.ro</p>
+          {/* Left: LEFI branding */}
+          <div className="flex items-center gap-3">
+            <FadeImage
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6995fb83472e84f2aaa7251a/77a5e07ff_lefi_logo.png"
+              alt="Lefi Logo"
+              className="w-14 h-14 rounded-xl object-contain"
+              skeletonClassName="w-14 h-14 rounded-xl"
+              aspectRatio="1/1"
+            />
+            <div>
+              <p className="text-xl font-bold text-indigo-600 tracking-widest">LEFI</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">ver. 1.4</p>
+            </div>
+          </div>
+
+          {/* Right: ITonAI branding */}
+          <div className="flex items-center gap-3 ml-auto">
+            <div className="text-right">
+              <p className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">ITonAI</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">office@itonai.ro</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">www.itonai.ro</p>
+            </div>
+            <FadeImage
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6995fb83472e84f2aaa7251a/81138c58f_ITonAI.png"
+              alt="ITonAI Logo"
+              className="w-14 h-14 rounded-xl object-contain"
+              skeletonClassName="w-14 h-14 rounded-xl"
+              aspectRatio="1/1"
+            />
           </div>
         </motion.div>
 
