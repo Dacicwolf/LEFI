@@ -8,11 +8,13 @@ export default defineConfig({
     base44VitePlugin(),
     react(),
   ],
+  cacheDir: '.vite-cache-v2',
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
       'react': path.resolve(__dirname, './node_modules/react'),
       'react-dom': path.resolve(__dirname, './node_modules/react-dom'),
+      'react-router-dom': path.resolve(__dirname, './node_modules/react-router-dom'),
     },
     dedupe: ['react', 'react-dom', 'react-router-dom', '@tanstack/react-query'],
   },
