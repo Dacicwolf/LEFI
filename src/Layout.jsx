@@ -254,7 +254,7 @@ export default function Layout({ children, currentPageName }) {
 
       {/* Global Header */}
       <header className="sticky top-0 z-40 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 flex items-center h-14 gap-3" style={{ paddingLeft: 'max(1rem, env(safe-area-inset-left))', paddingRight: 'max(1rem, env(safe-area-inset-right))' }} role="banner">
-        {!isRootPage && (
+        {!isRootPage && currentPageName !== "Home" && (
           <button
             onClick={handleBackClick}
             className="flex items-center justify-center min-w-[44px] min-h-[44px] -ml-2 text-violet-600 dark:text-violet-400 select-none"
