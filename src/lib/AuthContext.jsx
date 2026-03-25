@@ -113,10 +113,8 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setUser(null);
     setIsAuthenticated(false);
-    // Clear token from storage then hard-redirect to origin so the platform login intercepts cleanly
-    localStorage.removeItem('base44_token');
-    sessionStorage.removeItem('base44_token');
-    window.location.href = window.location.origin;
+    // Use SDK logout without arguments — it clears the token internally and lets the platform handle the redirect
+    base44.auth.logout();
   };
 
   const navigateToLogin = () => {
