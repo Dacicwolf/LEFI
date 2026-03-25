@@ -253,7 +253,7 @@ export default function Layout({ children, currentPageName }) {
       `}</style>
 
       {/* Global Header */}
-      <header className="sticky top-0 z-40 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 flex items-center h-14 gap-3" style={{ paddingLeft: 'max(1rem, env(safe-area-inset-left))', paddingRight: 'max(1rem, env(safe-area-inset-right))' }} role="banner">
+      <header className="sticky top-0 z-40 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 flex items-center h-14 relative" style={{ paddingLeft: 'max(1rem, env(safe-area-inset-left))', paddingRight: 'max(1rem, env(safe-area-inset-right))' }} role="banner">
         {!isRootPage && currentPageName !== "Home" && (
           <button
             onClick={handleBackClick}
@@ -263,13 +263,14 @@ export default function Layout({ children, currentPageName }) {
             <ChevronLeft className="w-6 h-6" />
           </button>
         )}
-        <h1 className="text-base font-semibold flex-1 text-center">
+        <h1 className="absolute left-0 right-0 text-center text-base font-semibold pointer-events-none">
           {currentPageName === "Home" ? (
             <span className="text-indigo-600 font-bold tracking-widest text-lg">LEFI</span>
           ) : (
             <span className="text-slate-900 dark:text-white">{pageTitle}</span>
           )}
         </h1>
+        <div className="flex-1" />
         <button
           onClick={() => setDark((d) => !d)}
           className="flex items-center justify-center min-w-[44px] min-h-[44px] rounded-xl text-slate-400 dark:text-slate-500 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/20 hover:scale-110 active:scale-95 transition-all duration-200 select-none"
