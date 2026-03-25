@@ -55,9 +55,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const navigateToLogin = () => {
-    // Force hard navigation so React Router doesn't catch the /login path
-    const loginUrl = `${window.location.origin}/api/apps/auth/login?next=${encodeURIComponent(window.location.href)}`;
-    window.location.href = loginUrl;
+    base44.auth.redirectToLogin(window.location.href);
   };
 
   return (
