@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     setUser(null);
-    base44.auth.logout(window.location.origin);
+    base44.auth.logout();
   };
 
   const navigateToLogin = () => {
