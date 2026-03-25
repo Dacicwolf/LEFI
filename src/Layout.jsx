@@ -263,9 +263,9 @@ export default function Layout({ children, currentPageName }) {
             <ChevronLeft className="w-6 h-6" />
           </button>
         )}
-        <h1 className="text-base font-semibold flex-1">
+        <h1 className="text-base font-semibold flex-1 text-center">
           {currentPageName === "Home" ? (
-            <span className="text-indigo-600">Lefi</span>
+            <span className="text-indigo-600 font-bold tracking-widest text-lg">LEFI</span>
           ) : (
             <span className="text-slate-900 dark:text-white">{pageTitle}</span>
           )}
