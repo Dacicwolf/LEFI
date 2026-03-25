@@ -4,17 +4,7 @@ import { base44 } from "@/api/base44Client";
 import FadeImage from "@/components/FadeImage";
 import { motion } from "framer-motion";
 import { Trash2, LogOut, Loader2 } from "lucide-react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+
 
 export default function SettingsPage() {
   const navigate = useNavigate();
@@ -133,44 +123,46 @@ export default function SettingsPage() {
           transition={{ delay: 0.2 }}
           className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-red-100 dark:border-red-900/40 overflow-hidden"
         >
-          <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-            <AlertDialogTrigger asChild>
-              <button
-                disabled={deleting}
-                aria-label="Delete your account permanently"
-                className="w-full flex items-center gap-3 px-5 py-4 min-h-[56px] text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors duration-150 select-none disabled:opacity-60"
-              >
-                {deleting ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                ) : (
-                  <Trash2 className="w-5 h-5" />
-                )}
-                <span className="font-medium">{deleting ? "Processing..." : "Delete Account"}</span>
-              </button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle className="text-red-600">Delete Account?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This action is <strong>permanent and irreversible</strong>. All your data, including credits and generated images, will be lost.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={() => {
-                    handleDeleteAccount();
-                    setDeleteDialogOpen(false);
-                  }}
-                  className="bg-red-600 hover:bg-red-700 text-white focus:ring-red-500"
-                  aria-label="Confirm permanent account deletion"
-                >
-                  Yes, Delete My Account
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+          <button
+            disabled={deleting}
+            aria-label="Delete your account permanently"
+            onClick={() => setDeleteDialogOpen(true)}
+            className="w-full flex items-center gap-3 px-5 py-4 min-h-[56px] text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors duration-150 select-none disabled:opacity-60"
+          >
+            {deleting ? (
+              <Loader2 className="w-5 h-5 animate-spin" />
+            ) : (
+              <Trash2 className="w-5 h-5" />
+            )}
+            <span className="font-medium">{deleting ? "Processing..." : "Delete Account"}</span>
+          </button>
         </motion.div>
+
+        {/* Delete Confirm Modal */}
+        {deleteDialogOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 max-w-sm w-full shadow-xl border border-red-100 dark:border-red-900/40">
+              <h2 className="text-lg font-bold text-red-600 mb-2">Delete Account?</h2>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
+                This action is <strong>permanent and irreversible</strong>. All your data, including credits and generated images, will be lost.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setDeleteDialogOpen(false)}
+                  className="flex-1 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors min-h-[44px] font-medium"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => { handleDeleteAccount(); setDeleteDialogOpen(false); }}
+                  className="flex-1 px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white transition-colors min-h-[44px] font-medium"
+                >
+                  Yes, Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
