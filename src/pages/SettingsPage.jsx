@@ -113,6 +113,7 @@ export default function SettingsPage() {
           >
             <LogOut className="w-5 h-5 text-slate-400" />
             <span className="font-medium">Log Out</span>
+            {user?.email && <span className="text-sm text-slate-400 ml-1">({user.email})</span>}
           </button>
         </motion.div>
 
