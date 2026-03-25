@@ -111,8 +111,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
-    // Hard reload to root — clears all in-memory tokens (appParams etc.) and lets platform redirect to login
-    window.location.href = window.location.origin + '/';
+    // Pass origin as redirect — SDK calls /api/apps/auth/logout server-side (clears session),
+    // then redirects to origin where platform detects unauthenticated state and shows login.
+    base44.auth.logout(window.location.origin);
   };
 
   const navigateToLogin = () => {
