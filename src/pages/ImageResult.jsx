@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, memo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, Download, Copy, Check, ZoomIn, ZoomOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,8 @@ import ImageSkeleton from "@/components/ImageSkeleton";
 
 const ImageResult = memo(function ImageResult() {
   const navigate = useNavigate();
-  const params = new URLSearchParams(window.location.search);
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
   const imageUrl = params.get("url");
   const prompt = params.get("prompt");
   const [copied, setCopied] = useState(false);
