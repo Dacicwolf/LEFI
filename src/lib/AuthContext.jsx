@@ -5,72 +5,48 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
-  const [isLoadingPublicSettings, setIsLoadingPublicSettings] = useState(true);
+  const [isLoadingPublicSettings] = useState(false);
   const [authError, setAuthError] = useState(null);
-  const [appPublicSettings, setAppPublicSettings] = useState(null); // Contains only { id, public_settings }
 
   useEffect(() => {
-    checkAppState();
+    checkUserAuth();
   }, []);
-
-  const checkAppState = async () => {
-    try {
-      setIsLoadingPublicSettings(false);
-      setAuthError(null);
-      await checkUserAuth();
-    } catch (error) {
-      setAuthError({ type: 'unknown', message: error.message });
-      setIsLoadingPublicSettings(false);
-      setIsLoadingAuth(false);
-    }
-  };
 
   const checkUserAuth = async () => {
     try {
-      // Now check if the user is authenticated
       setIsLoadingAuth(true);
       const currentUser = await base44.auth.me();
       setUser(currentUser);
-      setIsAuthenticated(true);
+      setAuthError(null);
+    } catch {
+      // Any error means not authenticated — redirect to login
+      setAuthError({ type: 'auth_required' });
+    } finally {
       setIsLoadingAuth(false);
-    } catch (error) {
-      console.error('User auth check failed:', error);
-      setIsLoadingAuth(false);
-      setIsAuthenticated(false);
-      
-      // If user auth fails, it might be an expired token
-      if (error.status === 401 || error.status === 403) {
-        setAuthError({
-          type: 'auth_required',
-          message: 'Authentication required'
-        });
-      }
     }
   };
 
   const logout = () => {
     setUser(null);
-    setIsAuthenticated(false);
     base44.auth.logout();
   };
 
   const navigateToLogin = () => {
-    base44.auth.redirectToLogin(window.location.href);
+    base44.auth.redirectToLogin();
   };
 
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      isAuthenticated, 
+    <AuthContext.Provider value={{
+      user,
+      isAuthenticated: !!user,
       isLoadingAuth,
       isLoadingPublicSettings,
       authError,
-      appPublicSettings,
+      appPublicSettings: null,
       logout,
       navigateToLogin,
-      checkAppState
+      checkAppState: checkUserAuth,
     }}>
       {children}
     </AuthContext.Provider>
@@ -79,8 +55,6 @@ export const AuthProvider = ({ children }) => {
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
+  if (!context) throw new Error('useAuth must be used within an AuthProvider');
   return context;
 };
