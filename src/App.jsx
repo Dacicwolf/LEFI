@@ -86,20 +86,19 @@ const AuthenticatedApp = () => {
 
 
 function App() {
-
   return (
-    <ErrorBoundary>
-      <AuthProvider>
-        <QueryClientProvider client={queryClientInstance}>
-          <Router>
-            <NavigationTracker />
+    <AuthProvider>
+      <QueryClientProvider client={queryClientInstance}>
+        <Router>
+          <NavigationTracker />
+          <ErrorBoundary>
             <AuthenticatedApp />
-          </Router>
-          <Toaster />
-        </QueryClientProvider>
-      </AuthProvider>
-    </ErrorBoundary>
-  )
+          </ErrorBoundary>
+        </Router>
+        <Toaster />
+      </QueryClientProvider>
+    </AuthProvider>
+  );
 }
 
 export default App
