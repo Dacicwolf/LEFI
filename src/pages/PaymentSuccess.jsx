@@ -17,11 +17,11 @@ export default function PaymentSuccess() {
   const plan = params.get("plan");
   const creditsToAdd = PLAN_CREDITS[plan] ?? 0;
 
-  const [status, setStatus] = useState("loading"); // loading | done | error
+  const [status, setStatus] = useState("loading"); // loading | done | error | no_plan
 
   useEffect(() => {
     if (!creditsToAdd) {
-      setStatus("error");
+      setStatus("no_plan");
       return;
     }
     base44.auth.me().then(async (user) => {
@@ -69,10 +69,26 @@ export default function PaymentSuccess() {
           </>
         )}
 
+        {status === "no_plan" && (
+          <>
+            <CheckCircle className="w-14 h-14 text-green-500" />
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Payment Successful!</h1>
+            <p className="text-slate-500 dark:text-slate-400">
+              Your payment was received. Credits will be added to your account shortly.
+            </p>
+            <Button
+              onClick={() => navigate("/")}
+              className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white rounded-xl min-h-[48px] font-medium"
+            >
+              Start Generating
+            </Button>
+          </>
+        )}
+
         {status === "error" && (
           <>
-            <p className="text-red-500 font-medium">Something went wrong. Please contact support.</p>
-            <Button variant="outline" onClick={() => navigate("/")} aria-label="Go back to home page" className="w-full min-h-[44px]">
+            <p className="text-red-500 font-medium">Something went wrong adding your credits. Please contact support.</p>
+            <Button variant="outline" onClick={() => navigate("/")} className="w-full min-h-[44px]">
               Go Home
             </Button>
           </>
