@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import FadeImage from "@/components/FadeImage";
 import { motion } from "framer-motion";
@@ -7,7 +6,6 @@ import { Trash2, LogOut, Loader2 } from "lucide-react";
 
 
 export default function SettingsPage() {
-  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [deleting, setDeleting] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
