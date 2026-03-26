@@ -18,13 +18,13 @@ export const AuthProvider = ({ children }) => {
       setIsLoadingAuth(true);
       const currentUser = await base44.auth.me();
       if (!currentUser) {
-        base44.auth.redirectToLogin(window.location.href);
+        base44.auth.redirectToLogin();
         return;
       }
       setUser(currentUser);
       setIsLoadingAuth(false);
     } catch {
-      base44.auth.redirectToLogin(window.location.href);
+      base44.auth.redirectToLogin();
     }
   };
 
@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const navigateToLogin = () => {
-    base44.auth.redirectToLogin(window.location.href);
+    base44.auth.redirectToLogin();
   };
 
   return (

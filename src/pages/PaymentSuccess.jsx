@@ -29,7 +29,7 @@ export default function PaymentSuccess() {
       await base44.auth.updateMe({ credits: current + creditsToAdd });
       setStatus("done");
     }).catch(() => {
-      base44.auth.redirectToLogin(window.location.href);
+      base44.auth.redirectToLogin();
     });
   }, []);
 

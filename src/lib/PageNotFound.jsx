@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 
 export default function PageNotFound() {
   useEffect(() => {
-    base44.auth.redirectToLogin(window.location.href);
+    base44.auth.redirectToLogin();
   }, []);
 
   return null;
