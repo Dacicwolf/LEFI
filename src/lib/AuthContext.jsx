@@ -30,7 +30,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     setUser(null);
-    base44.auth.logout();
+    base44.auth.redirectToLogin();
   };
 
   const navigateToLogin = () => {
