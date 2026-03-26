@@ -10,8 +10,6 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import React, { lazy, Suspense } from 'react';
 
-const Home = lazy(() => import('./pages/Home'));
-
 const ImageResult = lazy(() => import('./pages/ImageResult'));
 const AdminPanel = lazy(() => import('./pages/AdminPanel'));
 const PaymentSuccess = lazy(() => import('./pages/PaymentSuccess'));
@@ -24,6 +22,7 @@ const PageLoader = () => (
 );
 
 const { Pages, Layout, mainPage } = pagesConfig;
+const Home = Pages['Home'];
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
 
 const LayoutWrapper = ({ children, currentPageName }) => Layout ?
