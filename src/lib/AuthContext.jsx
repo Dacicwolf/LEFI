@@ -17,10 +17,13 @@ export const AuthProvider = ({ children }) => {
     try {
       setIsLoadingAuth(true);
       const currentUser = await base44.auth.me();
+      if (!currentUser) {
+        base44.auth.redirectToLogin(window.location.href);
+        return;
+      }
       setUser(currentUser);
       setIsLoadingAuth(false);
     } catch {
-      // Stay in loading state to prevent flash of content before redirect
       base44.auth.redirectToLogin(window.location.href);
     }
   };
