@@ -115,7 +115,7 @@ const ImageResult = memo(function ImageResult() {
           initial={{ opacity: 0, x: -10 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ type: "tween", duration: 0.1 }}
-          onClick={() => navigate("/ ")}
+          onClick={() => navigate("/")}
           className="flex items-center gap-1 text-violet-600 dark:text-violet-400 font-medium hover:opacity-70 transition-opacity min-h-[44px]"
         >
           <ChevronLeft className="w-5 h-5" />

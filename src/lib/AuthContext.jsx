@@ -20,8 +20,8 @@ export const AuthProvider = ({ children }) => {
       setUser(currentUser);
       setAuthError(null);
     } catch {
-      // Any error means not authenticated — redirect to login
-      setAuthError({ type: 'auth_required' });
+      base44.auth.redirectToLogin(window.location.href);
+      return;
     } finally {
       setIsLoadingAuth(false);
     }

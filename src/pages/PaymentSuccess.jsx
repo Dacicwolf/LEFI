@@ -28,7 +28,9 @@ export default function PaymentSuccess() {
       const current = user.credits ?? 0;
       await base44.auth.updateMe({ credits: current + creditsToAdd });
       setStatus("done");
-    }).catch(() => setStatus("error"));
+    }).catch(() => {
+      base44.auth.redirectToLogin(window.location.href);
+    });
   }, []);
 
   return (
