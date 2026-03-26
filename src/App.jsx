@@ -39,6 +39,10 @@ const AuthenticatedApp = () => {
     }
   }, [authError]);
 
+  if (isLoadingAuth || isLoadingPublicSettings) {
+    return <PageLoader />;
+  }
+
   if (authError?.type === 'user_not_registered') {
     return <UserNotRegisteredError />;
   }
