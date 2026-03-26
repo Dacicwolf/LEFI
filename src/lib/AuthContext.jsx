@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import { appParams } from '@/lib/app-params';
 
 const AuthContext = createContext();
 
@@ -29,11 +30,16 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     setUser(null);
-    base44.auth.logout();
+    // Manually clear token and redirect to avoid SDK hitting platform proxy endpoints
+    localStorage.removeItem('base44_access_token');
+    sessionStorage.clear();
+    const baseUrl = appParams.appBaseUrl || '';
+    window.location.href = baseUrl + '/login?from_url=' + encodeURIComponent(window.location.origin + '/');
   };
 
   const navigateToLogin = () => {
-    base44.auth.redirectToLogin();
+    const baseUrl = appParams.appBaseUrl || '';
+    window.location.href = baseUrl + '/login?from_url=' + encodeURIComponent(window.location.href);
   };
 
   return (
