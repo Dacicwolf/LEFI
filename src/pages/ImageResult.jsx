@@ -1,335 +1,325 @@
-import React, { useState, useEffect, useRef } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { Wand2, Settings, Sun, Moon, ChevronLeft } from "lucide-react";
-import { base44 } from "@/api/base44Client";
-import { AnimatePresence, motion } from "framer-motion";
-import { usePrefetchPages } from "@/hooks/usePrefetchPages";
-import { pagesConfig } from "./pages.config";
-import { pushToStack, popFromStack, resetStack, canGoBack, saveScroll, getScroll } from "@/lib/navStore";
-import { useAndroidBack } from "@/hooks/useAndroidBack";
-// Icon is used via the `tabs` array below — no extra import needed.
+import React, { useState, useRef, useEffect, useCallback, memo } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { ChevronLeft, Download, Copy, Check, ZoomIn, ZoomOut } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import ImageSkeleton from "@/components/ImageSkeleton";
 
-const ROOT_PAGES = {
-  Home: "/",
-  SettingsPage: "/SettingsPage",
-};
+const MIN_SCALE = 1;
+const MAX_SCALE = 4;
+const clamp = (s) => Math.min(MAX_SCALE, Math.max(MIN_SCALE, s));
 
-const tabs = [
-  { name: "Home", label: "Generate", icon: Wand2 },
-  { name: "SettingsPage", label: "Settings", icon: Settings },
-];
-
-const PAGE_TITLES = {
-  Home: "Lefi (text-to-image)",
-  SettingsPage: "Settings",
-};
-
-// Determine which tab owns a given page name
-const TAB_ORDER = ["Home", "SettingsPage"];
-
-function getTabIndex(pageName) {
-  const tab = TAB_ORDER.find((t) => t === pageName);
-  return TAB_ORDER.indexOf(tab ?? "Home");
-}
-
-export default function Layout({ children, currentPageName }) {
-  const location = useLocation();
+const ImageResult = memo(function ImageResult() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const imageUrl = params.get("url");
+  const prompt = params.get("prompt");
+  const [copied, setCopied] = useState(false);
+  const [imgLoaded, setImgLoaded] = useState(false);
+  const liveRegionRef = useRef(null);
 
-  // Auth is handled globally by AuthContext — no duplicate check needed here.
+  // Zoom + pan state
+  const [scale, setScale] = useState(1);
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
 
-  const isAndroid = /android/i.test(navigator.userAgent);
+  const containerRef = useRef(null);
+  const imgWrapRef = useRef(null);
 
-  // On Android: always follow system preference (WebView context — ignore localStorage).
-  // On other platforms: honour saved user preference, then fall back to system.
-  const [dark, setDark] = useState(() => {
-    if (isAndroid) return window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const saved = localStorage.getItem("theme");
-    return saved ? saved === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
-  });
+  // Track pinch and pan gestures
+  const lastDist = useRef(null);
+  const lastMidpoint = useRef(null);
+  const isPanning = useRef(false);
+  const lastPan = useRef({ x: 0, y: 0 });
 
-  // On Android, keep in sync with system preference changes
-  useEffect(() => {
-    if (!isAndroid) return;
-    const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    const orientationMq = window.matchMedia("(orientation: landscape)");
-    const handler = (e) => setDark(e.matches);
-    const orientationHandler = () => {
-      // Force layout recalculation on orientation change
-      window.dispatchEvent(new Event('resize'));
+  // Reset offset when scale goes back to 1
+  const setScaleSafe = useCallback((fn) => {
+    setScale((prev) => {
+      const next = clamp(typeof fn === "function" ? fn(prev) : fn);
+      if (next === MIN_SCALE) setOffset({ x: 0, y: 0 });
+      return next;
+    });
+  }, []);
+
+  // Clamp offset so image never goes out of bounds
+  const clampOffset = useCallback((ox, oy, currentScale) => {
+    const container = containerRef.current;
+    const img = imgWrapRef.current;
+    if (!container || !img) return { x: ox, y: oy };
+
+    const cw = container.clientWidth;
+    const ch = container.clientHeight;
+    const iw = img.clientWidth * currentScale;
+    const ih = img.clientHeight * currentScale;
+
+    const maxX = Math.max(0, (iw - cw) / 2);
+    const maxY = Math.max(0, (ih - ch) / 2);
+
+    return {
+      x: Math.min(maxX, Math.max(-maxX, ox)),
+      y: Math.min(maxY, Math.max(-maxY, oy)),
     };
-    mq.addEventListener("change", handler);
-    orientationMq.addEventListener("change", orientationHandler);
-    return () => {
-      mq.removeEventListener("change", handler);
-      orientationMq.removeEventListener("change", orientationHandler);
-    };
-  }, [isAndroid]);
+  }, []);
 
-  useEffect(() => {
-    // Respect prefers-reduced-motion to disable animations during theme switch for low-end devices
-    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (!prefersReducedMotion) {
-      document.documentElement.style.transition = "background-color 0.15s ease";
-    }
-    document.documentElement.classList.toggle("dark", dark);
-    // Cleanup transition style after switch
-    const timer = setTimeout(() => {
-      document.documentElement.style.transition = "";
-    }, 150);
-    // Never persist theme preference on Android — system setting is the source of truth.
-    if (!isAndroid) localStorage.setItem("theme", dark ? "dark" : "light");
-    return () => clearTimeout(timer);
-  }, [dark, isAndroid]);
-
-  // Navigation direction for animation
-  const [direction, setDirection] = useState(1);
-  const prevPageRef = useRef(currentPageName);
-  // Track RR6 history index reactively so isRootPage updates on every nav
-  const [rrIdx, setRrIdx] = useState(() => window.history.state?.idx ?? 0);
-  const prevIdxRef = useRef(window.history.state?.idx ?? 0);
-
-  // Sync nav stack + animation direction on every location change
-  useEffect(() => {
-    const currentRrIdx = window.history.state?.idx ?? 0;
-    const prev = prevPageRef.current;
-    const prevTabIdx = getTabIndex(prev);
-    const currTabIdx = getTabIndex(currentPageName);
-
-    if (currentPageName !== prev) {
-      setDirection(currTabIdx >= prevTabIdx ? 1 : -1);
-    }
-
-    const tab = TAB_ORDER.find((t) => t === currentPageName) ?? TAB_ORDER[0];
-    // Detect direction: if RR6 idx decreased we went back — pop; otherwise push.
-    if (currentRrIdx < prevIdxRef.current) {
-      popFromStack(tab);
-    } else {
-      pushToStack(tab, location.pathname);
-    }
-
-    prevIdxRef.current = currentRrIdx;
-    prevPageRef.current = currentPageName;
-    setRrIdx(currentRrIdx);
-  }, [location.pathname, currentPageName]);
-
-  // Scroll container ref for per-tab scroll save/restore
-  const scrollContainerRef = useRef(null);
-
-  // Save scroll on tab leave, restore on tab enter
-  const prevTabRef = useRef(currentPageName);
-  useEffect(() => {
-    const prev = prevTabRef.current;
-    if (prev !== currentPageName) {
-      // Save scroll of leaving tab
-      if (scrollContainerRef.current) {
-        saveScroll(prev, scrollContainerRef.current.scrollTop);
-      }
-      // Restore scroll of entering tab via rAF for smooth perf on low-end devices
-      const saved = getScroll(currentPageName);
-      if (scrollContainerRef.current) {
-        const el = scrollContainerRef.current;
-        requestAnimationFrame(() => { el.scrollTop = saved; });
-      }
-      prevTabRef.current = currentPageName;
-    }
-  }, [currentPageName]);
-
-  const activeTab = TAB_ORDER.find((t) => t === currentPageName) ?? TAB_ORDER[0];
-
-  // Update meta theme-color for status bar sync on theme toggle
-  useEffect(() => {
-    const themeColor = dark ? "#020617" : "#ffffff";
-    let metaTag = document.querySelector('meta[name="theme-color"]');
-    if (!metaTag) {
-      metaTag = document.createElement('meta');
-      metaTag.name = 'theme-color';
-      document.head.appendChild(metaTag);
-    }
-    metaTag.content = themeColor;
-  }, [dark]);
-
-  // Unified Android hardware back button support
-  useAndroidBack(activeTab);
-  // Show back button if RR6 has history OR if we're on a child page (deep-linked).
-  // Non-tab pages (e.g. ImageResult) are always children, even when rrIdx === 0.
-  const isTabPage = TAB_ORDER.includes(currentPageName);
-  const isRootPage = rrIdx <= 0 && isTabPage;
-
-  // Safe back handler: prevent blank pages by ensuring we go to a valid tab
-  const handleBackClick = () => {
-    if (canGoBack(activeTab)) {
-      navigate(-1);
-    } else {
-      // Fallback: if no history, go to Home tab
-      navigate(ROOT_PAGES.Home, { replace: true });
-    }
-  };
-  const pageTitle = PAGE_TITLES[currentPageName] || currentPageName || "ImagineAI";
-
-  // Android back button is fully handled by useAndroidBack hook above.
-
-  // Defer asset preloading until after load event fully settles to avoid main thread contention
-  useEffect(() => {
-    const preloadAssets = () => {
-      const urls = [
-        "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6995fb83472e84f2aaa7251a/77a5e07ff_lefi_logo.png",
-        "https://media.base44.com/images/public/6995fb83472e84f2aaa7251a/88cf9d6c2_lefi_logo_bronze.png",
-        "https://media.base44.com/images/public/6995fb83472e84f2aaa7251a/451aba21c_lefi_logo_silver.png",
-        "https://media.base44.com/images/public/6995fb83472e84f2aaa7251a/91cafad47_lefi_logo_gold.png",
-        "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6995fb83472e84f2aaa7251a/81138c58f_ITonAI.png",
-      ];
-      // Delegate to service worker for intelligent caching
-      if (navigator.serviceWorker?.controller) {
-        navigator.serviceWorker.controller.postMessage({
-          type: "PRELOAD_ASSETS",
-          urls,
-        });
-      } else {
-        // Fallback: preload locally if service worker unavailable
-        urls.forEach((url) => { const img = new Image(); img.src = url; });
-      }
-    };
-    // Schedule preload after load event fully settles
-    const schedulePreload = () => {
-      // Use requestIdleCallback for non-blocking execution
-      if (typeof requestIdleCallback !== "undefined") {
-        requestIdleCallback(preloadAssets, { timeout: 3000 });
-      } else {
-        // Fallback: defer via setTimeout after a brief delay
-        setTimeout(preloadAssets, 500);
-      }
-    };
-    
-    if (document.readyState === "complete") {
-      // Page already loaded: defer to next task queue cycle
-      Promise.resolve().then(schedulePreload);
-    } else {
-      // Wait for load to complete before scheduling
-      window.addEventListener("load", schedulePreload, { once: true });
+  // Touch: pinch zoom + single finger pan
+  const handleTouchStart = useCallback((e) => {
+    if (e.touches.length === 2) {
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      lastDist.current = Math.sqrt(dx * dx + dy * dy);
+      lastMidpoint.current = {
+        x: (e.touches[0].clientX + e.touches[1].clientX) / 2,
+        y: (e.touches[0].clientY + e.touches[1].clientY) / 2,
+      };
+    } else if (e.touches.length === 1) {
+      isPanning.current = true;
+      lastPan.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
     }
   }, []);
 
-  const handleTabClick = (tabName) => {
-    if (currentPageName === tabName) {
-      resetStack(tabName, ROOT_PAGES[tabName]);
-      navigate(ROOT_PAGES[tabName], { replace: true });
-    } else {
-      navigate(ROOT_PAGES[tabName]);
+  const handleTouchMove = useCallback((e) => {
+    if (e.touches.length === 2) {
+      e.preventDefault();
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (lastDist.current !== null) {
+        const delta = (dist - lastDist.current) * 0.012;
+        setScale((prev) => {
+          const next = clamp(prev + delta);
+          if (next === MIN_SCALE) setOffset({ x: 0, y: 0 });
+          return next;
+        });
+      }
+      lastDist.current = dist;
+    } else if (e.touches.length === 1 && isPanning.current) {
+      setScale((currentScale) => {
+        if (currentScale <= MIN_SCALE) return currentScale;
+        e.preventDefault();
+        const dx = e.touches[0].clientX - lastPan.current.x;
+        const dy = e.touches[0].clientY - lastPan.current.y;
+        lastPan.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        setOffset((prev) => clampOffset(prev.x + dx, prev.y + dy, currentScale));
+        return currentScale;
+      });
     }
+  }, [clampOffset]);
+
+  const handleTouchEnd = useCallback((e) => {
+    if (e.touches.length < 2) lastDist.current = null;
+    if (e.touches.length === 0) isPanning.current = false;
+  }, []);
+
+  // Mouse wheel zoom
+  const handleWheel = useCallback((e) => {
+    e.preventDefault();
+    setScaleSafe((s) => s + (e.deltaY > 0 ? -0.15 : 0.15));
+  }, [setScaleSafe]);
+
+  // Mouse drag pan
+  const isDragging = useRef(false);
+  const lastMouse = useRef({ x: 0, y: 0 });
+
+  const handleMouseDown = useCallback((e) => {
+    isDragging.current = true;
+    lastMouse.current = { x: e.clientX, y: e.clientY };
+    e.preventDefault();
+  }, []);
+
+  const handleMouseMove = useCallback((e) => {
+    if (!isDragging.current) return;
+    setScale((currentScale) => {
+      if (currentScale <= MIN_SCALE) return currentScale;
+      const dx = e.clientX - lastMouse.current.x;
+      const dy = e.clientY - lastMouse.current.y;
+      lastMouse.current = { x: e.clientX, y: e.clientY };
+      setOffset((prev) => clampOffset(prev.x + dx, prev.y + dy, currentScale));
+      return currentScale;
+    });
+  }, [clampOffset]);
+
+  const handleMouseUp = useCallback(() => { isDragging.current = false; }, []);
+
+  // Register non-passive listeners
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    el.addEventListener("wheel", handleWheel, { passive: false });
+    el.addEventListener("touchstart", handleTouchStart, { passive: true });
+    el.addEventListener("touchmove", handleTouchMove, { passive: false });
+    el.addEventListener("touchend", handleTouchEnd, { passive: true });
+    el.addEventListener("mousedown", handleMouseDown);
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+    return () => {
+      el.removeEventListener("wheel", handleWheel);
+      el.removeEventListener("touchstart", handleTouchStart);
+      el.removeEventListener("touchmove", handleTouchMove);
+      el.removeEventListener("touchend", handleTouchEnd);
+      el.removeEventListener("mousedown", handleMouseDown);
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [handleWheel, handleTouchStart, handleTouchMove, handleTouchEnd, handleMouseDown, handleMouseMove, handleMouseUp]);
+
+  const handleDownload = () => {
+    const link = document.createElement("a");
+    link.href = imageUrl;
+    link.target = "_blank";
+    link.download = "generated-image.png";
+    link.click();
   };
 
-  // Prefetch lazy-loaded pages after mount for better navigation performance
-  usePrefetchPages(pagesConfig);
-
-  const pageVariants = {
-    initial: (dir) => ({ x: dir > 0 ? "100%" : "-100%", opacity: 0 }),
-    animate: { x: 0, opacity: 1, transition: { type: "tween", duration: 0.2, ease: "easeOut" } },
-    exit: (dir) => ({
-      x: dir > 0 ? "-30%" : "30%",
-      opacity: 0,
-      transition: { type: "tween", duration: 0.15, ease: "easeIn" },
-    }),
+  const handleCopyLink = async () => {
+    await navigator.clipboard.writeText(imageUrl);
+    setCopied(true);
+    toast.success("Link copied!");
+    if (liveRegionRef.current) {
+      liveRegionRef.current.textContent = "Image link copied to clipboard";
+    }
+    setTimeout(() => setCopied(false), 2000);
   };
+
+  useEffect(() => {
+    if (imgLoaded && liveRegionRef.current) {
+      liveRegionRef.current.textContent = prompt
+        ? `Image generated: ${prompt}`
+        : "Image loaded";
+    }
+  }, [imgLoaded, prompt]);
 
   return (
     <div
-      className="bg-gradient-to-b from-slate-50 via-white to-slate-50 dark:bg-none dark:bg-slate-950 flex flex-col select-none overflow-hidden"
-      style={{ height: "100dvh", overscrollBehavior: "none" }}
-      role="application"
-      aria-label="Lefi AI Image Generator Application"
+      className="flex flex-col bg-gradient-to-b from-slate-50 via-white to-slate-50 dark:bg-none dark:bg-slate-950"
+      style={{ height: "100dvh" }}
+      role="region"
+      aria-label="Image generation result"
     >
-      <style>{`
-        body { overscroll-behavior: none; background-color: transparent; }
-        html.dark body { background-color: #020617; }
-        /* Hide scrollbars globally while keeping functionality */
-        * { scrollbar-width: none; -ms-overflow-style: none; }
-        *::-webkit-scrollbar { display: none; }
-      `}</style>
+      {/* Screen reader announcements */}
+      <div ref={liveRegionRef} className="sr-only" aria-live="polite" aria-atomic="true" />
 
-      {/* Global Header */}
-      <header
-        className="sticky top-0 z-40 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 flex items-center relative shrink-0"
-        style={{
-          paddingTop: "env(safe-area-inset-top)",
-          paddingLeft: "max(1rem, env(safe-area-inset-left))",
-          paddingRight: "max(1rem, env(safe-area-inset-right))",
-          minHeight: "calc(3.5rem + env(safe-area-inset-top))",
-        }}
-        role="banner"
-      >
-        {!isRootPage && currentPageName !== "Home" && (
-          <button
-            onClick={handleBackClick}
-            className="flex items-center justify-center min-w-[44px] min-h-[44px] -ml-2 text-violet-600 dark:text-violet-400 select-none"
-            aria-label="Go back"
-          >
-            <ChevronLeft className="w-6 h-6" />
-          </button>
-        )}
-        <h1 className="absolute left-0 right-0 text-center text-base font-semibold pointer-events-none">
-          {currentPageName === "Home" ? (
-            <span className="text-indigo-600 font-bold tracking-widest text-lg">LEFI</span>
-          ) : (
-            <span className="text-slate-900 dark:text-white">{pageTitle}</span>
-          )}
-        </h1>
-        <div className="flex-1" />
-        <button
-          onClick={() => setDark((d) => !d)}
-          className="flex items-center justify-center min-w-[44px] min-h-[44px] rounded-xl text-slate-400 dark:text-slate-500 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/20 hover:scale-110 active:scale-95 transition-all duration-200 select-none"
-          aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
+      {/* Background blobs */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-violet-100/40 dark:bg-violet-900/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-indigo-100/40 dark:bg-indigo-900/10 rounded-full blur-3xl" />
+      </div>
+
+      {/* Top bar */}
+      <div className="relative z-10 flex items-center justify-between px-4 py-3 shrink-0">
+        <motion.button
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ type: "tween", duration: 0.1 }}
+          onClick={() => navigate("/")}
+          className="flex items-center gap-1 text-violet-600 dark:text-violet-400 font-medium hover:opacity-70 transition-opacity min-h-[44px]"
         >
-          {dark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-        </button>
-      </header>
+          <ChevronLeft className="w-5 h-5" />
+          Back
+        </motion.button>
 
-      {/* Page content with transition animations */}
-      <main ref={scrollContainerRef} className="flex-1 overflow-y-auto overflow-x-hidden relative" style={{ paddingBottom: "calc(4rem + env(safe-area-inset-bottom))" }} role="main">
-        <AnimatePresence mode="wait" custom={direction}>
-          <motion.div
-            key={currentPageName}
-            custom={direction}
-            variants={pageVariants}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            className="w-full"
+        {/* Zoom controls */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setScaleSafe((s) => s - 0.5)}
+            aria-label="Zoom out"
+            disabled={scale <= MIN_SCALE}
+            className="flex items-center justify-center w-11 h-11 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors disabled:opacity-30"
           >
-            {children}
-          </motion.div>
-        </AnimatePresence>
-      </main>
+            <ZoomOut className="w-4 h-4" />
+          </button>
+          <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 w-10 text-center">
+            {Math.round(scale * 100)}%
+          </span>
+          <button
+            onClick={() => setScaleSafe((s) => s + 0.5)}
+            aria-label="Zoom in"
+            disabled={scale >= MAX_SCALE}
+            className="flex items-center justify-center w-11 h-11 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors disabled:opacity-30"
+          >
+            <ZoomIn className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
 
-      {/* Bottom Navigation Bar */}
-      <nav
-        className="shrink-0 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 flex z-50"
-        style={{
-          paddingBottom: "env(safe-area-inset-bottom)",
-          paddingLeft: "env(safe-area-inset-left)",
-          paddingRight: "env(safe-area-inset-right)",
-        }}
-      >
-        {tabs.map(({ name, label, icon: Icon }) => {
-          const active = currentPageName === name;
-          return (
-            <button
-              key={name}
-              onClick={() => handleTabClick(name)}
-              aria-label={`Navigate to ${label}`}
-              aria-current={active ? "page" : undefined}
-              className={`flex-1 flex flex-col items-center justify-center min-h-[56px] gap-0.5 transition-all duration-200 select-none ${
-                active
-                  ? "text-violet-600 dark:text-violet-400 scale-110"
-                  : "text-slate-400 dark:text-slate-500 hover:text-violet-500 dark:hover:text-violet-400 hover:scale-110 hover:bg-violet-50 dark:hover:bg-violet-900/20 rounded-xl"
-              }`}
-            >
-              <Icon className="w-5 h-5" />
-              <span className="text-[10px] font-medium">{label}</span>
-            </button>
-          );
-        })}
-      </nav>
+      {/* Image area */}
+      {imageUrl ? (
+        <div
+          ref={containerRef}
+          className="relative z-10 flex-1 flex items-center justify-center overflow-hidden select-none"
+          style={{
+            minHeight: 0,
+            cursor: scale > 1 ? "grab" : "default",
+            touchAction: scale > 1 ? "none" : "auto",
+          }}
+        >
+          <AnimatePresence mode="wait">
+            {!imgLoaded && <ImageSkeleton key="skeleton" />}
+          </AnimatePresence>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: imgLoaded ? 1 : 0, scale: imgLoaded ? 1 : 0.95 }}
+            transition={{ type: "tween", duration: 0.15 }}
+            ref={imgWrapRef}
+            style={{
+              transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
+              transformOrigin: "center center",
+              transition: lastDist.current || isDragging.current ? "none" : "transform 0.15s ease",
+              willChange: "transform",
+              maxWidth: "100%",
+              maxHeight: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <img
+              src={imageUrl}
+              alt={prompt ? `AI-generated image: ${prompt}` : "AI-generated image"}
+              onLoad={() => setImgLoaded(true)}
+              draggable={false}
+              className="rounded-2xl shadow-2xl"
+              style={{
+                maxWidth: "100%",
+                maxHeight: "100%",
+                width: "auto",
+                height: "auto",
+                objectFit: "contain",
+                userSelect: "none",
+                WebkitUserSelect: "none",
+                pointerEvents: "none",
+              }}
+            />
+          </motion.div>
+        </div>
+      ) : (
+        <div className="flex-1 flex items-center justify-center text-slate-400">No image to display.</div>
+      )}
+
+      {/* Bottom actions */}
+      <div className="relative z-10 px-4 py-4 shrink-0">
+        {prompt && (
+          <p className="text-xs text-slate-400 dark:text-slate-500 text-center mb-3 line-clamp-2 leading-relaxed">
+            {prompt}
+          </p>
+        )}
+        <div className="flex gap-3 max-w-sm mx-auto">
+          <Button onClick={handleCopyLink} variant="outline" className="flex-1 gap-2">
+            {copied ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
+            {copied ? "Copied!" : "Copy Link"}
+          </Button>
+          <Button
+            onClick={handleDownload}
+            className="flex-1 gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white"
+          >
+            <Download className="w-4 h-4" />
+            Download
+          </Button>
+        </div>
+      </div>
     </div>
   );
-}
+});
+
+export default ImageResult;
