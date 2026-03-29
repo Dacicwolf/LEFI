@@ -6,20 +6,18 @@ const AuthContext = createContext();
 const MAX_RETRIES = 3;
 const RETRY_DELAY_MS = 1000;
 
-const clearAuthStorage = () => {
+const doLogout = () => {
   try {
-    localStorage.removeItem('base44_from_url');
-    localStorage.removeItem('base44_from__url');
+    // Stergem tokenul manual
     localStorage.removeItem('base44_access_token');
     localStorage.removeItem('token');
+    localStorage.removeItem('base44_from_url');
+    localStorage.removeItem('base44_from__url');
     sessionStorage.clear();
   } catch(e) {}
-};
-
-const hardRedirectToLogin = () => {
-  clearAuthStorage();
-  // Folosim location.replace cu cache-bust ca sa fortam reload fara cache
-  window.location.replace(window.location.origin + '/login?t=' + Date.now());
+  // Redirect curat la root — SDK-ul va detecta ca nu esti autentificat
+  // si va face redirect la login cu from_url=https://lefi.base44.app/ (corect)
+  window.location.replace('https://lefi.base44.app/');
 };
 
 export const AuthProvider = ({ children }) => {
@@ -61,7 +59,7 @@ export const AuthProvider = ({ children }) => {
     if (!isRedirectingRef.current) {
       isRedirectingRef.current = true;
       setAuthError({ type: 'auth_required' });
-      base44.auth.logout('/');
+      base44.auth.redirectToLogin('/');
     }
   };
 
@@ -69,15 +67,13 @@ export const AuthProvider = ({ children }) => {
     if (isRedirectingRef.current) return;
     isRedirectingRef.current = true;
     setUser(null);
-    // Nu apelam base44.auth.logout() ca face redirect propriu
-    // Facem totul manual
-    base44.auth.logout('/');
+    doLogout();
   };
 
   const navigateToLogin = () => {
     if (isRedirectingRef.current) return;
     isRedirectingRef.current = true;
-    base44.auth.logout('/');
+    doLogout();
   };
 
   return (
