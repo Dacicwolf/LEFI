@@ -14,6 +14,7 @@ const ImageResult = lazy(() => import('./pages/ImageResult'));
 const AdminPanel = lazy(() => import('./pages/AdminPanel'));
 const PaymentSuccess = lazy(() => import('./pages/PaymentSuccess'));
 
+
 const PageLoader = () => (
   <div className="fixed inset-0 flex items-center justify-center">
     <div className="w-8 h-8 border-4 border-slate-200 border-t-violet-600 rounded-full animate-spin" />
@@ -29,7 +30,7 @@ const LayoutWrapper = ({ children, currentPageName }) => Layout ?
   : <>{children}</>;
 
 const AuthenticatedApp = () => {
-  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin, user } = useAuth();
+  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
 
   React.useEffect(() => {
     if (authError?.type === 'auth_required') {
@@ -37,7 +38,6 @@ const AuthenticatedApp = () => {
     }
   }, [authError]);
 
-  // Always show loader while auth is being determined
   if (isLoadingAuth || isLoadingPublicSettings) {
     return <PageLoader />;
   }
@@ -48,12 +48,6 @@ const AuthenticatedApp = () => {
 
   if (authError?.type === 'auth_required') {
     return null;
-  }
-
-  // Guard: if auth finished loading but user is still null, don't render app
-  // This prevents a flash of the app before redirect happens
-  if (!user) {
-    return <PageLoader />;
   }
 
   // Render the main app
@@ -87,6 +81,7 @@ const AuthenticatedApp = () => {
     </Routes>
   );
 };
+
 
 function App() {
   return (

@@ -234,8 +234,8 @@ export default function Layout({ children, currentPageName }) {
 
   return (
     <div
-      className="bg-gradient-to-b from-slate-50 via-white to-slate-50 dark:bg-none dark:bg-slate-950 flex flex-col select-none overflow-hidden"
-      style={{ height: "100dvh", overscrollBehavior: "none" }}
+      className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 dark:bg-none dark:bg-slate-950 flex flex-col select-none overflow-hidden"
+      style={{ paddingTop: "env(safe-area-inset-top)", overscrollBehavior: "none" }}
       role="application"
       aria-label="Lefi AI Image Generator Application"
     >
@@ -248,16 +248,7 @@ export default function Layout({ children, currentPageName }) {
       `}</style>
 
       {/* Global Header */}
-      <header
-        className="sticky top-0 z-40 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 flex items-center relative shrink-0"
-        style={{
-          paddingTop: "env(safe-area-inset-top)",
-          paddingLeft: "max(1rem, env(safe-area-inset-left))",
-          paddingRight: "max(1rem, env(safe-area-inset-right))",
-          minHeight: "calc(3.5rem + env(safe-area-inset-top))",
-        }}
-        role="banner"
-      >
+      <header className="sticky top-0 z-40 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 flex items-center h-14 relative" style={{ paddingLeft: 'max(1rem, env(safe-area-inset-left))', paddingRight: 'max(1rem, env(safe-area-inset-right))' }} role="banner">
         {!isRootPage && currentPageName !== "Home" && (
           <button
             onClick={handleBackClick}
@@ -285,7 +276,7 @@ export default function Layout({ children, currentPageName }) {
       </header>
 
       {/* Page content with transition animations */}
-      <main ref={scrollContainerRef} className="flex-1 overflow-y-auto overflow-x-hidden relative" style={{ paddingBottom: "calc(4rem + env(safe-area-inset-bottom))" }} role="main">
+      <main ref={scrollContainerRef} className="flex-1 overflow-y-auto overflow-x-hidden pb-20 relative" role="main">
         <AnimatePresence mode="wait" custom={direction}>
           <motion.div
             key={currentPageName}
@@ -303,12 +294,8 @@ export default function Layout({ children, currentPageName }) {
 
       {/* Bottom Navigation Bar */}
       <nav
-        className="shrink-0 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 flex z-50"
-        style={{
-          paddingBottom: "env(safe-area-inset-bottom)",
-          paddingLeft: "env(safe-area-inset-left)",
-          paddingRight: "env(safe-area-inset-right)",
-        }}
+        className="fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 flex z-50"
+        style={{ paddingBottom: "env(safe-area-inset-bottom)", paddingLeft: "env(safe-area-inset-left)", paddingRight: "env(safe-area-inset-right)" }}
       >
         {tabs.map(({ name, label, icon: Icon }) => {
           const active = currentPageName === name;
