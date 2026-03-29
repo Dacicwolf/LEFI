@@ -6,9 +6,8 @@ import { pagesConfig } from './pages.config'
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
-import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ErrorBoundary from '@/components/ErrorBoundary';
-import React, { lazy, Suspense } from 'react';
+import { lazy, Suspense } from 'react';
 
 const ImageResult = lazy(() => import('./pages/ImageResult'));
 const AdminPanel = lazy(() => import('./pages/AdminPanel'));
@@ -20,64 +19,40 @@ const PageLoader = () => (
   </div>
 );
 
-const { Pages, Layout, mainPage } = pagesConfig;
+const { Pages, Layout } = pagesConfig;
 const Home = Pages['Home'];
-const mainPageKey = mainPage ?? Object.keys(Pages)[0];
 
 const LayoutWrapper = ({ children, currentPageName }) => Layout ?
   <Layout currentPageName={currentPageName}>{children}</Layout>
   : <>{children}</>;
 
 const AuthenticatedApp = () => {
-  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin, user } = useAuth();
+  const { isLoadingAuth, user } = useAuth();
 
-  React.useEffect(() => {
-    if (authError?.type === 'auth_required') {
-      navigateToLogin();
-    }
-  }, [authError]);
-
-  // Always show loader while auth is being determined
-  if (isLoadingAuth || isLoadingPublicSettings) {
+  // SDK cu requiresAuth: true face redirect la login automat daca nu esti autentificat
+  // Noi doar asteptam sa se termine verificarea
+  if (isLoadingAuth) {
     return <PageLoader />;
   }
 
-  if (authError?.type === 'user_not_registered') {
-    return <UserNotRegisteredError />;
-  }
-
-  if (authError?.type === 'auth_required') {
-    return null;
-  }
-
-  // Guard: if auth finished loading but user is still null, don't render app
-  // This prevents a flash of the app before redirect happens
   if (!user) {
+    // SDK-ul va face redirect — nu facem nimic noi
     return <PageLoader />;
   }
 
-  // Render the main app
   return (
     <Routes>
       <Route path="/" element={
         <Suspense fallback={<PageLoader />}>
-          <LayoutWrapper currentPageName="Home">
-            <Home />
-          </LayoutWrapper>
+          <LayoutWrapper currentPageName="Home"><Home /></LayoutWrapper>
         </Suspense>
       } />
       {Object.entries(Pages).filter(([path]) => path !== 'Home').map(([path, Page]) => (
-        <Route
-          key={path}
-          path={`/${path}`}
-          element={
-            <Suspense fallback={<PageLoader />}>
-              <LayoutWrapper currentPageName={path}>
-                <Page />
-              </LayoutWrapper>
-            </Suspense>
-          }
-        />
+        <Route key={path} path={`/${path}`} element={
+          <Suspense fallback={<PageLoader />}>
+            <LayoutWrapper currentPageName={path}><Page /></LayoutWrapper>
+          </Suspense>
+        } />
       ))}
       <Route path="/ImageResult" element={<Suspense fallback={<PageLoader />}><LayoutWrapper currentPageName="ImageResult"><ImageResult /></LayoutWrapper></Suspense>} />
       <Route path="/AdminPanel" element={<Suspense fallback={<PageLoader />}><LayoutWrapper currentPageName="AdminPanel"><AdminPanel /></LayoutWrapper></Suspense>} />
