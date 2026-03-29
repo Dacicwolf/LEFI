@@ -6,20 +6,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <link rel="manifest" href="/manifest.json" />
     <link rel="preload" as="image" href="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6995fb83472e84f2aaa7251a/77a5e07ff_lefi_logo.png" fetchpriority="high" />
-    <!-- Blocking theme script: apply dark class before first paint to guarantee zero-FOUC on Android WebView -->
     <script>
+      // Break redirect loop: if from_url points back to /login, reset it to /
       (function() {
+        try {
+          var params = new URLSearchParams(window.location.search);
+          var fromUrl = params.get('from_url');
+          if (fromUrl && decodeURIComponent(fromUrl).includes('/login')) {
+            params.set('from_url', window.location.origin + '/');
+            var newSearch = params.toString();
+            window.history.replaceState({}, '', window.location.pathname + (newSearch ? '?' + newSearch : '') + window.location.hash);
+          }
+        } catch(e) {}
+
+        // Theme apply
         var html = document.documentElement;
         var isAndroid = /android/i.test(navigator.userAgent);
         try {
-          // Synchronously apply theme before any DOM rendering
           if (isAndroid) {
-            // Android: always honour system preference; ignore localStorage to avoid stale cache on WebView
             if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
               html.classList.add('dark');
             }
           } else {
-            // Non-Android: check saved preference, fallback to system
             var stored = localStorage.getItem('theme');
             if (stored === 'dark' || (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
               html.classList.add('dark');
@@ -27,9 +35,7 @@
               html.classList.remove('dark');
             }
           }
-        } catch(e) {
-          // Fail safely: suppress errors to prevent FOUC
-        }
+        } catch(e) {}
       })();
     </script>
     <title>Lefi - AI Image Generator</title>
