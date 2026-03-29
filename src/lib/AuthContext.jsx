@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 
 const AuthContext = createContext();
 
+// How many times to retry before giving up and redirecting to login
 const MAX_RETRIES = 3;
 const RETRY_DELAY_MS = 1000;
 
@@ -18,6 +19,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const checkUserAuth = async () => {
+    // Prevent multiple simultaneous redirect attempts
     if (isRedirectingRef.current) return;
 
     setIsLoadingAuth(true);
@@ -27,7 +29,7 @@ export const AuthProvider = ({ children }) => {
 
     for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
       try {
-        const currentUser = await [base44.auth.me](https://base44.auth.me)();
+        const currentUser = await base44.auth.me();
 
         if (currentUser) {
           setUser(currentUser);
@@ -35,16 +37,20 @@ export const AuthProvider = ({ children }) => {
           return;
         }
 
+        // me() returned null/undefined — not authenticated
+        // Don't retry, just redirect
         break;
 
       } catch (err) {
         lastError = err;
+        // On network errors, wait before retrying
         if (attempt < MAX_RETRIES - 1) {
           await new Promise(r => setTimeout(r, RETRY_DELAY_MS));
         }
       }
     }
 
+    // All retries exhausted or null user — redirect to login once
     if (!isRedirectingRef.current) {
       isRedirectingRef.current = true;
       setAuthError({ type: 'auth_required' });
