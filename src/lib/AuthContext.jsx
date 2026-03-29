@@ -17,7 +17,7 @@ const doLogout = () => {
     sessionStorage.clear();
   } catch(e) {}
   // Hard reload — SDK-ul porneste fresh, vede ca nu e token, face redirect corect
-  window.location.href = window.location.origin + '/';
+  window.location.href = 'https://app.base44.com/login?appId=69c4157d8234d4a3786f4c6c';
 };
 
 export const AuthProvider = ({ children }) => {
