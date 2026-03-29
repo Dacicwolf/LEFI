@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useRef, lazy, Suspense } from "react";
-import { useOptimistic } from "@/hooks/useOptimistic";
+import React, { useState, useEffect, useRef, useCallback, lazy, Suspense } from "react";
 import FadeImage from "@/components/FadeImage";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
@@ -22,7 +21,17 @@ export default function Home() {
   const [lastPrompt, setLastPrompt] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [realCredits, setRealCredits] = useState(null);
-  const [credits, runOptimisticCredits, setCredits] = useOptimistic(realCredits);
+  const [credits, setCredits] = useState(null);
+
+  const runOptimisticCredits = useCallback(async (nextValue, asyncFn) => {
+    setCredits(nextValue);
+    try {
+      await asyncFn();
+    } catch (err) {
+      setCredits(realCredits);
+      throw err;
+    }
+  }, [realCredits]);
   const [settings, setSettings] = useState({
     orientation: "Portrait",
     format: "1:1",
