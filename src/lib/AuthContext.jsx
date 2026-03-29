@@ -1,11 +1,32 @@
-import React, { createContext, useState, useContext, useEffect, useRef } from 'react';
+import { createContext, useState, useContext, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 
 const AuthContext = createContext();
 
-// How many times to retry before giving up and redirecting to login
-const MAX_RETRIES = 3;
-const RETRY_DELAY_MS = 1000;
+const MAX_RETRIES = 5;
+const RETRY_DELAY_MS = 800;
+
+// Helper: wait for the SDK to process any OAuth callback params in the URL
+// On Android WebView, the redirect happens inside the same WebView, so we need
+// to give the SDK a tick to handle the hash/search params before calling me().
+function waitForSDKReady() {
+  return new Promise((resolve) => {
+    const search = window.location.search || '';
+    const hash = window.location.hash || '';
+    const hasOAuthParams =
+      search.includes('code=') ||
+      search.includes('token=') ||
+      search.includes('access_token=') ||
+      hash.includes('access_token=') ||
+      hash.includes('token=');
+
+    if (hasOAuthParams) {
+      setTimeout(resolve, 600);
+    } else {
+      resolve();
+    }
+  });
+}
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -13,19 +34,21 @@ export const AuthProvider = ({ children }) => {
   const [isLoadingPublicSettings] = useState(false);
   const [authError, setAuthError] = useState(null);
   const isRedirectingRef = useRef(false);
+  const hasCheckedRef = useRef(false);
 
   useEffect(() => {
     checkUserAuth();
   }, []);
 
   const checkUserAuth = async () => {
-    // Prevent multiple simultaneous redirect attempts
     if (isRedirectingRef.current) return;
+    if (hasCheckedRef.current) return;
+    hasCheckedRef.current = true;
 
     setIsLoadingAuth(true);
     setAuthError(null);
 
-    let lastError = null;
+    await waitForSDKReady();
 
     for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
       try {
@@ -37,20 +60,15 @@ export const AuthProvider = ({ children }) => {
           return;
         }
 
-        // me() returned null/undefined — not authenticated
-        // Don't retry, just redirect
         break;
 
       } catch (err) {
-        lastError = err;
-        // On network errors, wait before retrying
         if (attempt < MAX_RETRIES - 1) {
           await new Promise(r => setTimeout(r, RETRY_DELAY_MS));
         }
       }
     }
 
-    // All retries exhausted or null user — redirect to login once
     if (!isRedirectingRef.current) {
       isRedirectingRef.current = true;
       setAuthError({ type: 'auth_required' });
