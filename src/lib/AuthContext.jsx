@@ -6,14 +6,18 @@ const AuthContext = createContext();
 const MAX_RETRIES = 3;
 const RETRY_DELAY_MS = 1000;
 
-const clearStorage = () => {
+const doLogout = () => {
   try {
+    // Stergem DOAR tokenul — lasam SDK-ul sa faca redirect la login singur
     localStorage.removeItem('base44_access_token');
     localStorage.removeItem('token');
+    // Stergem from_url ca sa nu se concateneze
     localStorage.removeItem('base44_from_url');
     localStorage.removeItem('base44_from__url');
     sessionStorage.clear();
   } catch(e) {}
+  // Hard reload — SDK-ul porneste fresh, vede ca nu e token, face redirect corect
+  window.location.href = window.location.origin + '/';
 };
 
 export const AuthProvider = ({ children }) => {
@@ -39,7 +43,6 @@ export const AuthProvider = ({ children }) => {
       try {
         currentUser = await base44.auth.me();
         if (currentUser) break;
-        // me() a returnat null — nu are rost sa reincercam
         break;
       } catch (err) {
         if (attempt < MAX_RETRIES - 1) {
@@ -52,11 +55,11 @@ export const AuthProvider = ({ children }) => {
       setUser(currentUser);
       setIsLoadingAuth(false);
     } else {
-      // Nu e autentificat — redirect la login
       if (!isRedirectingRef.current) {
         isRedirectingRef.current = true;
         setAuthError({ type: 'auth_required' });
-        base44.auth.redirectToLogin('/');
+        // Lasam SDK-ul sa faca redirect la login — el stie URL-ul corect
+        base44.auth.redirectToLogin();
       }
     }
   };
@@ -65,15 +68,13 @@ export const AuthProvider = ({ children }) => {
     if (isRedirectingRef.current) return;
     isRedirectingRef.current = true;
     setUser(null);
-    clearStorage();
-    base44.auth.redirectToLogin('/');
+    doLogout();
   };
 
   const navigateToLogin = () => {
     if (isRedirectingRef.current) return;
     isRedirectingRef.current = true;
-    clearStorage();
-    base44.auth.redirectToLogin('/');
+    doLogout();
   };
 
   return (
