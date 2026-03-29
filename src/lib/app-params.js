@@ -34,15 +34,33 @@ const getAppParamValue = (paramName, { defaultValue = undefined, removeFromUrl =
 	return null;
 }
 
+const getSafeFromUrl = () => {
+	const href = window.location.href;
+	const origin = window.location.origin;
+	// Daca URL-ul contine /login, returnam root-ul
+	if (href.includes('/login')) {
+		return origin + '/';
+	}
+	return href;
+}
+
 const getAppParams = () => {
 	if (getAppParamValue("clear_access_token") === 'true') {
 		storage.removeItem('base44_access_token');
 		storage.removeItem('token');
 	}
+
+	// Curatam from_url din localStorage daca contine /login
+	const storedFromUrl = storage.getItem('base44_from__url') || storage.getItem('base44_from_url');
+	if (storedFromUrl && storedFromUrl.includes('/login')) {
+		storage.removeItem('base44_from__url');
+		storage.removeItem('base44_from_url');
+	}
+
 	return {
 		appId: getAppParamValue("app_id", { defaultValue: import.meta.env.VITE_BASE44_APP_ID }),
 		token: getAppParamValue("access_token", { removeFromUrl: true }),
-		fromUrl: getAppParamValue("from_url", { defaultValue: window.location.href }),
+		fromUrl: getAppParamValue("from_url", { defaultValue: getSafeFromUrl() }),
 		functionsVersion: getAppParamValue("functions_version", { defaultValue: import.meta.env.VITE_BASE44_FUNCTIONS_VERSION }),
 		appBaseUrl: getAppParamValue("app_base_url", { defaultValue: import.meta.env.VITE_BASE44_APP_BASE_URL }),
 	}
