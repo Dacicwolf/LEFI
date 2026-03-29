@@ -1,57 +1,50 @@
-// Lefi offline shell service worker
-// Cache-first for shell assets; network-first for API calls.
+// Service Worker — network-first for all assets to avoid stale React chunks
+const CACHE_NAME = 'lefi-v3';
 
-const CACHE_NAME = "lefi-shell-v1";
-
-// Core app shell assets to precache on install
-const SHELL_ASSETS = [
-  "/",
-  "/index.html",
-  "/manifest.json",
-];
-
-self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(SHELL_ASSETS))
-  );
+self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-self.addEventListener("activate", (event) => {
+self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
-    )
+      Promise.all(keys.map((key) => caches.delete(key)))
+    ).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
-self.addEventListener("fetch", (event) => {
-  const { request } = event;
-  const url = new URL(request.url);
+// Network-first: always try network, fall back to cache only for non-JS assets
+self.addEventListener('fetch', (event) => {
+  const url = new URL(event.request.url);
 
-  // Never intercept cross-origin API / Supabase / Stripe requests
-  if (url.origin !== self.location.origin) return;
-  // Never intercept non-GET requests
-  if (request.method !== "GET") return;
-
-  // For navigation requests (HTML) serve shell from cache, fallback to network
-  if (request.mode === "navigate") {
-    event.respondWith(
-      caches.match("/index.html").then((cached) => cached || fetch(request))
-    );
+  // Never cache JS/JSX chunks — they change on every build
+  if (url.pathname.match(/\.(js|jsx|mjs|ts|tsx)(\?.*)?$/)) {
+    event.respondWith(fetch(event.request));
     return;
   }
 
-  // For JS/CSS/image assets: stale-while-revalidate
+  // For everything else: network first, cache as fallback
   event.respondWith(
-    caches.open(CACHE_NAME).then(async (cache) => {
-      const cached = await cache.match(request);
-      const networkFetch = fetch(request).then((response) => {
-        if (response.ok) cache.put(request, response.clone());
+    fetch(event.request)
+      .then((response) => {
+        if (response.ok) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+        }
         return response;
-      }).catch(() => null);
-      return cached || networkFetch;
-    })
+      })
+      .catch(() => caches.match(event.request))
   );
+});
+
+// Handle preload messages from the app
+self.addEventListener('message', (event) => {
+  if (event.data?.type === 'PRELOAD_ASSETS') {
+    const urls = event.data.urls || [];
+    caches.open(CACHE_NAME).then((cache) => {
+      urls.forEach((url) => {
+        fetch(url).then((res) => { if (res.ok) cache.put(url, res); }).catch(() => {});
+      });
+    });
+  }
 });
