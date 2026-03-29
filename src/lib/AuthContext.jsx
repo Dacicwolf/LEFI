@@ -3,20 +3,9 @@ import { base44 } from '@/api/base44Client';
 
 const AuthContext = createContext();
 
-const doLogout = () => {
-  try {
-    localStorage.removeItem('base44_access_token');
-    localStorage.removeItem('token');
-    localStorage.removeItem('base44_from_url');
-    localStorage.removeItem('base44_from__url');
-    sessionStorage.clear();
-  } catch(e) {}
-  window.location.href = 'https://lefi.base44.app/';
-};
-
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [isLoadingAuth, setIsLoadingAuth] = useState(true); // true pana stim sigur
+  const [isLoadingAuth, setIsLoadingAuth] = useState(true);
   const [isLoadingPublicSettings] = useState(false);
   const [authError, setAuthError] = useState(null);
   const isRedirectingRef = useRef(false);
@@ -27,16 +16,6 @@ export const AuthProvider = ({ children }) => {
 
   const checkUserAuth = async () => {
     if (isRedirectingRef.current) return;
-
-    // Verificam imediat daca exista token in localStorage
-    // Daca nu e token, nu are rost sa apelam me() — facem redirect direct
-    const hasToken = !!localStorage.getItem('base44_access_token') || !!localStorage.getItem('token');
-    if (!hasToken) {
-      isRedirectingRef.current = true;
-      // Ramanem pe spinner (isLoadingAuth=true) si facem redirect
-      doLogout();
-      return;
-    }
 
     setIsLoadingAuth(true);
     setAuthError(null);
@@ -52,11 +31,10 @@ export const AuthProvider = ({ children }) => {
       setUser(currentUser);
       setIsLoadingAuth(false);
     } else {
-      // Token exista dar invalid — stergem si redirectam
-      if (!isRedirectingRef.current) {
-        isRedirectingRef.current = true;
-        doLogout();
-      }
+      isRedirectingRef.current = true;
+      setAuthError({ type: 'auth_required' });
+      // SDK-ul stie cel mai bine unde sa trimita — fara parametri
+      base44.auth.logout();
     }
   };
 
@@ -64,13 +42,13 @@ export const AuthProvider = ({ children }) => {
     if (isRedirectingRef.current) return;
     isRedirectingRef.current = true;
     setUser(null);
-    doLogout();
+    base44.auth.logout();
   };
 
   const navigateToLogin = () => {
     if (isRedirectingRef.current) return;
     isRedirectingRef.current = true;
-    doLogout();
+    base44.auth.logout();
   };
 
   return (
