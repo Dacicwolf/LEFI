@@ -34,6 +34,15 @@ const getAppParamValue = (paramName, { defaultValue = undefined, removeFromUrl =
 	return null;
 }
 
+const getSafeFromUrl = () => {
+	const href = window.location.href;
+	// Never use /login as the from_url — it causes infinite redirect loops
+	if (href.includes('/login')) {
+		return window.location.origin + '/';
+	}
+	return href;
+}
+
 const getAppParams = () => {
 	if (getAppParamValue("clear_access_token") === 'true') {
 		storage.removeItem('base44_access_token');
@@ -42,12 +51,11 @@ const getAppParams = () => {
 	return {
 		appId: getAppParamValue("app_id", { defaultValue: import.meta.env.VITE_BASE44_APP_ID }),
 		token: getAppParamValue("access_token", { removeFromUrl: true }),
-		fromUrl: getAppParamValue("from_url", { defaultValue: window.location.href }),
+		fromUrl: getAppParamValue("from_url", { defaultValue: getSafeFromUrl() }),
 		functionsVersion: getAppParamValue("functions_version", { defaultValue: import.meta.env.VITE_BASE44_FUNCTIONS_VERSION }),
 		appBaseUrl: getAppParamValue("app_base_url", { defaultValue: import.meta.env.VITE_BASE44_APP_BASE_URL }),
 	}
 }
-
 
 export const appParams = {
 	...getAppParams()
