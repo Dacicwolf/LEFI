@@ -6,18 +6,14 @@ const AuthContext = createContext();
 const MAX_RETRIES = 3;
 const RETRY_DELAY_MS = 1000;
 
-const doLogout = () => {
+const clearStorage = () => {
   try {
-    // Stergem tokenul manual
     localStorage.removeItem('base44_access_token');
     localStorage.removeItem('token');
     localStorage.removeItem('base44_from_url');
     localStorage.removeItem('base44_from__url');
     sessionStorage.clear();
   } catch(e) {}
-  // Redirect curat la root — SDK-ul va detecta ca nu esti autentificat
-  // si va face redirect la login cu from_url=https://lefi.base44.app/ (corect)
-  window.location.replace('https://lefi.base44.app/');
 };
 
 export const AuthProvider = ({ children }) => {
@@ -37,18 +33,14 @@ export const AuthProvider = ({ children }) => {
     setIsLoadingAuth(true);
     setAuthError(null);
 
+    let currentUser = null;
+
     for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
       try {
-        const currentUser = await base44.auth.me();
-
-        if (currentUser) {
-          setUser(currentUser);
-          setIsLoadingAuth(false);
-          return;
-        }
-
+        currentUser = await base44.auth.me();
+        if (currentUser) break;
+        // me() a returnat null — nu are rost sa reincercam
         break;
-
       } catch (err) {
         if (attempt < MAX_RETRIES - 1) {
           await new Promise(r => setTimeout(r, RETRY_DELAY_MS));
@@ -56,10 +48,16 @@ export const AuthProvider = ({ children }) => {
       }
     }
 
-    if (!isRedirectingRef.current) {
-      isRedirectingRef.current = true;
-      setAuthError({ type: 'auth_required' });
-      base44.auth.redirectToLogin('/');
+    if (currentUser) {
+      setUser(currentUser);
+      setIsLoadingAuth(false);
+    } else {
+      // Nu e autentificat — redirect la login
+      if (!isRedirectingRef.current) {
+        isRedirectingRef.current = true;
+        setAuthError({ type: 'auth_required' });
+        base44.auth.redirectToLogin('/');
+      }
     }
   };
 
@@ -67,13 +65,15 @@ export const AuthProvider = ({ children }) => {
     if (isRedirectingRef.current) return;
     isRedirectingRef.current = true;
     setUser(null);
-    doLogout();
+    clearStorage();
+    base44.auth.redirectToLogin('/');
   };
 
   const navigateToLogin = () => {
     if (isRedirectingRef.current) return;
     isRedirectingRef.current = true;
-    doLogout();
+    clearStorage();
+    base44.auth.redirectToLogin('/');
   };
 
   return (
