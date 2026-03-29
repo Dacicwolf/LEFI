@@ -61,7 +61,7 @@ export const AuthProvider = ({ children }) => {
     if (!isRedirectingRef.current) {
       isRedirectingRef.current = true;
       setAuthError({ type: 'auth_required' });
-      hardRedirectToLogin();
+      base44.auth.logout('/');
     }
   };
 
@@ -71,13 +71,13 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     // Nu apelam base44.auth.logout() ca face redirect propriu
     // Facem totul manual
-    hardRedirectToLogin();
+    base44.auth.logout('/');
   };
 
   const navigateToLogin = () => {
     if (isRedirectingRef.current) return;
     isRedirectingRef.current = true;
-    hardRedirectToLogin();
+    base44.auth.logout('/');
   };
 
   return (
