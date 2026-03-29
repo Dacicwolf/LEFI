@@ -6,6 +6,22 @@ const AuthContext = createContext();
 const MAX_RETRIES = 3;
 const RETRY_DELAY_MS = 1000;
 
+const clearAuthStorage = () => {
+  try {
+    localStorage.removeItem('base44_from_url');
+    localStorage.removeItem('base44_from__url');
+    localStorage.removeItem('base44_access_token');
+    localStorage.removeItem('token');
+    sessionStorage.clear();
+  } catch(e) {}
+};
+
+const hardRedirectToLogin = () => {
+  clearAuthStorage();
+  // Folosim location.replace cu cache-bust ca sa fortam reload fara cache
+  window.location.replace(window.location.origin + '/login?t=' + Date.now());
+};
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
@@ -23,8 +39,6 @@ export const AuthProvider = ({ children }) => {
     setIsLoadingAuth(true);
     setAuthError(null);
 
-    let lastError = null;
-
     for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
       try {
         const currentUser = await base44.auth.me();
@@ -38,7 +52,6 @@ export const AuthProvider = ({ children }) => {
         break;
 
       } catch (err) {
-        lastError = err;
         if (attempt < MAX_RETRIES - 1) {
           await new Promise(r => setTimeout(r, RETRY_DELAY_MS));
         }
@@ -48,9 +61,7 @@ export const AuthProvider = ({ children }) => {
     if (!isRedirectingRef.current) {
       isRedirectingRef.current = true;
       setAuthError({ type: 'auth_required' });
-      // Curatam from_url inainte de redirect ca sa nu se concateneze
-      try { localStorage.removeItem('base44_from_url'); localStorage.removeItem('base44_from__url'); } catch(e) {}
-      base44.auth.redirectToLogin(window.location.origin + '/');
+      hardRedirectToLogin();
     }
   };
 
@@ -58,16 +69,15 @@ export const AuthProvider = ({ children }) => {
     if (isRedirectingRef.current) return;
     isRedirectingRef.current = true;
     setUser(null);
-    // Curatam from_url si folosim logout oficial
-    try { localStorage.removeItem('base44_from_url'); localStorage.removeItem('base44_from__url'); } catch(e) {}
-    base44.auth.logout(); setTimeout(() => { window.location.replace(window.location.origin + '/?cache_bust=' + Date.now()); }, 100);
+    // Nu apelam base44.auth.logout() ca face redirect propriu
+    // Facem totul manual
+    hardRedirectToLogin();
   };
 
   const navigateToLogin = () => {
     if (isRedirectingRef.current) return;
     isRedirectingRef.current = true;
-    try { localStorage.removeItem('base44_from_url'); localStorage.removeItem('base44_from__url'); } catch(e) {}
-    base44.auth.redirectToLogin(window.location.origin + '/');
+    hardRedirectToLogin();
   };
 
   return (
