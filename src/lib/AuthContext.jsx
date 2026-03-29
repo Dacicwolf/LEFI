@@ -3,26 +3,20 @@ import { base44 } from '@/api/base44Client';
 
 const AuthContext = createContext();
 
-const MAX_RETRIES = 3;
-const RETRY_DELAY_MS = 1000;
-
 const doLogout = () => {
   try {
-    // Stergem DOAR tokenul — lasam SDK-ul sa faca redirect la login singur
     localStorage.removeItem('base44_access_token');
     localStorage.removeItem('token');
-    // Stergem from_url ca sa nu se concateneze
     localStorage.removeItem('base44_from_url');
     localStorage.removeItem('base44_from__url');
     sessionStorage.clear();
   } catch(e) {}
-  // Hard reload — SDK-ul porneste fresh, vede ca nu e token, face redirect corect
   window.location.href = 'https://lefi.base44.app/';
 };
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [isLoadingAuth, setIsLoadingAuth] = useState(true);
+  const [isLoadingAuth, setIsLoadingAuth] = useState(true); // true pana stim sigur
   const [isLoadingPublicSettings] = useState(false);
   const [authError, setAuthError] = useState(null);
   const isRedirectingRef = useRef(false);
@@ -34,32 +28,34 @@ export const AuthProvider = ({ children }) => {
   const checkUserAuth = async () => {
     if (isRedirectingRef.current) return;
 
+    // Verificam imediat daca exista token in localStorage
+    // Daca nu e token, nu are rost sa apelam me() — facem redirect direct
+    const hasToken = !!localStorage.getItem('base44_access_token') || !!localStorage.getItem('token');
+    if (!hasToken) {
+      isRedirectingRef.current = true;
+      // Ramanem pe spinner (isLoadingAuth=true) si facem redirect
+      doLogout();
+      return;
+    }
+
     setIsLoadingAuth(true);
     setAuthError(null);
 
     let currentUser = null;
-
-    for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
-      try {
-        currentUser = await base44.auth.me();
-        if (currentUser) break;
-        break;
-      } catch (err) {
-        if (attempt < MAX_RETRIES - 1) {
-          await new Promise(r => setTimeout(r, RETRY_DELAY_MS));
-        }
-      }
+    try {
+      currentUser = await base44.auth.me();
+    } catch (err) {
+      currentUser = null;
     }
 
     if (currentUser) {
       setUser(currentUser);
       setIsLoadingAuth(false);
     } else {
+      // Token exista dar invalid — stergem si redirectam
       if (!isRedirectingRef.current) {
         isRedirectingRef.current = true;
-        setAuthError({ type: 'auth_required' });
-        // Lasam SDK-ul sa faca redirect la login — el stie URL-ul corect
-        base44.auth.redirectToLogin();
+        doLogout();
       }
     }
   };
