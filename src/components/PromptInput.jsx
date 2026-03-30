@@ -18,7 +18,7 @@ export default function PromptInput({ prompt, setPrompt, onGenerate, isLoading }
       transition={{ duration: 0.6, ease: "easeOut" }}
       className="w-full max-w-2xl mx-auto"
     >
-      <div className="bg-white dark:bg-slate-900 shadow-xl shadow-slate-200/50 dark:shadow-black/30 rounded-2xl overflow-hidden">
+      <div className="bg-slate-50 dark:bg-slate-950 shadow-xl shadow-slate-200/50 dark:shadow-black/30 rounded-2xl overflow-hidden">
         <textarea
           placeholder="Describe what you want to see and let AI create it for you..."
           value={prompt}
