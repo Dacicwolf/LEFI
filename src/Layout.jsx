@@ -281,7 +281,7 @@ export default function Layout({ children, currentPageName }) {
         <button
           onClick={() => setDark((d) => !d)}
           className="flex items-center justify-center min-w-[44px] min-h-[44px] rounded-xl text-slate-400 dark:text-slate-500 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/20 hover:scale-110 active:scale-95 transition-all duration-200 select-none"
-          aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
+          aria-label={dark ? "Luminează" : "Întunecă"}
         >
           {dark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
         </button>
