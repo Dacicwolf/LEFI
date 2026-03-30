@@ -19,8 +19,7 @@ export default function PromptInput({ prompt, setPrompt, onGenerate, isLoading }
       transition={{ duration: 0.6, ease: "easeOut" }}
       className="w-full max-w-2xl mx-auto"
     >
-      <div className="relative group">
-        <div className="relative bg-white dark:bg-slate-900 rounded-2xl p-1.5 shadow-xl shadow-slate-200/50 dark:shadow-black/30">
+      <div className="relative border border-transparent focus-within:border-[#cccccc] rounded-2xl bg-white dark:bg-slate-900 shadow-xl shadow-slate-200/50 dark:shadow-black/30 transition-colors">
           <Textarea
             placeholder="Describe what you want to see and let AI create it for you..."
             value={prompt}
@@ -29,7 +28,7 @@ export default function PromptInput({ prompt, setPrompt, onGenerate, isLoading }
             inputMode="text"
             aria-label="Image generation prompt"
             aria-multiline="true"
-            className="min-h-[120px] bg-slate-50/50 dark:bg-slate-800/50 rounded-xl text-base text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 border border-transparent focus:border-[#cccccc] focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none resize-none p-4"
+            className="min-h-[120px] bg-transparent rounded-2xl text-base text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 border-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none resize-none p-4"
           />
           <div className="flex items-center justify-between px-2 pt-1 pb-1">
             <p className="text-xs text-slate-400 dark:text-slate-500 pl-2 leading-relaxed">
@@ -50,7 +49,6 @@ export default function PromptInput({ prompt, setPrompt, onGenerate, isLoading }
               {isLoading ? "Generating..." : "Generate"}
             </Button>
           </div>
-        </div>
       </div>
     </motion.div>
   );
