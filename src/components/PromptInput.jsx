@@ -34,7 +34,7 @@ export default function PromptInput({ prompt, setPrompt, onGenerate, isLoading }
           />
           <div className="flex items-center justify-between px-2 pt-1 pb-1">
             <p className="text-xs text-slate-400 dark:text-slate-500 pl-2 leading-relaxed">
-              Enter = Generate<br />
+              Press Enter or button to Generate<br />
               Complex images may take up to 60s
             </p>
             <Button
