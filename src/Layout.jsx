@@ -281,7 +281,7 @@ export default function Layout({ children, currentPageName }) {
         <button
           onClick={() => setDark((d) => !d)}
           className="flex items-center justify-center min-w-[44px] min-h-[44px] rounded-xl text-slate-400 dark:text-slate-500 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/20 hover:scale-110 active:scale-95 transition-all duration-200 select-none"
-          aria-label={dark ? "Luminează" : "Întunecă"}
+          aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
         >
           {dark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
         </button>
@@ -306,7 +306,7 @@ export default function Layout({ children, currentPageName }) {
 
       {/* Bottom Navigation Bar */}
       <nav
-        className="shrink-0 border-t border-slate-200 dark:border-slate-800 flex gap-2 px-2 py-2 z-50"
+        className="shrink-0 bg-slate-100 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 flex gap-4 px-3 z-50"
         style={{
           paddingBottom: "env(safe-area-inset-bottom)",
           paddingLeft: "env(safe-area-inset-left)",
@@ -323,8 +323,8 @@ export default function Layout({ children, currentPageName }) {
               aria-current={active ? "page" : undefined}
               className={`flex-1 flex flex-col items-center justify-center min-h-[56px] gap-0.5 transition-all duration-200 select-none rounded-2xl ${
                 active
-                  ? "text-violet-600 dark:text-violet-400 bg-white dark:bg-slate-800 scale-105 shadow-sm"
-                  : "text-slate-400 dark:text-slate-500 hover:text-violet-500 dark:hover:text-violet-400 bg-white dark:bg-slate-700"
+                  ? "text-violet-600 dark:text-violet-400 bg-white dark:bg-slate-900 scale-105 shadow-sm"
+                  : "text-slate-400 dark:text-slate-500 hover:text-violet-500 dark:hover:text-violet-400 hover:bg-white dark:hover:bg-slate-900 bg-white/60 dark:bg-slate-900/60"
               }`}
             >
               <Icon className="w-5 h-5" />
