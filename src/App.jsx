@@ -54,7 +54,7 @@ const AuthenticatedApp = () => {
           </Suspense>
         } />
       ))}
-      <Route path="/ImageResult" element={<Suspense fallback={<PageLoader />}><LayoutWrapper currentPageName="ImageResult"><ImageResult /></LayoutWrapper></Suspense>} />
+      <Route path="/ImageResult" element={<Suspense fallback={<PageLoader />}><ImageResult /></Suspense>} />
       <Route path="/AdminPanel" element={<Suspense fallback={<PageLoader />}><LayoutWrapper currentPageName="AdminPanel"><AdminPanel /></LayoutWrapper></Suspense>} />
       <Route path="/payment-success" element={<Suspense fallback={<PageLoader />}><LayoutWrapper currentPageName="PaymentSuccess"><PaymentSuccess /></LayoutWrapper></Suspense>} />
       <Route path="/home" element={<Navigate to="/" replace />} />
