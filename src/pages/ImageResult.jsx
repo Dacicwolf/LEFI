@@ -328,10 +328,6 @@ const ImageResult = memo(function ImageResult() {
 
       {/* Bottom bar */}
       <div className="relative z-10 px-4 py-4 shrink-0 flex gap-3">
-        <Button onClick={handleCopyLink} variant="outline" className="flex-1 gap-2">
-          {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
-          {copied ? "Copied!" : "Copy Link"}
-        </Button>
         <Button
           onClick={handleDownload}
           className="flex-1 gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white"
