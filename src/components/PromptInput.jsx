@@ -20,7 +20,6 @@ export default function PromptInput({ prompt, setPrompt, onGenerate, isLoading }
       className="w-full max-w-2xl mx-auto"
     >
       <div className="relative group">
-        <div className="absolute -inset-0.5 bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 rounded-2xl opacity-20 group-hover:opacity-30 blur transition-opacity duration-500" />
         <div className="relative bg-white dark:bg-slate-900 rounded-2xl p-1.5 shadow-xl shadow-slate-200/50 dark:shadow-black/30">
           <Textarea
             placeholder="Describe what you want to see and let AI create it for you..."
