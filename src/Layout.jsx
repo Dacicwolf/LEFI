@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Wand2, Settings, Sun, Moon, ChevronLeft } from "lucide-react";
+import { Wand2, Settings, Sun, Moon, ChevronLeft, Images } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { AnimatePresence, motion } from "framer-motion";
 import { usePrefetchPages } from "@/hooks/usePrefetchPages";
@@ -11,21 +11,24 @@ import { useAndroidBack } from "@/hooks/useAndroidBack";
 
 const ROOT_PAGES = {
   Home: "/",
+  Gallery: "/Gallery",
   SettingsPage: "/SettingsPage",
 };
 
 const tabs = [
   { name: "Home", label: "Generate", icon: Wand2 },
+  { name: "Gallery", label: "Gallery", icon: Images },
   { name: "SettingsPage", label: "Settings", icon: Settings },
 ];
 
 const PAGE_TITLES = {
   Home: "Lefi (text-to-image)",
+  Gallery: "Gallery",
   SettingsPage: "Settings",
 };
 
 // Determine which tab owns a given page name
-const TAB_ORDER = ["Home", "SettingsPage"];
+const TAB_ORDER = ["Home", "Gallery", "SettingsPage"];
 
 function getTabIndex(pageName) {
   const tab = TAB_ORDER.find((t) => t === pageName);

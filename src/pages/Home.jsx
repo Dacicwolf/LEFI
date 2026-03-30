@@ -89,6 +89,7 @@ export default function Home() {
         if (liveRegionRef.current) {
           liveRegionRef.current.textContent = "Image generated successfully. Navigating to result.";
         }
+        await base44.entities.GeneratedImage.create({ user_email: (await base44.auth.me()).email, image_url: result.url, prompt });
         navigate(`/ImageResult?url=${encodeURIComponent(result.url)}&prompt=${encodeURIComponent(prompt)}`);
       });
     } catch {

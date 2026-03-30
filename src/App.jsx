@@ -10,6 +10,7 @@ import ErrorBoundary from '@/components/ErrorBoundary';
 import { lazy, Suspense } from 'react';
 
 const ImageResult = lazy(() => import('./pages/ImageResult'));
+const Gallery = lazy(() => import('./pages/Gallery'));
 const AdminPanel = lazy(() => import('./pages/AdminPanel'));
 const PaymentSuccess = lazy(() => import('./pages/PaymentSuccess'));
 
@@ -57,6 +58,7 @@ const AuthenticatedApp = () => {
       <Route path="/ImageResult" element={<Suspense fallback={<PageLoader />}><ImageResult /></Suspense>} />
       <Route path="/AdminPanel" element={<Suspense fallback={<PageLoader />}><LayoutWrapper currentPageName="AdminPanel"><AdminPanel /></LayoutWrapper></Suspense>} />
       <Route path="/payment-success" element={<Suspense fallback={<PageLoader />}><LayoutWrapper currentPageName="PaymentSuccess"><PaymentSuccess /></LayoutWrapper></Suspense>} />
+      <Route path="/Gallery" element={<Suspense fallback={<PageLoader />}><LayoutWrapper currentPageName="Gallery"><Gallery /></LayoutWrapper></Suspense>} />
       <Route path="/home" element={<Navigate to="/" replace />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
