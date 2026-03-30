@@ -30,7 +30,7 @@ export default function PromptInput({ prompt, setPrompt, onGenerate, isLoading }
             inputMode="text"
             aria-label="Image generation prompt"
             aria-multiline="true"
-            className="min-h-[120px] bg-slate-50/50 dark:bg-slate-800/50 rounded-xl text-base text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 border-[#cccccc] focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none resize-none p-4"
+            className="min-h-[120px] bg-slate-50/50 dark:bg-slate-800/50 rounded-xl text-base text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 border border-transparent focus:border-[#cccccc] focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none resize-none p-4"
           />
           <div className="flex items-center justify-between px-2 pt-1 pb-1">
             <p className="text-xs text-slate-400 dark:text-slate-500 pl-2 leading-relaxed">
