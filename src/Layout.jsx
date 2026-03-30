@@ -274,7 +274,7 @@ export default function Layout({ children, currentPageName }) {
           {currentPageName === "Home" ? (
             <span className="text-indigo-600 font-bold tracking-widest text-lg">LEFI</span>
           ) : (
-            <span className="text-slate-900 dark:text-white">{pageTitle}</span>
+            <span className="text-indigo-600 font-bold tracking-widest text-lg dark:text-violet-400">{pageTitle}</span>
           )}
         </h1>
         <div className="flex-1" />
