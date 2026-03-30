@@ -306,7 +306,7 @@ export default function Layout({ children, currentPageName }) {
 
       {/* Bottom Navigation Bar */}
       <nav
-        className="shrink-0 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 flex gap-2 px-2 z-50"
+        className="shrink-0 bg-slate-100 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 flex gap-2 px-2 z-50"
         style={{
           paddingBottom: "env(safe-area-inset-bottom)",
           paddingLeft: "env(safe-area-inset-left)",
@@ -321,10 +321,10 @@ export default function Layout({ children, currentPageName }) {
               onClick={() => handleTabClick(name)}
               aria-label={`Navigate to ${label}`}
               aria-current={active ? "page" : undefined}
-              className={`flex-1 flex flex-col items-center justify-center min-h-[56px] gap-0.5 transition-all duration-200 select-none ${
+              className={`flex-1 flex flex-col items-center justify-center min-h-[56px] gap-0.5 transition-all duration-200 select-none rounded-2xl ${
                 active
-                  ? "text-violet-600 dark:text-violet-400 scale-110"
-                  : "text-slate-400 dark:text-slate-500 hover:text-violet-500 dark:hover:text-violet-400 hover:scale-110 hover:bg-violet-50 dark:hover:bg-violet-900/20 rounded-xl"
+                  ? "text-violet-600 dark:text-violet-400 bg-white dark:bg-slate-900 scale-105 shadow-sm"
+                  : "text-slate-400 dark:text-slate-500 hover:text-violet-500 dark:hover:text-violet-400 bg-white/60 dark:bg-slate-900/60"
               }`}
             >
               <Icon className="w-5 h-5" />
