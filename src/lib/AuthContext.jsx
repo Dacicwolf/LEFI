@@ -3,15 +3,14 @@ import { base44 } from '@/api/base44Client';
 
 const AuthContext = createContext();
 
-// Sterge tot si du-te la login FARA from_url
-const doLogout = () => {
+const doLogout = async () => {
   try {
+    await base44.auth.logout('/');
+  } catch(e) {
     localStorage.clear();
     sessionStorage.clear();
-  } catch(e) {}
-  // Mergem direct la pagina de login a Base44 fara niciun from_url
-  // Astfel dupa login, Base44 va trimite la root-ul app-ului (default)
-  window.location.replace('https://lefi.base44.app/login');
+    window.location.replace('/');
+  }
 };
 
 export const AuthProvider = ({ children }) => {
@@ -22,11 +21,6 @@ export const AuthProvider = ({ children }) => {
   const isRedirectingRef = useRef(false);
 
   useEffect(() => {
-    // Daca suntem pe pagina /login, nu facem nimic — lasam login-ul sa lucreze
-    if (window.location.pathname.includes('/login')) {
-      setIsLoadingAuth(false);
-      return;
-    }
     checkUserAuth();
   }, []);
 
@@ -42,28 +36,27 @@ export const AuthProvider = ({ children }) => {
     } catch (err) {
       currentUser = null;
     }
-
+ AuthContext.jsx
     if (currentUser) {
       setUser(currentUser);
       setIsLoadingAuth(false);
     } else {
       isRedirectingRef.current = true;
-      // Nu facem setIsLoadingAuth(false) — ramanem pe spinner pana se face redirect
-      doLogout();
+      await doLogout();
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
     if (isRedirectingRef.current) return;
     isRedirectingRef.current = true;
     setUser(null);
-    doLogout();
+    await doLogout();
   };
 
-  const navigateToLogin = () => {
+  const navigateToLogin = async () => {
     if (isRedirectingRef.current) return;
     isRedirectingRef.current = true;
-    doLogout();
+    await doLogout();
   };
 
   return (
