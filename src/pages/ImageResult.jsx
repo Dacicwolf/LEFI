@@ -21,67 +21,42 @@ const ImageResult = memo(function ImageResult() {
   const [imgLoaded, setImgLoaded] = useState(false);
   const liveRegionRef = useRef(null);
 
+  // Zoom + pan — totul in state, simplu
   const [scale, setScale] = useState(1);
-  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const [ox, setOx] = useState(0);
+  const [oy, setOy] = useState(0);
 
   const containerRef = useRef(null);
-  const scaleRef = useRef(1);
-  const offsetRef = useRef({ x: 0, y: 0 });
 
-  // Keep refs in sync
-  useEffect(() => { scaleRef.current = scale; }, [scale]);
-  useEffect(() => { offsetRef.current = offset; }, [offset]);
-
-  const applyScale = useCallback((newScale, centerX, centerY) => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    const cw = container.clientWidth;
-    const ch = container.clientHeight;
-    const cx = centerX !== undefined ? centerX : cw / 2;
-    const cy = centerY !== undefined ? centerY : ch / 2;
-
-    const clamped = clamp(newScale, MIN_SCALE, MAX_SCALE);
-    const prevScale = scaleRef.current;
-
-    if (clamped === prevScale) return;
-
-    // Adjust offset so zoom is centered on the pinch/wheel point
-    const ox = offsetRef.current.x;
-    const oy = offsetRef.current.y;
-    const ratio = clamped / prevScale;
-
-    let newOx = cx - ratio * (cx - ox);
-    let newOy = cy - ratio * (cy - oy);
-
-    if (clamped === MIN_SCALE) {
-      newOx = 0;
-      newOy = 0;
-    }
-
-    scaleRef.current = clamped;
-    offsetRef.current = { x: newOx, y: newOy };
-    setScale(clamped);
-    setOffset({ x: newOx, y: newOy });
-  }, []);
-
-  // Pinch zoom
+  // Refs pentru gesture tracking
   const lastDist = useRef(null);
-  const lastPinchMid = useRef(null);
-
-  // Single finger pan
   const isPanning = useRef(false);
   const lastPan = useRef({ x: 0, y: 0 });
+  const isDragging = useRef(false);
+  const lastMouse = useRef({ x: 0, y: 0 });
 
+  // Zoom buttons
+  const zoomIn = () => {
+    setScale(prev => {
+      const next = clamp(prev + ZOOM_STEP, MIN_SCALE, MAX_SCALE);
+      return next;
+    });
+  };
+
+  const zoomOut = () => {
+    setScale(prev => {
+      const next = clamp(prev - ZOOM_STEP, MIN_SCALE, MAX_SCALE);
+      if (next === MIN_SCALE) { setOx(0); setOy(0); }
+      return next;
+    });
+  };
+
+  // Touch pinch zoom
   const handleTouchStart = useCallback((e) => {
     if (e.touches.length === 2) {
       const dx = e.touches[0].clientX - e.touches[1].clientX;
       const dy = e.touches[0].clientY - e.touches[1].clientY;
       lastDist.current = Math.sqrt(dx * dx + dy * dy);
-      lastPinchMid.current = {
-        x: (e.touches[0].clientX + e.touches[1].clientX) / 2,
-        y: (e.touches[0].clientY + e.touches[1].clientY) / 2,
-      };
       isPanning.current = false;
     } else if (e.touches.length === 1) {
       isPanning.current = true;
@@ -95,30 +70,28 @@ const ImageResult = memo(function ImageResult() {
       const dx = e.touches[0].clientX - e.touches[1].clientX;
       const dy = e.touches[0].clientY - e.touches[1].clientY;
       const dist = Math.sqrt(dx * dx + dy * dy);
-      const mid = {
-        x: (e.touches[0].clientX + e.touches[1].clientX) / 2,
-        y: (e.touches[0].clientY + e.touches[1].clientY) / 2,
-      };
       if (lastDist.current !== null) {
-        const newScale = scaleRef.current * (dist / lastDist.current);
-        applyScale(newScale, mid.x, mid.y);
+        const ratio = dist / lastDist.current;
+        setScale(prev => {
+          const next = clamp(prev * ratio, MIN_SCALE, MAX_SCALE);
+          if (next === MIN_SCALE) { setOx(0); setOy(0); }
+          return next;
+        });
       }
       lastDist.current = dist;
-      lastPinchMid.current = mid;
     } else if (e.touches.length === 1 && isPanning.current) {
-      if (scaleRef.current <= MIN_SCALE) return;
       e.preventDefault();
       const dx = e.touches[0].clientX - lastPan.current.x;
       const dy = e.touches[0].clientY - lastPan.current.y;
       lastPan.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-      const newOffset = {
-        x: offsetRef.current.x + dx,
-        y: offsetRef.current.y + dy,
-      };
-      offsetRef.current = newOffset;
-      setOffset(newOffset);
+      setScale(currentScale => {
+        if (currentScale <= MIN_SCALE) return currentScale;
+        setOx(prev => prev + dx);
+        setOy(prev => prev + dy);
+        return currentScale;
+      });
     }
-  }, [applyScale]);
+  }, []);
 
   const handleTouchEnd = useCallback((e) => {
     if (e.touches.length < 2) lastDist.current = null;
@@ -128,21 +101,16 @@ const ImageResult = memo(function ImageResult() {
   // Mouse wheel zoom
   const handleWheel = useCallback((e) => {
     e.preventDefault();
-    const container = containerRef.current;
-    if (!container) return;
-    const rect = container.getBoundingClientRect();
-    const cx = e.clientX - rect.left;
-    const cy = e.clientY - rect.top;
     const delta = e.deltaY > 0 ? -0.15 : 0.15;
-    applyScale(scaleRef.current + delta, cx, cy);
-  }, [applyScale]);
+    setScale(prev => {
+      const next = clamp(prev + delta, MIN_SCALE, MAX_SCALE);
+      if (next === MIN_SCALE) { setOx(0); setOy(0); }
+      return next;
+    });
+  }, []);
 
   // Mouse drag pan
-  const isDragging = useRef(false);
-  const lastMouse = useRef({ x: 0, y: 0 });
-
   const handleMouseDown = useCallback((e) => {
-    if (scaleRef.current <= MIN_SCALE) return;
     isDragging.current = true;
     lastMouse.current = { x: e.clientX, y: e.clientY };
     e.preventDefault();
@@ -150,15 +118,15 @@ const ImageResult = memo(function ImageResult() {
 
   const handleMouseMove = useCallback((e) => {
     if (!isDragging.current) return;
-    const dx = e.clientX - lastMouse.current.x;
-    const dy = e.clientY - lastMouse.current.y;
-    lastMouse.current = { x: e.clientX, y: e.clientY };
-    const newOffset = {
-      x: offsetRef.current.x + dx,
-      y: offsetRef.current.y + dy,
-    };
-    offsetRef.current = newOffset;
-    setOffset(newOffset);
+    setScale(currentScale => {
+      if (currentScale <= MIN_SCALE) return currentScale;
+      const dx = e.clientX - lastMouse.current.x;
+      const dy = e.clientY - lastMouse.current.y;
+      lastMouse.current = { x: e.clientX, y: e.clientY };
+      setOx(prev => prev + dx);
+      setOy(prev => prev + dy);
+      return currentScale;
+    });
   }, []);
 
   const handleMouseUp = useCallback(() => { isDragging.current = false; }, []);
@@ -196,17 +164,13 @@ const ImageResult = memo(function ImageResult() {
     await navigator.clipboard.writeText(imageUrl);
     setCopied(true);
     toast.success("Link copied!");
-    if (liveRegionRef.current) {
-      liveRegionRef.current.textContent = "Image link copied to clipboard";
-    }
+    if (liveRegionRef.current) liveRegionRef.current.textContent = "Image link copied to clipboard";
     setTimeout(() => setCopied(false), 2000);
   };
 
   useEffect(() => {
     if (imgLoaded && liveRegionRef.current) {
-      liveRegionRef.current.textContent = prompt
-        ? `Image generated: ${prompt}`
-        : "Image loaded";
+      liveRegionRef.current.textContent = prompt ? `Image generated: ${prompt}` : "Image loaded";
     }
   }, [imgLoaded, prompt]);
 
@@ -237,10 +201,9 @@ const ImageResult = memo(function ImageResult() {
           Back
         </motion.button>
 
-        {/* Zoom controls */}
         <div className="flex items-center gap-2">
           <button
-            onClick={() => applyScale(scale - ZOOM_STEP)}
+            onClick={zoomOut}
             aria-label="Zoom out"
             disabled={scale <= MIN_SCALE}
             className="flex items-center justify-center w-11 h-11 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors disabled:opacity-30"
@@ -251,7 +214,7 @@ const ImageResult = memo(function ImageResult() {
             {Math.round(scale * 100)}%
           </span>
           <button
-            onClick={() => applyScale(scale + ZOOM_STEP)}
+            onClick={zoomIn}
             aria-label="Zoom in"
             disabled={scale >= MAX_SCALE}
             className="flex items-center justify-center w-11 h-11 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors disabled:opacity-30"
@@ -269,26 +232,25 @@ const ImageResult = memo(function ImageResult() {
           style={{
             minHeight: 0,
             cursor: scale > 1 ? "grab" : "default",
-            touchAction: scale > 1 ? "none" : "pan-x pan-y",
+            touchAction: scale > 1 ? "none" : "auto",
           }}
         >
-          <AnimatePresence mode="wait">
+          <AnimatePresence>
             {!imgLoaded && <ImageSkeleton key="skeleton" />}
           </AnimatePresence>
 
-          <motion.div
-            initial={{ opacity: 0, scale: 0.97 }}
-            animate={{ opacity: imgLoaded ? 1 : 0, scale: imgLoaded ? 1 : 0.97 }}
-            transition={{ duration: 0.25 }}
+          {/* Imaginea cu transform direct — fara motion.div care interfereaza */}
+          <div
             style={{
               width: "100%",
               height: "100%",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
+              transform: `scale(${scale}) translate(${ox / scale}px, ${oy / scale}px)`,
               transformOrigin: "center center",
-              transform: `scale(${scale}) translate(${offset.x / scale}px, ${offset.y / scale}px)`,
               willChange: "transform",
+              transition: "none",
             }}
           >
             <img
@@ -303,15 +265,17 @@ const ImageResult = memo(function ImageResult() {
                 borderRadius: "12px",
                 pointerEvents: "none",
                 userSelect: "none",
+                opacity: imgLoaded ? 1 : 0,
+                transition: "opacity 0.25s ease",
               }}
             />
-          </motion.div>
+          </div>
         </div>
       ) : (
         <div className="flex-1 flex items-center justify-center text-slate-400">No image to display.</div>
       )}
 
-      {/* Bottom action bar */}
+      {/* Bottom bar */}
       <div className="relative z-10 px-4 py-4 shrink-0 flex gap-3">
         <Button onClick={handleCopyLink} variant="outline" className="flex-1 gap-2">
           {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
