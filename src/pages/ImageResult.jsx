@@ -19,30 +19,30 @@ const ImageResult = memo(function ImageResult() {
   const prompt = params.get("prompt");
   const [copied, setCopied] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
+  const [contextMenu, setContextMenu] = useState(null);
   const liveRegionRef = useRef(null);
+  const longPressTimer = useRef(null);
 
-  // Zoom + pan — totul in state, simplu
   const [scale, setScale] = useState(1);
   const [ox, setOx] = useState(0);
   const [oy, setOy] = useState(0);
 
   const containerRef = useRef(null);
-
-  // Refs pentru gesture tracking
   const lastDist = useRef(null);
   const isPanning = useRef(false);
   const lastPan = useRef({ x: 0, y: 0 });
   const isDragging = useRef(false);
   const lastMouse = useRef({ x: 0, y: 0 });
 
-  // Zoom buttons
-  const zoomIn = () => {
-    setScale(prev => {
-      const next = clamp(prev + ZOOM_STEP, MIN_SCALE, MAX_SCALE);
-      return next;
-    });
-  };
+  // Dismiss context menu on click outside
+  useEffect(() => {
+    if (!contextMenu) return;
+    const dismiss = () => setContextMenu(null);
+    window.addEventListener("click", dismiss);
+    return () => window.removeEventListener("click", dismiss);
+  }, [contextMenu]);
 
+  const zoomIn = () => setScale(prev => clamp(prev + ZOOM_STEP, MIN_SCALE, MAX_SCALE));
   const zoomOut = () => {
     setScale(prev => {
       const next = clamp(prev - ZOOM_STEP, MIN_SCALE, MAX_SCALE);
@@ -51,7 +51,6 @@ const ImageResult = memo(function ImageResult() {
     });
   };
 
-  // Touch pinch zoom
   const handleTouchStart = useCallback((e) => {
     if (e.touches.length === 2) {
       const dx = e.touches[0].clientX - e.touches[1].clientX;
@@ -98,7 +97,6 @@ const ImageResult = memo(function ImageResult() {
     if (e.touches.length === 0) isPanning.current = false;
   }, []);
 
-  // Mouse wheel zoom
   const handleWheel = useCallback((e) => {
     e.preventDefault();
     const delta = e.deltaY > 0 ? -0.15 : 0.15;
@@ -109,7 +107,6 @@ const ImageResult = memo(function ImageResult() {
     });
   }, []);
 
-  // Mouse drag pan
   const handleMouseDown = useCallback((e) => {
     isDragging.current = true;
     lastMouse.current = { x: e.clientX, y: e.clientY };
@@ -153,6 +150,7 @@ const ImageResult = memo(function ImageResult() {
   }, [handleWheel, handleTouchStart, handleTouchMove, handleTouchEnd, handleMouseDown, handleMouseMove, handleMouseUp]);
 
   const handleDownload = async () => {
+    setContextMenu(null);
     try {
       const response = await fetch(imageUrl);
       const blob = await response.blob();
@@ -165,18 +163,34 @@ const ImageResult = memo(function ImageResult() {
       document.body.removeChild(link);
       setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
     } catch (e) {
-      // Fallback: deschide in tab nou
       window.open(imageUrl, '_blank', 'noopener,noreferrer');
     }
   };
 
   const handleCopyLink = async () => {
+    setContextMenu(null);
     await navigator.clipboard.writeText(imageUrl);
     setCopied(true);
     toast.success("Link copied!");
     if (liveRegionRef.current) liveRegionRef.current.textContent = "Image link copied to clipboard";
     setTimeout(() => setCopied(false), 2000);
   };
+
+  const handleImageContextMenu = (e) => {
+    e.preventDefault();
+    setContextMenu({ x: e.clientX, y: e.clientY });
+  };
+
+  const handleImageLongPressStart = (e) => {
+    if (e.touches.length === 1) {
+      const t = e.touches[0];
+      longPressTimer.current = setTimeout(() => {
+        setContextMenu({ x: t.clientX, y: t.clientY });
+      }, 600);
+    }
+  };
+
+  const handleImageLongPressEnd = () => clearTimeout(longPressTimer.current);
 
   useEffect(() => {
     if (imgLoaded && liveRegionRef.current) {
@@ -197,6 +211,30 @@ const ImageResult = memo(function ImageResult() {
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-violet-100/40 dark:bg-violet-900/10 rounded-full blur-3xl" />
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-indigo-100/40 dark:bg-indigo-900/10 rounded-full blur-3xl" />
       </div>
+
+      {/* Context Menu */}
+      {contextMenu && (
+        <div
+          className="fixed z-50 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 py-1 min-w-[160px]"
+          style={{ left: contextMenu.x, top: contextMenu.y }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <button
+            onClick={handleDownload}
+            className="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+          >
+            <Download className="w-4 h-4" />
+            Save Image
+          </button>
+          <button
+            onClick={handleCopyLink}
+            className="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+          >
+            <Copy className="w-4 h-4" />
+            Copy Link
+          </button>
+        </div>
+      )}
 
       {/* Top bar */}
       <div className="relative z-10 flex items-center justify-between px-4 py-3 shrink-0">
@@ -249,7 +287,6 @@ const ImageResult = memo(function ImageResult() {
             {!imgLoaded && <ImageSkeleton key="skeleton" />}
           </AnimatePresence>
 
-          {/* Imaginea cu transform direct — fara motion.div care interfereaza */}
           <div
             style={{
               width: "100%",
@@ -262,6 +299,10 @@ const ImageResult = memo(function ImageResult() {
               willChange: "transform",
               transition: "none",
             }}
+            onContextMenu={handleImageContextMenu}
+            onTouchStart={handleImageLongPressStart}
+            onTouchEnd={handleImageLongPressEnd}
+            onTouchMove={handleImageLongPressEnd}
           >
             <img
               src={imageUrl}
