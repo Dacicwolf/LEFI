@@ -20,7 +20,7 @@ export default function PromptInput({ prompt, setPrompt, onGenerate, isLoading }
       className="w-full max-w-2xl mx-auto"
     >
       <div className="relative group">
-        <div className="absolute -inset-0.5 rounded-2xl blur transition-opacity duration-500" style={{background: '#cccccc', opacity: 0.6}} />
+        <div className="absolute -inset-0.5 bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 rounded-2xl opacity-20 group-hover:opacity-30 blur transition-opacity duration-500" />
         <div className="relative bg-white dark:bg-slate-900 rounded-2xl p-1.5 shadow-xl shadow-slate-200/50 dark:shadow-black/30">
           <Textarea
             placeholder="Describe what you want to see and let AI create it for you..."
@@ -30,7 +30,8 @@ export default function PromptInput({ prompt, setPrompt, onGenerate, isLoading }
             inputMode="text"
             aria-label="Image generation prompt"
             aria-multiline="true"
-            className="min-h-[120px] border-0 bg-slate-50/50 dark:bg-slate-800/50 rounded-xl text-base text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus-visible:ring-0 focus-visible:ring-offset-0 resize-none p-4"
+            className="min-h-[120px] bg-slate-50/50 dark:bg-slate-800/50 rounded-xl text-base text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus-visible:ring-0 focus-visible:ring-offset-0 resize-none p-4"
+          style={{border: '1px solid #cccccc'}}
           />
           <div className="flex items-center justify-between px-2 pt-1 pb-1">
             <p className="text-xs text-slate-400 dark:text-slate-500 pl-2 leading-relaxed">
