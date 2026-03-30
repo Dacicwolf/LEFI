@@ -18,7 +18,7 @@ export default function PromptInput({ prompt, setPrompt, onGenerate, isLoading }
       transition={{ duration: 0.6, ease: "easeOut" }}
       className="w-full max-w-2xl mx-auto"
     >
-      <div className="bg-slate-50 dark:bg-slate-950 shadow-xl shadow-slate-200/50 dark:shadow-black/30 rounded-2xl overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 shadow-xl shadow-slate-200/50 dark:shadow-black/30 rounded-2xl overflow-hidden">
         <textarea
           placeholder="Describe what you want to see and let AI create it for you..."
           value={prompt}
@@ -28,7 +28,7 @@ export default function PromptInput({ prompt, setPrompt, onGenerate, isLoading }
           aria-label="Image generation prompt"
           rows={4}
           style={{ resize: "none", outline: "none", boxShadow: "none" }}
-          className="w-full bg-transparent text-base text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 border border-transparent focus:border-[#cccccc] rounded-2xl p-4 transition-colors"
+          className="w-full bg-slate-50 dark:bg-slate-950 text-base text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 border border-transparent focus:border-[#cccccc] rounded-2xl p-4 transition-colors"
         />
         <div className="flex items-center justify-between px-4 pb-3">
           <p className="text-xs text-slate-400 dark:text-slate-500 leading-relaxed">
