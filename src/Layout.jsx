@@ -323,8 +323,8 @@ export default function Layout({ children, currentPageName }) {
               aria-current={active ? "page" : undefined}
               className={`flex-1 flex flex-col items-center justify-center min-h-[56px] gap-0.5 transition-all duration-200 select-none rounded-2xl ${
                 active
-                  ? "text-violet-600 dark:text-violet-400 bg-white dark:bg-slate-900 scale-105 shadow-sm"
-                  : "text-slate-400 dark:text-slate-500 hover:text-violet-500 dark:hover:text-violet-400 hover:bg-white dark:hover:bg-slate-900 bg-white/60 dark:bg-slate-900/60"
+                  ? "bg-gradient-to-r from-violet-600 to-indigo-600 text-white dark:text-violet-400 dark:bg-none dark:from-transparent dark:to-transparent dark:bg-slate-900 scale-105 shadow-md shadow-violet-500/20"
+                  : "text-violet-700 bg-violet-50 border border-violet-100 dark:text-slate-500 dark:bg-slate-900/60 dark:border-transparent hover:opacity-80"
               }`}
             >
               <Icon className="w-5 h-5" />
