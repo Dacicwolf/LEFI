@@ -152,12 +152,22 @@ const ImageResult = memo(function ImageResult() {
     };
   }, [handleWheel, handleTouchStart, handleTouchMove, handleTouchEnd, handleMouseDown, handleMouseMove, handleMouseUp]);
 
-  const handleDownload = () => {
-    const link = document.createElement("a");
-    link.href = imageUrl;
-    link.target = "_blank";
-    link.download = "generated-image.png";
-    link.click();
+  const handleDownload = async () => {
+    try {
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = "lefi-image.png";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+    } catch (e) {
+      // Fallback: deschide in tab nou
+      window.open(imageUrl, '_blank', 'noopener,noreferrer');
+    }
   };
 
   const handleCopyLink = async () => {
@@ -286,7 +296,7 @@ const ImageResult = memo(function ImageResult() {
           className="flex-1 gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white"
         >
           <Download className="w-4 h-4" />
-          Download
+          Save Image
         </Button>
       </div>
     </div>
