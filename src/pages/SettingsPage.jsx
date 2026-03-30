@@ -123,16 +123,7 @@ export default function SettingsPage() {
           className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 mb-4 overflow-hidden hover:shadow-xl hover:-translate-y-1 hover:scale-105 active:scale-95 transition-all duration-200"
         >
           <button
-           onClick={async () => { 
-              try { 
-                    await base44.auth.logout('/');
-                  } catch(e) {
-                    localStorage.clear(); 
-                    sessionStorage.clear();
-                    window.location.replace('/');
-                  }
-              }
-            }
+            onClick={async () => { try { await base44.auth.logout('/'); } catch(e) { localStorage.clear(); sessionStorage.clear(); window.location.replace('/'); } }}
             aria-label="Log out of your account"
             className="w-full flex items-center gap-3 px-5 py-4 min-h-[56px] text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors duration-150 select-none"
           >
