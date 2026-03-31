@@ -61,8 +61,8 @@ export default function SettingsPage() {
           <div className="flex items-center gap-3 ml-auto">
             <div className="text-right">
               <p className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">ITonAI</p>
-              <p className="text-sm text-slate-500 dark:text-slate-400">office@itonai.ro</p>
-              <p className="text-sm text-slate-500 dark:text-slate-400">www.itonai.ro</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">office@itonai.ro</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">www.itonai.ro</p>
             </div>
             <FadeImage
               src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6995fb83472e84f2aaa7251a/81138c58f_ITonAI.png"
@@ -129,7 +129,7 @@ export default function SettingsPage() {
           >
             <LogOut className="w-5 h-5 text-slate-400" />
             <span className="font-medium">Log Out</span>
-            {user?.email && <span className="text-sm text-slate-400 ml-1">({user.email})</span>}
+            {user?.email && <span className="text-xs text-slate-400 ml-1">({user.email})</span>}
           </button>
         </motion.div>
 
