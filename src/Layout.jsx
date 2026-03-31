@@ -48,7 +48,8 @@ export default function Layout({ children, currentPageName }) {
   const [dark, setDark] = useState(() => {
     if (isAndroid) return window.matchMedia("(prefers-color-scheme: dark)").matches;
     const saved = localStorage.getItem("theme");
-    return saved ? saved === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+    if (saved === "light") return false;
+    return true; // dark by default
   });
 
   // On Android, keep in sync with system preference changes

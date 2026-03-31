@@ -29,10 +29,10 @@
             }
           } else {
             var stored = localStorage.getItem('theme');
-            if (stored === 'dark' || (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-              html.classList.add('dark');
-            } else {
+            if (stored === 'light') {
               html.classList.remove('dark');
+            } else {
+              html.classList.add('dark');
             }
           }
         } catch(e) {}
