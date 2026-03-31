@@ -86,7 +86,7 @@ export default function SettingsPage() {
             {[
               { name: "Bronze", credits: 40, price: "$2.9", border: "border-2 border-amber-200 dark:border-amber-800", plan: "bronze", img: "https://media.base44.com/images/public/6995fb83472e84f2aaa7251a/88cf9d6c2_lefi_logo_bronze.png" },
               { name: "Silver", credits: 88, price: "$5.9", border: "border-2 border-slate-200 dark:border-slate-700", plan: "silver", img: "https://media.base44.com/images/public/6995fb83472e84f2aaa7251a/451aba21c_lefi_logo_silver.png" },
-              { name: "Gold", credits: 180, price: "$9.9", border: "border-2 border-yellow-200 dark:border-yellow-800", plan: "gold", img: "https://media.base44.com/images/public/6995fb83472e84f2aaa7251a/91cafad47_lefi_logo_gold.png" },
+              { name: "Gold", credits: 180, price: "$9.9", border: "border-2 border-yellow-200 dark:border-yellow-200", plan: "gold", img: "https://media.base44.com/images/public/6995fb83472e84f2aaa7251a/91cafad47_lefi_logo_gold.png" },
             ].map(({ name, credits, price, border, plan, img }) => {
               const isLoading = purchasingPlan === plan;
               return (
