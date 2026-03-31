@@ -46,7 +46,7 @@ export default function Layout({ children, currentPageName }) {
   // On Android: always follow system preference (WebView context — ignore localStorage).
   // On other platforms: honour saved user preference, then fall back to system.
   const [dark, setDark] = useState(() => {
-    if (isAndroid) return window.matchMedia("(prefers-color-scheme: dark)").matches;
+    if (isAndroid) return true; // always dark by default on mobile
     const saved = localStorage.getItem("theme");
     if (saved === "light") return false;
     return true; // dark by default
