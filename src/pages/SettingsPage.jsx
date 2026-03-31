@@ -22,7 +22,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 dark:bg-none dark:bg-slate-950" role="region" aria-label="Settings page">
+    <div className="min-h-screen bg-background dark:bg-none dark:bg-slate-950" role="region" aria-label="Settings page">
       {/* Screen reader announcements */}
       <div className="sr-only" aria-live="polite" aria-atomic="true" role="status" />
 
