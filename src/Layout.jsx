@@ -262,7 +262,7 @@ export default function Layout({ children, currentPageName }) {
         }}
         role="banner"
       >
-        {!isRootPage && currentPageName !== "Home" && (
+        {!isRootPage && !TAB_ORDER.includes(currentPageName) && (
           <button
             onClick={handleBackClick}
             className="flex items-center justify-center min-w-[44px] min-h-[44px] -ml-2 text-violet-600 dark:text-violet-400 select-none"
