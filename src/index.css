@@ -90,8 +90,6 @@
     /* Prevent text selection on UI chrome globally */
     user-select: none;
     -webkit-user-select: none;
-    /* Responsive safe-area for notches/bezel in portrait */
-    padding-top: env(safe-area-inset-top);
   }
 
   /* Orientation-aware safe-area handling */
