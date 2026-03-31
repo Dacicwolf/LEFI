@@ -103,7 +103,7 @@ export default function Home() {
 
   return (
     <PullToRefreshWrapper onRefresh={handleRefresh}>
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 dark:bg-none dark:bg-slate-950"
+    <div className="min-h-screen bg-background dark:bg-none dark:bg-slate-950"
       role="region"
       aria-label="Image generation"
     >

@@ -238,7 +238,7 @@ export default function Layout({ children, currentPageName }) {
 
   return (
     <div
-      className="bg-gradient-to-b from-slate-50 via-white to-slate-50 dark:bg-none dark:bg-slate-950 flex flex-col select-none overflow-hidden"
+      className="bg-background dark:bg-none dark:bg-slate-950 flex flex-col select-none overflow-hidden"
       style={{ height: "100dvh", overscrollBehavior: "none" }}
       role="application"
       aria-label="Lefi AI Image Generator Application"

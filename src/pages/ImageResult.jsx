@@ -200,7 +200,7 @@ const ImageResult = memo(function ImageResult() {
 
   return (
     <div
-      className="flex flex-col bg-gradient-to-b from-slate-50 via-white to-slate-50 dark:bg-none dark:bg-slate-950"
+      className="flex flex-col bg-background dark:bg-none dark:bg-slate-950"
       style={{ height: "100dvh" }}
       role="region"
       aria-label="Image generation result"
