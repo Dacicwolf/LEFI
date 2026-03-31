@@ -61,7 +61,6 @@ export default function SettingsPage() {
           <div className="flex items-center gap-3 ml-auto">
             <div className="text-right">
               <p className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">ITonAI</p>
-              <p className="text-xs text-slate-500 dark:text-slate-400">&nbsp;</p>
               <p className="text-xs text-slate-500 dark:text-slate-400">lefi.itonai.ro</p>
             </div>
             <FadeImage
