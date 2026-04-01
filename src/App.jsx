@@ -32,7 +32,7 @@ const isMobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent);
 const splashAlreadyShown = sessionStorage.getItem('splashShown') === 'true';
 
 const AuthenticatedApp = () => {
-  const { isLoadingAuth, user } = useAuth();
+  const { isLoadingAuth, user, navigateToLogin } = useAuth();
   const [showSplash, setShowSplash] = useState(isMobile && !splashAlreadyShown);
 
   useEffect(() => {
@@ -47,7 +47,7 @@ const AuthenticatedApp = () => {
     <>
       <SplashScreen visible={showSplash} />
       {!showSplash && isLoadingAuth && <PageLoader />}
-      {!showSplash && !isLoadingAuth && !user && <PageLoader />}
+      {!showSplash && !isLoadingAuth && !user && (() => { navigateToLogin(); return <PageLoader />; })()}
       {(!showSplash && !isLoadingAuth && user) && (
         <Routes>
           <Route path="/" element={
