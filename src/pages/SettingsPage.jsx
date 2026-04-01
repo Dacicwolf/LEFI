@@ -40,20 +40,20 @@ export default function SettingsPage() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.05 }}
-          className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg shadow-violet-500/10 border border-slate-100 dark:border-slate-800 p-5 mb-6 flex items-center gap-4"
-        >
+          className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg shadow-violet-500/10 border border-slate-100 dark:border-slate-800 p-5 mb-6 flex items-center gap-4">
+          
           {/* Left: LEFI branding */}
           <div className="flex items-center gap-3">
             <FadeImage
-              src="https://media.base44.com/images/public/6995fb83472e84f2aaa7251a/9d4b68198_lefi_logo_clean.png"
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6995fb83472e84f2aaa7251a/77a5e07ff_lefi_logo.png"
               alt="Lefi Logo"
               className="w-14 h-14 rounded-xl object-contain"
               skeletonClassName="w-14 h-14 rounded-xl"
-              aspectRatio="1/1"
-            />
+              aspectRatio="1/1" />
+            
             <div>
               <p className="text-xl font-bold text-slate-900 dark:text-white tracking-widest">LEFI</p>
-              <p className="text-sm text-slate-500 dark:text-slate-400">V 1.9</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">V 1.15</p>
             </div>
           </div>
 
@@ -68,8 +68,8 @@ export default function SettingsPage() {
               alt="ITonAI Logo"
               className="w-14 h-14 rounded-xl object-contain"
               skeletonClassName="w-14 h-14 rounded-xl"
-              aspectRatio="1/1"
-            />
+              aspectRatio="1/1" />
+            
           </div>
         </motion.div>
 
@@ -78,15 +78,15 @@ export default function SettingsPage() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.08 }}
-          className="mb-6"
-        >
+          className="mb-6">
+          
           <h2 className="text-sm font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-3 px-1">Buy Credits</h2>
           <div className="grid grid-cols-3 gap-3">
             {[
-              { name: "Bronze", credits: 40, price: "$2.9", border: "border-2 border-amber-600 dark:border-amber-600", plan: "bronze", img: "https://media.base44.com/images/public/6995fb83472e84f2aaa7251a/88cf9d6c2_lefi_logo_bronze.png" },
-              { name: "Silver", credits: 88, price: "$5.9", border: "border-2 border-slate-400 dark:border-slate-400", plan: "silver", img: "https://media.base44.com/images/public/6995fb83472e84f2aaa7251a/451aba21c_lefi_logo_silver.png" },
-              { name: "Gold", credits: 180, price: "$9.9", border: "border-2 border-yellow-200 dark:border-yellow-400", plan: "gold", img: "https://media.base44.com/images/public/6995fb83472e84f2aaa7251a/91cafad47_lefi_logo_gold.png" },
-            ].map(({ name, credits, price, border, plan, img }) => {
+            { name: "Bronze", credits: 40, price: "$2.9", border: "border-2 border-amber-600 dark:border-amber-600", plan: "bronze", img: "https://media.base44.com/images/public/6995fb83472e84f2aaa7251a/88cf9d6c2_lefi_logo_bronze.png" },
+            { name: "Silver", credits: 88, price: "$5.9", border: "border-2 border-slate-400 dark:border-slate-400", plan: "silver", img: "https://media.base44.com/images/public/6995fb83472e84f2aaa7251a/451aba21c_lefi_logo_silver.png" },
+            { name: "Gold", credits: 180, price: "$9.9", border: "border-2 border-yellow-200 dark:border-yellow-400", plan: "gold", img: "https://media.base44.com/images/public/6995fb83472e84f2aaa7251a/91cafad47_lefi_logo_gold.png" }].
+            map(({ name, credits, price, border, plan, img }) => {
               const isLoading = purchasingPlan === plan;
               return (
                 <button
@@ -98,18 +98,18 @@ export default function SettingsPage() {
                   }}
                   disabled={isLoading}
                   aria-label={`Buy ${name} plan – ${credits} credits for ${price}`}
-                  className={`bg-white dark:bg-slate-900 rounded-2xl border ${border} px-1 py-3 min-h-[44px] flex flex-col items-center gap-2 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:scale-105 active:scale-95 transition-all duration-200 disabled:opacity-60 disabled:hover:shadow-sm disabled:hover:scale-100`}
-                >
-                  {isLoading ? (
-                    <div className="w-12 h-12 flex items-center justify-center"><div className="w-4 h-4 border-2 border-violet-300 border-t-violet-600 rounded-full animate-spin" /></div>
-                  ) : (
-                    <FadeImage src={img} alt={name} className="w-12 h-12 rounded-xl object-contain" skeletonClassName="w-12 h-12 rounded-xl" aspectRatio="1/1" />
-                  )}
+                  className={`bg-white dark:bg-slate-900 rounded-2xl border ${border} px-1 py-3 min-h-[44px] flex flex-col items-center gap-2 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:scale-105 active:scale-95 transition-all duration-200 disabled:opacity-60 disabled:hover:shadow-sm disabled:hover:scale-100`}>
+                  
+                  {isLoading ?
+                  <div className="w-12 h-12 flex items-center justify-center"><div className="w-4 h-4 border-2 border-violet-300 border-t-violet-600 rounded-full animate-spin" /></div> :
+
+                  <FadeImage src={img} alt={name} className="w-12 h-12 rounded-xl object-contain" skeletonClassName="w-12 h-12 rounded-xl" aspectRatio="1/1" />
+                  }
                   <p className="font-semibold text-slate-900 dark:text-white text-sm">{name}</p>
                   <p className="text-violet-600 dark:text-violet-400 font-bold text-xs">{credits} 🪙</p>
                   <p className="text-slate-500 dark:text-slate-400 text-xs">{isLoading ? 'Opening...' : price}</p>
-                </button>
-              );
+                </button>);
+
             })}
           </div>
         </motion.div>
@@ -119,13 +119,13 @@ export default function SettingsPage() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
-          className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 mb-4 overflow-hidden hover:shadow-xl hover:-translate-y-1 hover:scale-105 active:scale-95 transition-all duration-200"
-        >
+          className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 mb-4 overflow-hidden hover:shadow-xl hover:-translate-y-1 hover:scale-105 active:scale-95 transition-all duration-200">
+          
           <button
-            onClick={async () => { try { await base44.auth.logout('/'); } catch(e) { localStorage.clear(); sessionStorage.clear(); window.location.replace('/'); } }}
+            onClick={async () => {try {await base44.auth.logout('/');} catch (e) {localStorage.clear();sessionStorage.clear();window.location.replace('/');}}}
             aria-label="Log out of your account"
-            className="w-full flex items-center gap-3 px-5 py-4 min-h-[56px] text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors duration-150 select-none"
-          >
+            className="w-full flex items-center gap-3 px-5 py-4 min-h-[56px] text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors duration-150 select-none">
+            
             <LogOut className="w-5 h-5 text-slate-400" />
             <span className="font-medium">Log Out</span>
             {user?.email && <span className="text-xs text-slate-400 ml-1">({user.email})</span>}
@@ -137,26 +137,26 @@ export default function SettingsPage() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-red-100 dark:border-red-900/40 overflow-hidden"
-        >
+          className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-red-100 dark:border-red-900/40 overflow-hidden">
+          
           <button
             disabled={deleting}
             aria-label="Delete your account permanently"
             onClick={() => setDeleteDialogOpen(true)}
-            className="w-full flex items-center gap-3 px-5 py-4 min-h-[56px] text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors duration-150 select-none disabled:opacity-60"
-          >
-            {deleting ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
-            ) : (
-              <Trash2 className="w-5 h-5" />
-            )}
+            className="w-full flex items-center gap-3 px-5 py-4 min-h-[56px] text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors duration-150 select-none disabled:opacity-60">
+            
+            {deleting ?
+            <Loader2 className="w-5 h-5 animate-spin" /> :
+
+            <Trash2 className="w-5 h-5" />
+            }
             <span className="font-medium">{deleting ? "Processing..." : "Delete Account"}</span>
           </button>
         </motion.div>
 
         {/* Delete Confirm Modal */}
-        {deleteDialogOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+        {deleteDialogOpen &&
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
             <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 max-w-sm w-full shadow-xl border border-red-100 dark:border-red-900/40">
               <h2 className="text-lg font-bold text-red-600 mb-2">Delete Account?</h2>
               <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
@@ -164,22 +164,22 @@ export default function SettingsPage() {
               </p>
               <div className="flex gap-3">
                 <button
-                  onClick={() => setDeleteDialogOpen(false)}
-                  className="flex-1 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors min-h-[44px] font-medium"
-                >
+                onClick={() => setDeleteDialogOpen(false)}
+                className="flex-1 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors min-h-[44px] font-medium">
+                
                   Cancel
                 </button>
                 <button
-                  onClick={() => { handleDeleteAccount(); setDeleteDialogOpen(false); }}
-                  className="flex-1 px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white transition-colors min-h-[44px] font-medium"
-                >
+                onClick={() => {handleDeleteAccount();setDeleteDialogOpen(false);}}
+                className="flex-1 px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white transition-colors min-h-[44px] font-medium">
+                
                   Yes, Delete
                 </button>
               </div>
             </div>
           </div>
-        )}
+        }
       </div>
-    </div>
-  );
+    </div>);
+
 }
