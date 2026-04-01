@@ -80,7 +80,7 @@ export default function SettingsPage() {
           transition={{ delay: 0.08 }}
           className="mb-6">
           
-          <h2 className="text-sm font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-3 px-1">Buy Credits</h2>
+          <h2 className="text-sm font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-3 px-1">Buy Credits CRED</h2>
           <div className="grid grid-cols-3 gap-3">
             {[
             { name: "Bronze", credits: 40, price: "$2.9", border: "border-2 border-amber-600 dark:border-amber-600", plan: "bronze", img: "https://media.base44.com/images/public/6995fb83472e84f2aaa7251a/88cf9d6c2_lefi_logo_bronze.png" },
