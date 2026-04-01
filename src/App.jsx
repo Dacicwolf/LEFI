@@ -7,7 +7,8 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-d
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import ErrorBoundary from '@/components/ErrorBoundary';
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useState, useEffect } from 'react';
+import SplashScreen from '@/components/SplashScreen';
 
 const ImageResult = lazy(() => import('./pages/ImageResult'));
 const Gallery = lazy(() => import('./pages/Gallery'));
@@ -27,11 +28,24 @@ const LayoutWrapper = ({ children, currentPageName }) => Layout ?
   <Layout currentPageName={currentPageName}>{children}</Layout>
   : <>{children}</>;
 
+const isMobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent);
+
 const AuthenticatedApp = () => {
   const { isLoadingAuth, user } = useAuth();
+  const [showSplash, setShowSplash] = useState(isMobile);
 
-  // SDK cu requiresAuth: true face redirect la login automat daca nu esti autentificat
-  // Noi doar asteptam sa se termine verificarea
+  useEffect(() => {
+    if (!isLoadingAuth) {
+      // Minim 1.8s splash pe mobil pentru experiență completă
+      const timer = setTimeout(() => setShowSplash(false), 1800);
+      return () => clearTimeout(timer);
+    }
+  }, [isLoadingAuth]);
+
+  if (isMobile && showSplash) {
+    return <SplashScreen visible={showSplash} />;
+  }
+
   if (isLoadingAuth) {
     return <PageLoader />;
   }
