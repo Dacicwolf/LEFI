@@ -129,7 +129,7 @@ export default function Home() {
           className="text-center mb-6"
         >
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl mb-3 overflow-hidden shadow-lg">
-              <FadeImage src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6995fb83472e84f2aaa7251a/77a5e07ff_lefi_logo.png" alt="Lefi Logo" className="w-full h-full object-cover" skeletonClassName="w-12 h-12" aspectRatio="1/1" />
+              <FadeImage src="https://media.base44.com/images/public/6995fb83472e84f2aaa7251a/9d4b68198_lefi_logo_clean.png" alt="Lefi Logo" className="w-full h-full object-cover" skeletonClassName="w-12 h-12" aspectRatio="1/1" />
             </div>
           <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-indigo-600 dark:text-white mb-2">
             Generate Images

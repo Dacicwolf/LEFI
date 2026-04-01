@@ -37,7 +37,7 @@ const AuthenticatedApp = () => {
   useEffect(() => {
     if (!isLoadingAuth) {
       // Minim 1.8s splash pe mobil pentru experiență completă
-      const timer = setTimeout(() => setShowSplash(false), 3000);
+      const timer = setTimeout(() => setShowSplash(false), 4000);
       return () => clearTimeout(timer);
     }
   }, [isLoadingAuth]);

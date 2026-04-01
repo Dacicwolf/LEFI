@@ -45,7 +45,7 @@ export default function SettingsPage() {
           {/* Left: LEFI branding */}
           <div className="flex items-center gap-3">
             <FadeImage
-              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6995fb83472e84f2aaa7251a/77a5e07ff_lefi_logo.png"
+              src="https://media.base44.com/images/public/6995fb83472e84f2aaa7251a/9d4b68198_lefi_logo_clean.png"
               alt="Lefi Logo"
               className="w-14 h-14 rounded-xl object-contain"
               skeletonClassName="w-14 h-14 rounded-xl"
