@@ -97,8 +97,8 @@ export default function SettingsPage() {
                     window.open(href, '_blank', 'noopener,noreferrer');
                   }}
                   disabled={isLoading}
-                  aria-label={`Buy ${name} plan – ${credits} credits for ${price}`}
-                  className={`bg-white dark:bg-slate-900 rounded-2xl border ${border} px-1 py-3 min-h-[44px] flex flex-col items-center gap-2 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:scale-105 active:scale-95 transition-all duration-200 disabled:opacity-60 disabled:hover:shadow-sm disabled:hover:scale-100`}>
+                  aria-label={`Buy ${name} plan – ${credits} credits for ${price}`} className="bg-white py-2 rounded-2xl dark:bg-slate-900 border border-2 border-amber-600 dark:border-amber-600 min-h-[44px] flex flex-col items-center gap-2 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:scale-105 active:scale-95 transition-all duration-200 disabled:opacity-60 disabled:hover:shadow-sm disabled:hover:scale-100">
+                  
                   
                   {isLoading ?
                   <div className="w-12 h-12 flex items-center justify-center"><div className="w-4 h-4 border-2 border-violet-300 border-t-violet-600 rounded-full animate-spin" /></div> :
