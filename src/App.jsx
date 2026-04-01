@@ -42,40 +42,34 @@ const AuthenticatedApp = () => {
     }
   }, [isLoadingAuth]);
 
-  if (isMobile && showSplash) {
-    return <SplashScreen visible={showSplash} />;
-  }
-
-  if (isLoadingAuth) {
-    return <PageLoader />;
-  }
-
-  if (!user) {
-    // SDK-ul va face redirect — nu facem nimic noi
-    return <PageLoader />;
-  }
-
   return (
-    <Routes>
-      <Route path="/" element={
-        <Suspense fallback={<PageLoader />}>
-          <LayoutWrapper currentPageName="Home"><Home /></LayoutWrapper>
-        </Suspense>
-      } />
-      {Object.entries(Pages).filter(([path]) => path !== 'Home').map(([path, Page]) => (
-        <Route key={path} path={`/${path}`} element={
-          <Suspense fallback={<PageLoader />}>
-            <LayoutWrapper currentPageName={path}><Page /></LayoutWrapper>
-          </Suspense>
-        } />
-      ))}
-      <Route path="/ImageResult" element={<Suspense fallback={<PageLoader />}><ImageResult /></Suspense>} />
-      <Route path="/AdminPanel" element={<Suspense fallback={<PageLoader />}><LayoutWrapper currentPageName="AdminPanel"><AdminPanel /></LayoutWrapper></Suspense>} />
-      <Route path="/payment-success" element={<Suspense fallback={<PageLoader />}><LayoutWrapper currentPageName="PaymentSuccess"><PaymentSuccess /></LayoutWrapper></Suspense>} />
-      <Route path="/Gallery" element={<Suspense fallback={<PageLoader />}><LayoutWrapper currentPageName="Gallery"><Gallery /></LayoutWrapper></Suspense>} />
-      <Route path="/home" element={<Navigate to="/" replace />} />
-      <Route path="*" element={<PageNotFound />} />
-    </Routes>
+    <>
+      <SplashScreen visible={showSplash} />
+      {!showSplash && isLoadingAuth && <PageLoader />}
+      {!showSplash && !isLoadingAuth && !user && <PageLoader />}
+      {(!showSplash && !isLoadingAuth && user) && (
+        <Routes>
+          <Route path="/" element={
+            <Suspense fallback={<PageLoader />}>
+              <LayoutWrapper currentPageName="Home"><Home /></LayoutWrapper>
+            </Suspense>
+          } />
+          {Object.entries(Pages).filter(([path]) => path !== 'Home').map(([path, Page]) => (
+            <Route key={path} path={`/${path}`} element={
+              <Suspense fallback={<PageLoader />}>
+                <LayoutWrapper currentPageName={path}><Page /></LayoutWrapper>
+              </Suspense>
+            } />
+          ))}
+          <Route path="/ImageResult" element={<Suspense fallback={<PageLoader />}><ImageResult /></Suspense>} />
+          <Route path="/AdminPanel" element={<Suspense fallback={<PageLoader />}><LayoutWrapper currentPageName="AdminPanel"><AdminPanel /></LayoutWrapper></Suspense>} />
+          <Route path="/payment-success" element={<Suspense fallback={<PageLoader />}><LayoutWrapper currentPageName="PaymentSuccess"><PaymentSuccess /></LayoutWrapper></Suspense>} />
+          <Route path="/Gallery" element={<Suspense fallback={<PageLoader />}><LayoutWrapper currentPageName="Gallery"><Gallery /></LayoutWrapper></Suspense>} />
+          <Route path="/home" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<PageNotFound />} />
+        </Routes>
+      )}
+    </>
   );
 };
 

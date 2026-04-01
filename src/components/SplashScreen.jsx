@@ -53,20 +53,7 @@ export default function SplashScreen({ visible }) {
             transition={{ type: "spring", stiffness: 160, damping: 14, delay: 0.1 }}
             className="relative"
           >
-            {/* Outer glow ring pulsing */}
-            <motion.div
-              animate={{
-                scale: [1, 1.2, 1],
-                opacity: [0.3, 0.7, 0.3],
-                backgroundColor: COLORS[colorIndex],
-              }}
-              transition={{
-                scale: { duration: 1.5, repeat: Infinity, ease: "easeInOut" },
-                opacity: { duration: 1.5, repeat: Infinity, ease: "easeInOut" },
-                backgroundColor: { duration: 0.5, ease: "easeInOut" },
-              }}
-              className="absolute inset-0 rounded-full blur-2xl pointer-events-none"
-            />
+
             {/* Slow continuous rotation on the logo */}
             <motion.img
               src={NEW_LOGO}
