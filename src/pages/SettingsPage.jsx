@@ -39,8 +39,8 @@ export default function SettingsPage() {
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.05 }}
-          className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg shadow-violet-500/10 border border-slate-100 dark:border-slate-800 p-5 mb-6 flex items-center gap-4">
+          transition={{ delay: 0.05 }} className="bg-white mb-6 px-4 py-4 rounded-2xl dark:bg-slate-900 shadow-lg shadow-violet-500/10 border border-slate-100 dark:border-slate-800 flex items-center gap-4">
+          
           
           {/* Left: LEFI branding */}
           <div className="flex items-center gap-3">
