@@ -34,7 +34,7 @@ export default function PromptInput({ prompt, setPrompt, onGenerate, isLoading }
         </div>
         <div className="flex items-center justify-between px-4 pb-3">
           <div className="text-sm text-slate-400 dark:text-slate-500 leading-relaxed">
-            <span className="block">Enter <span className="text-lg">&#8594;</span> Generate</span>
+            <span className="text-sm block">Enter → Generate</span>
             <span className="block">Can take up to 60s</span>
           </div>
           <Button
