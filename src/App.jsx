@@ -29,23 +29,19 @@ const LayoutWrapper = ({ children, currentPageName }) => Layout ?
   : <>{children}</>;
 
 const isMobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent);
+const splashAlreadyShown = sessionStorage.getItem('splashShown') === 'true';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, user } = useAuth();
-  const [showSplash, setShowSplash] = useState(isMobile);
+  const [showSplash, setShowSplash] = useState(isMobile && !splashAlreadyShown);
 
   useEffect(() => {
-    // Timer pornește imediat — nu așteptăm auth
-    const timer = setTimeout(() => setShowSplash(false), 4000);
-    return () => clearTimeout(timer);
-  }, []);
-
-  // Dacă user-ul nu e autentificat, ascunde splash imediat ca redirect-ul să poată fi efectuat
-  useEffect(() => {
-    if (!isLoadingAuth && !user) {
-      setShowSplash(false);
+    if (showSplash) {
+      sessionStorage.setItem('splashShown', 'true');
+      const timer = setTimeout(() => setShowSplash(false), 4000);
+      return () => clearTimeout(timer);
     }
-  }, [isLoadingAuth, user]);
+  }, []);
 
   return (
     <>
