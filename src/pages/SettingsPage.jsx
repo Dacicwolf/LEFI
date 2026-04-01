@@ -83,10 +83,10 @@ export default function SettingsPage() {
           <h2 className="text-sm font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-3 px-1">CREDIT PLANS</h2>
           <div className="grid grid-cols-3 gap-3">
             {[
-            { name: "Bronze", credits: 40, price: "$2.9", border: "border-2 border-amber-700 dark:border-amber-600", plan: "bronze", img: "https://media.base44.com/images/public/6995fb83472e84f2aaa7251a/88cf9d6c2_lefi_logo_bronze.png" },
-            { name: "Silver", credits: 88, price: "$5.9", border: "border-2 border-slate-400 dark:border-slate-300", plan: "silver", img: "https://media.base44.com/images/public/6995fb83472e84f2aaa7251a/451aba21c_lefi_logo_silver.png", glow: "shadow-slate-300/60" },
-            { name: "Gold", credits: 180, price: "$9.9", border: "border-2 border-yellow-500 dark:border-yellow-400", plan: "gold", img: "https://media.base44.com/images/public/6995fb83472e84f2aaa7251a/91cafad47_lefi_logo_gold.png" }].
-            map(({ name, credits, price, border, plan, img }) => {
+            { name: "Bronze", credits: 40, price: "$2.9", borderColor: "#b45309", plan: "bronze", img: "https://media.base44.com/images/public/6995fb83472e84f2aaa7251a/88cf9d6c2_lefi_logo_bronze.png" },
+            { name: "Silver", credits: 88, price: "$5.9", borderColor: "#94a3b8", plan: "silver", img: "https://media.base44.com/images/public/6995fb83472e84f2aaa7251a/451aba21c_lefi_logo_silver.png" },
+            { name: "Gold", credits: 180, price: "$9.9", borderColor: "#eab308", plan: "gold", img: "https://media.base44.com/images/public/6995fb83472e84f2aaa7251a/91cafad47_lefi_logo_gold.png" }].
+            map(({ name, credits, price, borderColor, plan, img }) => {
               const isLoading = purchasingPlan === plan;
               return (
                 <button
@@ -97,7 +97,9 @@ export default function SettingsPage() {
                     window.open(href, '_blank', 'noopener,noreferrer');
                   }}
                   disabled={isLoading}
-                  aria-label={`Buy ${name} plan – ${credits} credits for ${price}`} className="bg-white py-2 rounded-2xl dark:bg-slate-900 border border-2 border-amber-600 dark:border-amber-600 min-h-[44px] flex flex-col items-center gap-2 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:scale-105 active:scale-95 transition-all duration-200 disabled:opacity-60 disabled:hover:shadow-sm disabled:hover:scale-100">
+                  aria-label={`Buy ${name} plan – ${credits} credits for ${price}`}
+                  style={{ borderColor }}
+                  className="bg-white py-2 rounded-2xl dark:bg-slate-900 border-2 min-h-[44px] flex flex-col items-center gap-2 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:scale-105 active:scale-95 transition-all duration-200 disabled:opacity-60 disabled:hover:shadow-sm disabled:hover:scale-100">
                   
                   
                   {isLoading ?
