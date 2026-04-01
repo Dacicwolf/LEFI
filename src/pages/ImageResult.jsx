@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback, memo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, Download, Copy, Check, ZoomIn, ZoomOut } from "lucide-react";
+import { ChevronLeft, Download, Copy, Check, ZoomIn, ZoomOut, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import ImageSkeleton from "@/components/ImageSkeleton";
@@ -154,13 +154,6 @@ const ImageResult = memo(function ImageResult() {
     try {
       const response = await fetch(imageUrl);
       const blob = await response.blob();
-      // Try Web Share API first (best on mobile)
-      if (navigator.share && navigator.canShare && navigator.canShare({ files: [new File([blob], 'lefi-image.png', { type: blob.type })] })) {
-        const file = new File([blob], 'lefi-image.png', { type: blob.type });
-        await navigator.share({ files: [file], title: 'Lefi Image' });
-        return;
-      }
-      // Desktop: blob download
       const blobUrl = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = blobUrl;
@@ -171,6 +164,25 @@ const ImageResult = memo(function ImageResult() {
       setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
     } catch (e) {
       window.open(imageUrl, '_blank', 'noopener,noreferrer');
+    }
+  };
+
+  const handleShare = async () => {
+    setContextMenu(null);
+    try {
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      const file = new File([blob], 'lefi-image.png', { type: blob.type });
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title: 'Lefi Image', text: prompt || '' });
+      } else if (navigator.share) {
+        await navigator.share({ url: imageUrl, title: 'Lefi Image', text: prompt || '' });
+      } else {
+        await navigator.clipboard.writeText(imageUrl);
+        toast.success('Link copied!');
+      }
+    } catch (e) {
+      if (e.name !== 'AbortError') toast.error('Share failed');
     }
   };
 
@@ -340,7 +352,15 @@ const ImageResult = memo(function ImageResult() {
           className="flex-1 gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white"
         >
           <Download className="w-4 h-4" />
-          Save Image
+          Save
+        </Button>
+        <Button
+          onClick={handleShare}
+          variant="outline"
+          className="flex-1 gap-2 border-violet-200 dark:border-slate-700 text-violet-600 dark:text-violet-400"
+        >
+          <Share2 className="w-4 h-4" />
+          Share
         </Button>
       </div>
     </div>
