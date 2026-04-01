@@ -107,7 +107,7 @@ export default function SettingsPage() {
                   }
                   <p className="text-slate-900 text-base font-semibold dark:text-white">{name}</p>
                   <p className="text-violet-600 text-sm font-bold dark:text-violet-400">{credits} 🪙</p>
-                  <p className="text-slate-500 dark:text-slate-400 text-xs">{isLoading ? 'Opening...' : price}</p>
+                  <p className="text-slate-500 text-sm dark:text-slate-400">{isLoading ? 'Opening...' : price}</p>
                 </button>);
 
             })}
