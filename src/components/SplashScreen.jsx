@@ -20,7 +20,7 @@ export default function SplashScreen({ visible }) {
   useEffect(() => {
     const interval = setInterval(() => {
       setColorIndex((i) => (i + 1) % COLORS.length);
-    }, 500);
+    }, 350);
     return () => clearInterval(interval);
   }, []);
 
@@ -78,19 +78,22 @@ export default function SplashScreen({ visible }) {
           </motion.div>
 
           {/* LEFI text cu culori schimbătoare */}
-          <motion.p
+          <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.5 }}
-            className="mt-7 text-6xl font-black tracking-[0.35em]"
-            style={{
-              color: COLORS[colorIndex],
-              textShadow: `0 0 30px ${COLORS[colorIndex]}88`,
-              transition: "color 0.5s ease, text-shadow 0.5s ease",
-            }}
           >
-            LEFI
-          </motion.p>
+            <p
+              className="mt-7 text-6xl font-black tracking-[0.35em]"
+              style={{
+                color: COLORS[colorIndex],
+                textShadow: `0 0 40px ${COLORS[colorIndex]}cc, 0 0 80px ${COLORS[colorIndex]}66`,
+                transition: "color 0.4s ease, text-shadow 0.4s ease",
+              }}
+            >
+              LEFI
+            </p>
+          </motion.div>
 
           {/* Subtitle */}
           <motion.p
