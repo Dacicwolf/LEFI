@@ -33,10 +33,10 @@ export default function PromptInput({ prompt, setPrompt, onGenerate, isLoading }
           
         </div>
         <div className="flex items-center justify-between px-4 pb-3">
-          <p className="text-xs text-slate-400 dark:text-slate-500 leading-relaxed">PresEnter or button to Generate
-Complex images may take up to 60s
-
-          </p>
+          <div className="text-xs text-slate-400 dark:text-slate-500 leading-relaxed">
+            <span className="block">Press Enter or button to Generate</span>
+            <span className="block">Complex images may take up to 60s</span>
+          </div>
           <Button
             onClick={onGenerate}
             disabled={isLoading || !prompt.trim()}
