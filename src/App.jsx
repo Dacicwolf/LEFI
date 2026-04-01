@@ -35,12 +35,17 @@ const AuthenticatedApp = () => {
   const [showSplash, setShowSplash] = useState(isMobile);
 
   useEffect(() => {
-    if (!isLoadingAuth) {
-      // Minim 1.8s splash pe mobil pentru experiență completă
-      const timer = setTimeout(() => setShowSplash(false), 4000);
-      return () => clearTimeout(timer);
+    // Timer pornește imediat — nu așteptăm auth
+    const timer = setTimeout(() => setShowSplash(false), 4000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Dacă user-ul nu e autentificat, ascunde splash imediat ca redirect-ul să poată fi efectuat
+  useEffect(() => {
+    if (!isLoadingAuth && !user) {
+      setShowSplash(false);
     }
-  }, [isLoadingAuth]);
+  }, [isLoadingAuth, user]);
 
   return (
     <>

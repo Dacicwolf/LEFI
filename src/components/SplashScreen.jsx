@@ -71,7 +71,7 @@ export default function SplashScreen({ visible }) {
             transition={{ delay: 0.4, duration: 0.5 }}
           >
             <p
-              className="mt-7 text-6xl font-black tracking-[0.35em]"
+              className="mt-7 text-5xl font-black tracking-[0.35em]"
               style={{
                 color: COLORS[colorIndex],
                 textShadow: `0 0 40px ${COLORS[colorIndex]}cc, 0 0 80px ${COLORS[colorIndex]}66`,
