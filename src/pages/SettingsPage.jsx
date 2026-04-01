@@ -103,7 +103,7 @@ export default function SettingsPage() {
                   {isLoading ?
                   <div className="w-12 h-12 flex items-center justify-center"><div className="w-4 h-4 border-2 border-violet-300 border-t-violet-600 rounded-full animate-spin" /></div> :
 
-                  <FadeImage src={img} alt={name} className="transition-opacity duration-300 opacity-100 w-14 h-14 rounded-xl object-contain" skeletonClassName="w-12 h-12 rounded-xl" aspectRatio="1/1" />
+                  <FadeImage src={img} alt={name} className="transition-opacity duration-300 opacity-100 w-12 h-12 rounded-xl object-contain" skeletonClassName="w-12 h-12 rounded-xl" aspectRatio="1/1" />
                   }
                   <p className="text-slate-900 text-base font-semibold dark:text-white">{name}</p>
                   <p className="text-violet-600 text-sm font-bold dark:text-violet-400">{credits} 🪙</p>
