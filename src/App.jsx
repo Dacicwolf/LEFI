@@ -36,6 +36,12 @@ const AuthenticatedApp = () => {
   const [showSplash, setShowSplash] = useState(isMobile && !splashAlreadyShown);
 
   useEffect(() => {
+    if (!showSplash && !isLoadingAuth && !user) {
+      navigateToLogin();
+    }
+  }, [showSplash, isLoadingAuth, user]);
+
+  useEffect(() => {
     if (showSplash) {
       sessionStorage.setItem('splashShown', 'true');
       const timer = setTimeout(() => setShowSplash(false), 4000);
@@ -47,7 +53,7 @@ const AuthenticatedApp = () => {
     <>
       <SplashScreen visible={showSplash} />
       {!showSplash && isLoadingAuth && <PageLoader />}
-      {!showSplash && !isLoadingAuth && !user && (() => { navigateToLogin(); return <PageLoader />; })()}
+      {!showSplash && !isLoadingAuth && !user && <PageLoader />}
       {(!showSplash && !isLoadingAuth && user) && (
         <Routes>
           <Route path="/" element={
