@@ -53,7 +53,7 @@ export default function SettingsPage() {
             
             <div>
               <p className="text-xl font-bold text-slate-900 dark:text-white tracking-widest">LEFI</p>
-              <p className="text-sm text-slate-500 dark:text-slate-400">V 1.16</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">V 1.18</p>
             </div>
           </div>
 
