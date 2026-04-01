@@ -154,10 +154,17 @@ const ImageResult = memo(function ImageResult() {
     try {
       const response = await fetch(imageUrl);
       const blob = await response.blob();
+      // Try Web Share API first (best on mobile)
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [new File([blob], 'lefi-image.png', { type: blob.type })] })) {
+        const file = new File([blob], 'lefi-image.png', { type: blob.type });
+        await navigator.share({ files: [file], title: 'Lefi Image' });
+        return;
+      }
+      // Desktop: blob download
       const blobUrl = URL.createObjectURL(blob);
-      const link = document.createElement("a");
+      const link = document.createElement('a');
       link.href = blobUrl;
-      link.download = "lefi-image.png";
+      link.download = 'lefi-image.png';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
