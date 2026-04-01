@@ -106,7 +106,7 @@ export default function SettingsPage() {
                   <FadeImage src={img} alt={name} className="transition-opacity duration-300 opacity-100 w-12 h-12 rounded-xl object-contain" skeletonClassName="w-12 h-12 rounded-xl" aspectRatio="1/1" />
                   }
                   <p className="text-slate-900 text-base font-semibold dark:text-white">{name}</p>
-                  <p className="text-violet-600 text-sm font-bold dark:text-violet-400">{credits} 🪙</p>
+                  <p className="text-violet-600 text-base font-bold dark:text-violet-400">{credits} 🪙</p>
                   <p className="text-slate-500 text-sm dark:text-slate-400">{isLoading ? 'Opening...' : price}</p>
                 </button>);
 
