@@ -48,7 +48,8 @@ export default function PrivacyPage() {
     },
     {
       title: "6. Third-party services",
-      content: "LEFI may use external services for analysis and operation (for example, statistics or advertising delivery). These services may collect data according to their own privacy policies. The application may use third-party data analysis services (Google), in which case their privacy policy applies: Google Privacy Policy.",
+      content: "LEFI may use external services for analysis and operation (for example, statistics or advertising delivery). These services may collect data according to their own privacy policies. The application may use third-party data analysis services (Google), in which case their privacy policy applies.",
+      link: { text: "Google Privacy Policy", url: "https://policies.google.com/privacy?hl=en" },
     },
     {
       title: "7. Log data",
@@ -103,10 +104,15 @@ export default function PrivacyPage() {
             This Privacy Policy explains how the LEFI app collects, uses, and protects user information. By using the app, you consent to the practices described below.
           </p>
 
-          {sections.map(({ title, content, bullets, footer }) => (
+          {sections.map(({ title, content, bullets, footer, link }) => (
             <div key={title} className="space-y-2">
               <h2 className="text-base font-semibold text-slate-800 dark:text-slate-100">{title}</h2>
-              <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">{content}</p>
+              <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                {content}
+                {link && (
+                  <> <a href={link.url} target="_blank" rel="noopener noreferrer" className="text-violet-600 dark:text-violet-400 underline">{link.text}</a>.</>
+                )}
+              </p>
               {bullets && (
                 <ul className="list-disc list-inside space-y-1 pl-2">
                   {bullets.map((b) => (
