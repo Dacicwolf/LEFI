@@ -172,11 +172,15 @@ const ImageResult = memo(function ImageResult() {
     try {
       const response = await fetch(imageUrl);
       const blob = await response.blob();
-      const file = new File([blob], 'lefi-image.png', { type: blob.type });
-      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({ files: [file], title: 'Lefi Image', text: prompt || '' });
-      } else if (navigator.share) {
-        await navigator.share({ url: imageUrl, title: 'Lefi Image', text: prompt || '' });
+      const file = new File([blob], 'lefi-image.png', { type: 'image/png' });
+      if (navigator.share) {
+        try {
+          await navigator.share({ files: [file], title: 'Lefi Image', text: prompt || '' });
+        } catch (fileShareErr) {
+          if (fileShareErr.name === 'AbortError') return;
+          // Fallback: share URL if file sharing not supported
+          await navigator.share({ url: imageUrl, title: 'Lefi Image', text: prompt || '' });
+        }
       } else {
         await navigator.clipboard.writeText(imageUrl);
         toast.success('Link copied!');
