@@ -162,8 +162,10 @@ const ImageResult = memo(function ImageResult() {
       link.click();
       document.body.removeChild(link);
       setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+      toast.success('Image saved!');
     } catch (e) {
       window.open(imageUrl, '_blank', 'noopener,noreferrer');
+      toast.success('Image opened in browser!');
     }
   };
 
