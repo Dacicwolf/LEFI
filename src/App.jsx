@@ -14,6 +14,7 @@ const ImageResult = lazy(() => import('./pages/ImageResult'));
 const Gallery = lazy(() => import('./pages/Gallery'));
 const AdminPanel = lazy(() => import('./pages/AdminPanel'));
 const PaymentSuccess = lazy(() => import('./pages/PaymentSuccess'));
+const TermsPage = lazy(() => import('./pages/TermsPage'));
 
 const PageLoader = () => (
   <div className="fixed inset-0 flex items-center justify-center">
@@ -72,6 +73,7 @@ const AuthenticatedApp = () => {
           <Route path="/AdminPanel" element={<Suspense fallback={<PageLoader />}><LayoutWrapper currentPageName="AdminPanel"><AdminPanel /></LayoutWrapper></Suspense>} />
           <Route path="/payment-success" element={<Suspense fallback={<PageLoader />}><LayoutWrapper currentPageName="PaymentSuccess"><PaymentSuccess /></LayoutWrapper></Suspense>} />
           <Route path="/Gallery" element={<Suspense fallback={<PageLoader />}><LayoutWrapper currentPageName="Gallery"><Gallery /></LayoutWrapper></Suspense>} />
+          <Route path="/terms" element={<Suspense fallback={<PageLoader />}><TermsPage /></Suspense>} />
           <Route path="/home" element={<Navigate to="/" replace />} />
           <Route path="*" element={<PageNotFound />} />
         </Routes>

@@ -2,10 +2,12 @@ import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import FadeImage from "@/components/FadeImage";
 import { motion } from "framer-motion";
-import { Trash2, LogOut, Loader2 } from "lucide-react";
+import { Trash2, LogOut, Loader2, FileText } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 
 export default function SettingsPage() {
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [deleting, setDeleting] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -131,6 +133,21 @@ export default function SettingsPage() {
             <LogOut className="w-5 h-5 text-slate-400" />
             <span className="font-medium">Log Out</span>
             {user?.email && <span className="text-xs text-slate-400 ml-1">({user.email})</span>}
+          </button>
+        </motion.div>
+
+        {/* Terms and Conditions */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.18 }}
+          className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 mb-4 overflow-hidden hover:shadow-xl hover:-translate-y-1 hover:scale-105 active:scale-95 transition-all duration-200">
+          <button
+            onClick={() => navigate("/terms")}
+            aria-label="View Terms and Conditions"
+            className="w-full flex items-center gap-3 px-5 py-4 min-h-[56px] text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors duration-150 select-none">
+            <FileText className="w-5 h-5 text-slate-400" />
+            <span className="font-medium">Terms and conditions of use</span>
           </button>
         </motion.div>
 
