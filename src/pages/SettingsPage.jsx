@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import FadeImage from "@/components/FadeImage";
 import { motion } from "framer-motion";
-import { Trash2, LogOut, Loader2, FileText } from "lucide-react";
+import { Trash2, LogOut, Loader2, FileText, ShieldCheck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 
@@ -151,22 +151,34 @@ export default function SettingsPage() {
           </button>
         </motion.div>
 
+        {/* Privacy Policy */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.19 }}
+          className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 mb-4 overflow-hidden hover:shadow-xl hover:-translate-y-1 hover:scale-105 active:scale-95 transition-all duration-200">
+          <button
+            onClick={() => navigate("/privacy")}
+            aria-label="View Privacy Policy"
+            className="w-full flex items-center gap-3 px-5 py-4 min-h-[56px] text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors duration-150 select-none">
+            <ShieldCheck className="w-5 h-5 text-slate-400" />
+            <span className="font-medium">Privacy Policy</span>
+          </button>
+        </motion.div>
+
         {/* Delete Account */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
           className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-red-100 dark:border-red-900/40 overflow-hidden">
-          
           <button
             disabled={deleting}
             aria-label="Delete your account permanently"
             onClick={() => setDeleteDialogOpen(true)}
             className="w-full flex items-center gap-3 px-5 py-4 min-h-[56px] text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors duration-150 select-none disabled:opacity-60">
-            
             {deleting ?
             <Loader2 className="w-5 h-5 animate-spin" /> :
-
             <Trash2 className="w-5 h-5" />
             }
             <span className="font-medium">{deleting ? "Processing..." : "Delete Account"}</span>
