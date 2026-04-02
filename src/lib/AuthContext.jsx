@@ -53,10 +53,10 @@ export const AuthProvider = ({ children }) => {
     await doLogout();
   };
 
-  const navigateToLogin = async () => {
+  const navigateToLogin = () => {
     if (isRedirectingRef.current) return;
     isRedirectingRef.current = true;
-    await doLogout();
+    base44.auth.redirectToLogin();
   };
 
   return (
