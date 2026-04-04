@@ -50,15 +50,22 @@ export default function Gallery() {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: i * 0.04 }}
                 onClick={() => navigate(`/ImageResult?url=${encodeURIComponent(img.image_url)}&prompt=${encodeURIComponent(img.prompt)}`)}
-                className="aspect-square rounded-2xl overflow-hidden cursor-pointer shadow-sm hover:shadow-md active:scale-95 transition-all"
+                className="rounded-2xl overflow-hidden cursor-pointer shadow-sm hover:shadow-md active:scale-95 transition-all flex flex-col"
               >
-                <FadeImage
-                  src={img.image_url}
-                  alt={img.prompt}
-                  className="w-full h-full object-cover"
-                  skeletonClassName="w-full h-full"
-                  aspectRatio="1/1"
-                />
+                <div className="aspect-square w-full overflow-hidden">
+                  <FadeImage
+                    src={img.image_url}
+                    alt={img.prompt}
+                    className="w-full h-full object-cover"
+                    skeletonClassName="w-full h-full"
+                    aspectRatio="1/1"
+                  />
+                </div>
+                {img.prompt && (
+                  <p className="px-2 py-2 text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2 leading-tight">
+                    {img.prompt}
+                  </p>
+                )}
               </motion.div>
             ))}
           </div>
