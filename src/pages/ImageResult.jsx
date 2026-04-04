@@ -152,6 +152,12 @@ const ImageResult = memo(function ImageResult() {
 
   const handleDownload = async () => {
     setContextMenu(null);
+    if (isMobileDevice) {
+      // On mobile/Android WebView: open image in new tab so user can long-press save
+      window.open(imageUrl, '_blank', 'noopener,noreferrer');
+      toast.success('Image opened — long press to save!');
+      return;
+    }
     try {
       const response = await fetch(imageUrl);
       const blob = await response.blob();
@@ -173,25 +179,8 @@ const ImageResult = memo(function ImageResult() {
   const handleShare = async () => {
     setContextMenu(null);
     try {
-      // Load image via canvas to avoid CORS issues
-      const img = new Image();
-      img.crossOrigin = 'anonymous';
-      const blob = await new Promise((resolve, reject) => {
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          canvas.width = img.naturalWidth;
-          canvas.height = img.naturalHeight;
-          canvas.getContext('2d').drawImage(img, 0, 0);
-          canvas.toBlob((b) => b ? resolve(b) : reject(new Error('Canvas failed')), 'image/png');
-        };
-        img.onerror = reject;
-        img.src = imageUrl;
-      });
-      const file = new File([blob], 'lefi-image.png', { type: 'image/png' });
-      if (navigator.share && navigator.canShare({ files: [file] })) {
-        await navigator.share({ files: [file], title: 'Lefi Image' });
-      } else if (navigator.share) {
-        toast.error('Sharing images not supported on this device. Use Save instead.');
+      if (navigator.share) {
+        await navigator.share({ url: imageUrl, title: 'Lefi Image', text: prompt || 'Check out this AI generated image!' });
       } else {
         toast.error('Sharing not supported on this device. Use Save instead.');
       }
