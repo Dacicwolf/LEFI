@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback, memo } from "react";
+import { base44 } from "@/api/base44Client";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, Download, Copy, Check, ZoomIn, ZoomOut, Share2 } from "lucide-react";
@@ -179,10 +180,20 @@ const ImageResult = memo(function ImageResult() {
   const handleShare = async () => {
     setContextMenu(null);
     try {
-      if (navigator.share) {
-        await navigator.share({ url: imageUrl, title: 'Lefi Image', text: prompt || 'Check out this AI generated image!' });
+      // Fetch image server-side to avoid CORS
+      const res = await base44.functions.invoke('proxyImage', { url: imageUrl });
+      const { base64, contentType } = res.data;
+      const byteChars = atob(base64);
+      const byteArr = new Uint8Array(byteChars.length);
+      for (let i = 0; i < byteChars.length; i++) byteArr[i] = byteChars.charCodeAt(i);
+      const blob = new Blob([byteArr], { type: contentType });
+      const file = new File([blob], 'lefi-image.png', { type: contentType });
+      if (navigator.share && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title: 'Lefi Image' });
+      } else if (navigator.share) {
+        await navigator.share({ url: imageUrl, title: 'Lefi Image' });
       } else {
-        toast.error('Sharing not supported on this device. Use Save instead.');
+        toast.error('Sharing not supported on this device.');
       }
     } catch (e) {
       if (e.name !== 'AbortError') toast.error('Share failed. Try Save instead.');
