@@ -2,7 +2,7 @@ import React from "react";
 
 const COSTS = {
   "512": 2,
-  "1024": 4,
+  "1024": 4
 };
 
 export function getCost(resolution) {
@@ -14,7 +14,7 @@ export function getDimensions(orientation, format, resolution) {
   const ratios = {
     "1:1": [1, 1],
     "4:3": [4, 3],
-    "9:16": [9, 16],
+    "9:16": [9, 16]
   };
   const [w, h] = ratios[format];
   let width, height;
@@ -22,10 +22,10 @@ export function getDimensions(orientation, format, resolution) {
   if (w >= h) {
     // landscape ratio
     width = res;
-    height = Math.round((res * h) / w);
+    height = Math.round(res * h / w);
   } else {
     // portrait ratio
-    width = Math.round((res * w) / h);
+    width = Math.round(res * w / h);
     height = res;
   }
 
@@ -42,20 +42,20 @@ export default function ImageSettings({ settings, setSettings, credits }) {
 
   const toggle = (key, value) => setSettings((s) => ({ ...s, [key]: value }));
 
-  const Chip = ({ active, onClick, children, ariaLabel }) => (
-    <button
-      onClick={onClick}
-      aria-label={ariaLabel}
-      aria-pressed={active}
-      className={`px-3 min-h-[44px] min-w-[44px] rounded-lg text-sm font-medium transition-all duration-200 select-none ${
-        active
-          ? "bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-md shadow-violet-500/20"
-          : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
-      }`}
-    >
+  const Chip = ({ active, onClick, children, ariaLabel }) =>
+  <button
+    onClick={onClick}
+    aria-label={ariaLabel}
+    aria-pressed={active}
+    className={`px-3 min-h-[44px] min-w-[44px] rounded-lg text-sm font-medium transition-all duration-200 select-none ${
+    active ?
+    "bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-md shadow-violet-500/20" :
+    "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"}`
+    }>
+    
       {children}
-    </button>
-  );
+    </button>;
+
 
   return (
     <div className="w-full max-w-2xl mx-auto mt-3 px-1 animate-in fade-in slide-in-from-bottom-2 duration-400">
@@ -64,17 +64,17 @@ export default function ImageSettings({ settings, setSettings, credits }) {
         <div className="flex flex-col gap-1.5 items-center">
           <span className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Resolution</span>
           <div className="flex gap-2">
-            {["512", "1024"].map((r) => (
-              <Chip key={r} active={resolution === r} onClick={() => toggle("resolution", r)} ariaLabel={`Resolution ${r}px`}>
+            {["512", "1024"].map((r) =>
+            <Chip key={r} active={resolution === r} onClick={() => toggle("resolution", r)} ariaLabel={`Resolution ${r}px`}>
                 {r}px
               </Chip>
-            ))}
+            )}
           </div>
         </div>
 
         {/* Cost */}
         <div className="flex flex-col gap-1.5 items-center">
-          <span className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Cost</span>
+          <span className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">USE</span>
           <div className="flex items-center gap-1.5 bg-violet-50 dark:bg-violet-900/20 border border-violet-100 dark:border-violet-800 rounded-xl px-3 py-1.5">
             <span className="text-sm font-bold text-violet-700 dark:text-violet-300">{cost}</span>
             <span className="text-sm">🪙</span>
@@ -85,20 +85,20 @@ export default function ImageSettings({ settings, setSettings, credits }) {
         {/* Credits */}
         <div className="flex flex-col gap-1.5 items-center">
           <span className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Credits</span>
-          {credits === null ? (
-            <div className="h-8 w-20 rounded-xl bg-slate-200 dark:bg-slate-700 animate-pulse" />
-          ) : credits === 0 ? (
-            <div className="flex items-center gap-1.5 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl px-3 py-1.5">
+          {credits === null ?
+          <div className="h-8 w-20 rounded-xl bg-slate-200 dark:bg-slate-700 animate-pulse" /> :
+          credits === 0 ?
+          <div className="flex items-center gap-1.5 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl px-3 py-1.5">
               <span className="text-sm font-semibold text-red-500 dark:text-red-400">No credits left</span>
-            </div>
-          ) : (
-            <div className="flex items-center gap-1.5 bg-violet-50 dark:bg-violet-900/20 border border-violet-100 dark:border-violet-800 rounded-xl px-3 py-1.5">
+            </div> :
+
+          <div className="flex items-center gap-1.5 bg-violet-50 dark:bg-violet-900/20 border border-violet-100 dark:border-violet-800 rounded-xl px-3 py-1.5">
               <span className="text-sm font-bold text-violet-700 dark:text-violet-300">{credits}</span>
               <span className="text-sm">🪙</span>
             </div>
-          )}
+          }
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 }
