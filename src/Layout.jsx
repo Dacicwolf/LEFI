@@ -307,7 +307,7 @@ export default function Layout({ children, currentPageName }) {
 
       {/* Bottom Navigation Bar */}
       <nav
-        className="shrink-0 flex gap-4 px-4 z-50"
+        className="shrink-0 grid grid-cols-3 gap-3 px-4 z-50"
         style={{
           paddingBottom: "env(safe-area-inset-bottom)",
           paddingLeft: "env(safe-area-inset-left)",
