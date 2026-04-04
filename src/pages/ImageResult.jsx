@@ -9,6 +9,7 @@ import ImageSkeleton from "@/components/ImageSkeleton";
 const MIN_SCALE = 1;
 const MAX_SCALE = 4;
 const ZOOM_STEP = 0.5;
+const isMobileDevice = /android|iphone|ipad|ipod/i.test(navigator.userAgent);
 const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
 
 const ImageResult = memo(function ImageResult() {
@@ -367,7 +368,7 @@ const ImageResult = memo(function ImageResult() {
           <Download className="w-4 h-4" />
           Save
         </Button>
-{/android|iphone|ipad|ipod/i.test(navigator.userAgent) && (
+        {isMobileDevice && (
           <Button
             onClick={handleShare}
             variant="outline"
