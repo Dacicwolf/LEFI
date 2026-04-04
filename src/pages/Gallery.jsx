@@ -62,7 +62,7 @@ export default function Gallery() {
                   />
                 </div>
                 {img.prompt && (
-                  <p className="px-2 py-2 text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2 leading-tight overflow-hidden" style={{maxHeight: '2.8em', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical'}}>
+                  <p className="px-2 py-2 text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2 leading-tight overflow-hidden" style={{maxHeight: '3.4em', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical'}}>
                     {img.prompt}
                   </p>
                 )}
