@@ -59,7 +59,7 @@ export default function ImageSettings({ settings, setSettings, credits }) {
 
   return (
     <div className="w-full max-w-2xl mx-auto mt-3 px-1 animate-in fade-in slide-in-from-bottom-2 duration-400">
-      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 px-5 py-4 flex flex-wrap gap-5 items-center justify-between">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 px-5 py-4 flex flex-wrap gap-5 items-center justify-evenly">
         {/* Resolution */}
         <div className="flex flex-col gap-1.5 items-center">
           <span className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Resolution</span>
