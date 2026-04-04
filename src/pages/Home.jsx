@@ -183,26 +183,46 @@ export default function Home() {
           </motion.div>
         )}
 
-        {/* Loading State */}
+        {/* Loading State — desktop: below prompt, mobile: fixed overlay */}
         {isLoading && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex flex-col items-center mt-8 gap-4"
-          >
-            <div className="relative">
-              <div className="w-16 h-16 rounded-full border-2 border-violet-200 border-t-violet-600 animate-spin" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div
-                  className="w-8 h-8 rounded-full border-2 border-indigo-200 border-b-indigo-600 animate-spin"
-                  style={{ animationDirection: "reverse", animationDuration: "0.8s" }}
-                />
+          <>
+            {/* Mobile overlay */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4 bg-white/70 dark:bg-slate-950/75 backdrop-blur-sm sm:hidden"
+            >
+              <div className="relative">
+                <div className="w-16 h-16 rounded-full border-2 border-violet-200 border-t-violet-600 animate-spin" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div
+                    className="w-8 h-8 rounded-full border-2 border-indigo-200 border-b-indigo-600 animate-spin"
+                    style={{ animationDirection: "reverse", animationDuration: "0.8s" }}
+                  />
+                </div>
               </div>
-            </div>
-            <p className="text-sm text-slate-400 dark:text-slate-500 animate-pulse">
-              Creating your image...
-            </p>
-          </motion.div>
+              <p className="text-sm text-slate-500 dark:text-slate-400 animate-pulse">Creating your image...</p>
+            </motion.div>
+            {/* Desktop inline */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="hidden sm:flex flex-col items-center mt-8 gap-4"
+            >
+              <div className="relative">
+                <div className="w-16 h-16 rounded-full border-2 border-violet-200 border-t-violet-600 animate-spin" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div
+                    className="w-8 h-8 rounded-full border-2 border-indigo-200 border-b-indigo-600 animate-spin"
+                    style={{ animationDirection: "reverse", animationDuration: "0.8s" }}
+                  />
+                </div>
+              </div>
+              <p className="text-sm text-slate-400 dark:text-slate-500 animate-pulse">
+                Creating your image...
+              </p>
+            </motion.div>
+          </>
         )}
       </div>
     </div>
