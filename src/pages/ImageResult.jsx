@@ -172,23 +172,30 @@ const ImageResult = memo(function ImageResult() {
   const handleShare = async () => {
     setContextMenu(null);
     try {
-      const response = await fetch(imageUrl);
-      const blob = await response.blob();
+      // Load image via canvas to avoid CORS issues
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      const blob = await new Promise((resolve, reject) => {
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.naturalWidth;
+          canvas.height = img.naturalHeight;
+          canvas.getContext('2d').drawImage(img, 0, 0);
+          canvas.toBlob((b) => b ? resolve(b) : reject(new Error('Canvas failed')), 'image/png');
+        };
+        img.onerror = reject;
+        img.src = imageUrl;
+      });
       const file = new File([blob], 'lefi-image.png', { type: 'image/png' });
-      if (navigator.share) {
-        try {
-          await navigator.share({ files: [file], title: 'Lefi Image', text: prompt || '' });
-        } catch (fileShareErr) {
-          if (fileShareErr.name === 'AbortError') return;
-          // Fallback: share URL if file sharing not supported
-          await navigator.share({ url: imageUrl, title: 'Lefi Image', text: prompt || '' });
-        }
+      if (navigator.share && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title: 'Lefi Image' });
+      } else if (navigator.share) {
+        toast.error('Sharing images not supported on this device. Use Save instead.');
       } else {
-        await navigator.clipboard.writeText(imageUrl);
-        toast.success('Link copied!');
+        toast.error('Sharing not supported on this device. Use Save instead.');
       }
     } catch (e) {
-      if (e.name !== 'AbortError') toast.error('Share failed');
+      if (e.name !== 'AbortError') toast.error('Share failed. Try Save instead.');
     }
   };
 
