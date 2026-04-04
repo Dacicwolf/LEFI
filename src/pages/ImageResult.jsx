@@ -367,14 +367,16 @@ const ImageResult = memo(function ImageResult() {
           <Download className="w-4 h-4" />
           Save
         </Button>
-        <Button
-          onClick={handleShare}
-          variant="outline"
-          className="flex-1 gap-2 border-violet-200 dark:border-slate-700 text-violet-600 dark:text-violet-400"
-        >
-          <Share2 className="w-4 h-4" />
-          Share
-        </Button>
+{/android|iphone|ipad|ipod/i.test(navigator.userAgent) && (
+          <Button
+            onClick={handleShare}
+            variant="outline"
+            className="flex-1 gap-2 border-violet-200 dark:border-slate-700 text-violet-600 dark:text-violet-400"
+          >
+            <Share2 className="w-4 h-4" />
+            Share
+          </Button>
+        )}
       </div>
     </div>
   );
