@@ -158,15 +158,13 @@ const ImageResult = memo(function ImageResult() {
 
   const handleDownload = async () => {
     setContextMenu(null);
-    if (isMobileDevice) {
-      // On mobile/Android WebView: open image in new tab so user can long-press save
-      window.open(imageUrl, '_blank', 'noopener,noreferrer');
-      toast.success('Image opened — long press to save!');
-      return;
-    }
     try {
-      const response = await fetch(imageUrl);
-      const blob = await response.blob();
+      const res = await base44.functions.invoke('proxyImage', { url: imageUrl });
+      const { base64, contentType } = res.data;
+      const byteChars = atob(base64);
+      const byteArr = new Uint8Array(byteChars.length);
+      for (let i = 0; i < byteChars.length; i++) byteArr[i] = byteChars.charCodeAt(i);
+      const blob = new Blob([byteArr], { type: contentType });
       const blobUrl = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = blobUrl;
@@ -185,7 +183,6 @@ const ImageResult = memo(function ImageResult() {
   const handleShare = async () => {
     setContextMenu(null);
     try {
-      // Fetch image server-side to avoid CORS
       const res = await base44.functions.invoke('proxyImage', { url: imageUrl });
       const { base64, contentType } = res.data;
       const byteChars = atob(base64);
@@ -193,10 +190,8 @@ const ImageResult = memo(function ImageResult() {
       for (let i = 0; i < byteChars.length; i++) byteArr[i] = byteChars.charCodeAt(i);
       const blob = new Blob([byteArr], { type: contentType });
       const file = new File([blob], 'lefi-image.png', { type: contentType });
-      if (navigator.share && navigator.canShare({ files: [file] })) {
+      if (navigator.share) {
         await navigator.share({ files: [file], title: 'Lefi Image' });
-      } else if (navigator.share) {
-        await navigator.share({ url: imageUrl, title: 'Lefi Image' });
       } else {
         toast.error('Sharing not supported on this device.');
       }
