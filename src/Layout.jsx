@@ -255,10 +255,10 @@ export default function Layout({ children, currentPageName }) {
       <header
         className="sticky top-0 z-40 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 flex items-center relative shrink-0"
         style={{
-          paddingTop: "env(safe-area-inset-top)",
+          paddingTop: isAndroid ? "0" : "env(safe-area-inset-top)",
           paddingLeft: "max(1rem, env(safe-area-inset-left))",
           paddingRight: "max(1rem, env(safe-area-inset-right))",
-          minHeight: "calc(3.5rem + env(safe-area-inset-top))",
+          minHeight: isAndroid ? "3.5rem" : "calc(3.5rem + env(safe-area-inset-top))",
         }}
         role="banner"
       >
@@ -309,9 +309,9 @@ export default function Layout({ children, currentPageName }) {
       <nav
         className="shrink-0 grid grid-cols-3 gap-3 px-4 z-50"
         style={{
-          paddingBottom: "env(safe-area-inset-bottom)",
-          paddingLeft: "env(safe-area-inset-left)",
-          paddingRight: "env(safe-area-inset-right)",
+          paddingBottom: isAndroid ? "0.5rem" : "env(safe-area-inset-bottom)",
+          paddingLeft: isAndroid ? "0" : "env(safe-area-inset-left)",
+          paddingRight: isAndroid ? "0" : "env(safe-area-inset-right)",
         }}
       >
         {tabs.map(({ name, label, icon: Icon }) => {
