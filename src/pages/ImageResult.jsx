@@ -21,6 +21,11 @@ const ImageResult = memo(function ImageResult() {
   const prompt = params.get("prompt");
   const [copied, setCopied] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
+
+  // Save prompt to sessionStorage so Home restores it on back navigation
+  useEffect(() => {
+    if (prompt) sessionStorage.setItem('lastPrompt', prompt);
+  }, [prompt]);
   const [contextMenu, setContextMenu] = useState(null);
   const liveRegionRef = useRef(null);
   const longPressTimer = useRef(null);
