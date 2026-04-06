@@ -13,6 +13,17 @@ const ZOOM_STEP = 0.5;
 const isMobileDevice = /android|iphone|ipad|ipod/i.test(navigator.userAgent);
 const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
 
+// Fetches the image as a Blob via proxyImage backend (returns base64 JSON)
+async function fetchImageBlob(imageUrl) {
+  const res = await base44.functions.invoke('proxyImage', { url: imageUrl });
+  const { base64, contentType } = res.data;
+  if (!base64) throw new Error('No base64 data returned');
+  const byteChars = atob(base64);
+  const byteArr = new Uint8Array(byteChars.length);
+  for (let i = 0; i < byteChars.length; i++) byteArr[i] = byteChars.charCodeAt(i);
+  return new Blob([byteArr], { type: contentType || 'image/png' });
+}
+
 const ImageResult = memo(function ImageResult() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -21,33 +32,6 @@ const ImageResult = memo(function ImageResult() {
   const prompt = params.get("prompt");
   const [copied, setCopied] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
-
-  // Pre-fetch blob as soon as image loads — so it's ready when user taps Save/Share
-  const blobCacheRef = useRef(null);
-  const blobFetchingRef = useRef(false);
-
-  const prefetchBlob = useCallback(async () => {
-    if (blobCacheRef.current || blobFetchingRef.current || !imageUrl) return;
-    blobFetchingRef.current = true;
-    try {
-      const res = await base44.functions.invoke('proxyImage', { url: imageUrl });
-      const { base64, contentType } = res.data;
-      if (!base64) return;
-      const byteChars = atob(base64);
-      const byteArr = new Uint8Array(byteChars.length);
-      for (let i = 0; i < byteChars.length; i++) byteArr[i] = byteChars.charCodeAt(i);
-      blobCacheRef.current = new Blob([byteArr], { type: contentType || 'image/png' });
-    } catch (e) {
-      console.warn('Prefetch failed:', e);
-    } finally {
-      blobFetchingRef.current = false;
-    }
-  }, [imageUrl]);
-
-  // Start pre-fetching when image finishes loading
-  useEffect(() => {
-    if (imgLoaded) prefetchBlob();
-  }, [imgLoaded, prefetchBlob]);
 
   useEffect(() => {
     if (prompt) sessionStorage.setItem('lastPrompt', prompt);
@@ -182,38 +166,27 @@ const ImageResult = memo(function ImageResult() {
     };
   }, [handleWheel, handleTouchStart, handleTouchMove, handleTouchEnd, handleMouseDown, handleMouseMove, handleMouseUp]);
 
-  // SAVE: blob is pre-fetched, so no async wait needed at click time → gesture preserved
+  // SAVE: uses navigator.canShare+share for Android (saves to gallery), fallback to <a> download
   const handleDownload = async () => {
     setContextMenu(null);
-
-    // If blob not ready yet, fetch now (best effort)
-    if (!blobCacheRef.current) {
-      toast.info('Preparing image…');
-      await prefetchBlob();
-    }
-
-    const blob = blobCacheRef.current;
-    if (!blob) {
-      // Last resort: open in new tab
-      window.open(imageUrl, '_blank', 'noopener,noreferrer');
-      toast.info('Image opened in browser. Long-press to save.');
-      return;
-    }
-
     try {
+      const blob = await fetchImageBlob(imageUrl);
       const file = new File([blob], 'lefi-image.png', { type: blob.type });
       const shareData = { files: [file], title: 'Lefi Image' };
-      if (navigator.canShare && navigator.canShare(shareData)) {
-        await navigator.share(shareData);
-        toast.success('Saved to gallery!');
-        return;
-      }
-    } catch (e) {
-      if (e.name === 'AbortError') return;
-    }
 
-    // Desktop fallback
-    try {
+      // On Android TWA/Chrome, sharing a file is the ONLY reliable way to save to gallery
+      if (navigator.canShare && navigator.canShare(shareData)) {
+        try {
+          await navigator.share(shareData);
+          toast.success('Image saved to gallery!');
+          return;
+        } catch (shareErr) {
+          if (shareErr.name === 'AbortError') return; // user cancelled
+          // fall through to <a> download
+        }
+      }
+
+      // Desktop / browsers that support <a download>
       const blobUrl = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = blobUrl;
@@ -224,39 +197,31 @@ const ImageResult = memo(function ImageResult() {
       setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
       toast.success('Image downloaded!');
     } catch (e) {
+      console.error('Download error:', e);
+      // Last resort fallback
       window.open(imageUrl, '_blank', 'noopener,noreferrer');
-      toast.info('Image opened. Long-press to save.');
+      toast.info('Image opened in browser. Long-press to save.');
     }
   };
 
-  // SHARE: blob pre-fetched → navigator.share called synchronously after click → gesture valid
+  // SHARE: opens native Android share sheet
   const handleShare = async () => {
     setContextMenu(null);
-
-    if (!blobCacheRef.current) {
-      toast.info('Preparing image…');
-      await prefetchBlob();
-    }
-
-    const blob = blobCacheRef.current;
-
     try {
-      if (blob) {
-        const file = new File([blob], 'lefi-image.png', { type: blob.type });
-        const shareData = { files: [file], title: 'Lefi Image', text: prompt || '' };
-        if (navigator.canShare && navigator.canShare(shareData)) {
-          await navigator.share(shareData);
-          return;
-        }
-      }
-      // Fallback: share URL only (still opens native share sheet)
-      if (navigator.share) {
+      const blob = await fetchImageBlob(imageUrl);
+      const file = new File([blob], 'lefi-image.png', { type: blob.type });
+      const shareData = { files: [file], title: 'Lefi Image', text: prompt || '' };
+
+      if (navigator.canShare && navigator.canShare(shareData)) {
+        await navigator.share(shareData);
+      } else if (navigator.share) {
+        // fallback: share URL only (no file)
         await navigator.share({ title: 'Lefi Image', text: prompt || '', url: imageUrl });
-        return;
+      } else {
+        // Copy link as last resort
+        await navigator.clipboard.writeText(imageUrl);
+        toast.success('Link copied to clipboard!');
       }
-      // Last resort: copy link
-      await navigator.clipboard.writeText(imageUrl);
-      toast.success('Link copied!');
     } catch (e) {
       if (e.name !== 'AbortError') {
         console.error('Share error:', e);
@@ -310,26 +275,46 @@ const ImageResult = memo(function ImageResult() {
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-indigo-100/40 dark:bg-indigo-900/10 rounded-full blur-3xl" />
       </div>
 
+      {/* Context Menu */}
       {contextMenu && (
         <div
           className="fixed z-50 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 py-1 min-w-[160px]"
           style={{ left: contextMenu.x, top: contextMenu.y }}
           onClick={(e) => e.stopPropagation()}
         >
-          <button onClick={handleDownload} className="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
-            <Download className="w-4 h-4" />Save Image
+          <button
+            onClick={handleDownload}
+            className="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+          >
+            <Download className="w-4 h-4" />
+            Save Image
           </button>
-          <button onClick={handleShare} className="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
-            <Share2 className="w-4 h-4" />Share Image
+          <button
+            onClick={handleShare}
+            className="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+          >
+            <Share2 className="w-4 h-4" />
+            Share Image
           </button>
-          <button onClick={handleCopyLink} className="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
-            {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}Copy Link
+          <button
+            onClick={handleCopyLink}
+            className="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+          >
+            {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
+            Copy Link
           </button>
         </div>
       )}
 
+      {/* Header */}
       <div className="relative z-10 flex items-center justify-between px-4 pt-4 pb-2 shrink-0">
-        <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="rounded-full hover:bg-slate-100 dark:hover:bg-slate-800" aria-label="Go back">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => navigate(-1)}
+          className="rounded-full hover:bg-slate-100 dark:hover:bg-slate-800"
+          aria-label="Go back"
+        >
           <ChevronLeft className="w-5 h-5" />
         </Button>
         <div className="flex items-center gap-1">
@@ -342,6 +327,7 @@ const ImageResult = memo(function ImageResult() {
         </div>
       </div>
 
+      {/* Image Container */}
       <div
         ref={containerRef}
         className="flex-1 flex items-center justify-center overflow-hidden relative select-none"
@@ -353,7 +339,12 @@ const ImageResult = memo(function ImageResult() {
       >
         <AnimatePresence>
           {!imgLoaded && (
-            <motion.div key="skeleton" initial={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 flex items-center justify-center">
+            <motion.div
+              key="skeleton"
+              initial={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 flex items-center justify-center"
+            >
               <ImageSkeleton />
             </motion.div>
           )}
@@ -378,17 +369,29 @@ const ImageResult = memo(function ImageResult() {
         />
       </div>
 
+      {/* Bottom Actions */}
       {imgLoaded && (
         <div className="relative z-10 px-4 pb-6 pt-3 shrink-0">
           {prompt && (
-            <p className="text-center text-sm text-slate-500 dark:text-slate-400 mb-3 line-clamp-2 px-2">{prompt}</p>
+            <p className="text-center text-sm text-slate-500 dark:text-slate-400 mb-3 line-clamp-2 px-2">
+              {prompt}
+            </p>
           )}
           <div className="flex gap-3">
-            <Button onClick={handleDownload} className="flex-1 gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white">
-              <Download className="w-4 h-4" />Save Image
+            <Button
+              onClick={handleDownload}
+              className="flex-1 gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white"
+            >
+              <Download className="w-4 h-4" />
+              Save Image
             </Button>
-            <Button onClick={handleShare} variant="outline" className="flex-1 gap-2">
-              <Share2 className="w-4 h-4" />Share
+            <Button
+              onClick={handleShare}
+              variant="outline"
+              className="flex-1 gap-2"
+            >
+              <Share2 className="w-4 h-4" />
+              Share
             </Button>
           </div>
         </div>
