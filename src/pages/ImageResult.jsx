@@ -13,6 +13,17 @@ const ZOOM_STEP = 0.5;
 const isMobileDevice = /android|iphone|ipad|ipod/i.test(navigator.userAgent);
 const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
 
+// Fetches the image as a Blob via proxyImage backend (returns base64 JSON)
+async function fetchImageBlob(imageUrl) {
+  const res = await base44.functions.invoke('proxyImage', { url: imageUrl });
+  const { base64, contentType } = res.data;
+  if (!base64) throw new Error('No base64 data returned');
+  const byteChars = atob(base64);
+  const byteArr = new Uint8Array(byteChars.length);
+  for (let i = 0; i < byteChars.length; i++) byteArr[i] = byteChars.charCodeAt(i);
+  return new Blob([byteArr], { type: contentType || 'image/png' });
+}
+
 const ImageResult = memo(function ImageResult() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -22,10 +33,10 @@ const ImageResult = memo(function ImageResult() {
   const [copied, setCopied] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
 
-  // Save prompt to sessionStorage so Home restores it on back navigation
   useEffect(() => {
     if (prompt) sessionStorage.setItem('lastPrompt', prompt);
   }, [prompt]);
+
   const [contextMenu, setContextMenu] = useState(null);
   const liveRegionRef = useRef(null);
   const longPressTimer = useRef(null);
@@ -41,7 +52,6 @@ const ImageResult = memo(function ImageResult() {
   const isDragging = useRef(false);
   const lastMouse = useRef({ x: 0, y: 0 });
 
-  // Dismiss context menu on click outside
   useEffect(() => {
     if (!contextMenu) return;
     const dismiss = () => setContextMenu(null);
@@ -156,15 +166,27 @@ const ImageResult = memo(function ImageResult() {
     };
   }, [handleWheel, handleTouchStart, handleTouchMove, handleTouchEnd, handleMouseDown, handleMouseMove, handleMouseUp]);
 
+  // SAVE: uses navigator.canShare+share for Android (saves to gallery), fallback to <a> download
   const handleDownload = async () => {
     setContextMenu(null);
     try {
-      const res = await base44.functions.invoke('proxyImage', { url: imageUrl });
-      const { base64, contentType } = res.data;
-      const byteChars = atob(base64);
-      const byteArr = new Uint8Array(byteChars.length);
-      for (let i = 0; i < byteChars.length; i++) byteArr[i] = byteChars.charCodeAt(i);
-      const blob = new Blob([byteArr], { type: contentType });
+      const blob = await fetchImageBlob(imageUrl);
+      const file = new File([blob], 'lefi-image.png', { type: blob.type });
+      const shareData = { files: [file], title: 'Lefi Image' };
+
+      // On Android TWA/Chrome, sharing a file is the ONLY reliable way to save to gallery
+      if (navigator.canShare && navigator.canShare(shareData)) {
+        try {
+          await navigator.share(shareData);
+          toast.success('Image saved to gallery!');
+          return;
+        } catch (shareErr) {
+          if (shareErr.name === 'AbortError') return; // user cancelled
+          // fall through to <a> download
+        }
+      }
+
+      // Desktop / browsers that support <a download>
       const blobUrl = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = blobUrl;
@@ -173,30 +195,38 @@ const ImageResult = memo(function ImageResult() {
       link.click();
       document.body.removeChild(link);
       setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
-      toast.success('Image saved!');
+      toast.success('Image downloaded!');
     } catch (e) {
+      console.error('Download error:', e);
+      // Last resort fallback
       window.open(imageUrl, '_blank', 'noopener,noreferrer');
-      toast.success('Image opened in browser!');
+      toast.info('Image opened in browser. Long-press to save.');
     }
   };
 
+  // SHARE: opens native Android share sheet
   const handleShare = async () => {
     setContextMenu(null);
     try {
-      const res = await base44.functions.invoke('proxyImage', { url: imageUrl });
-      const { base64, contentType } = res.data;
-      const byteChars = atob(base64);
-      const byteArr = new Uint8Array(byteChars.length);
-      for (let i = 0; i < byteChars.length; i++) byteArr[i] = byteChars.charCodeAt(i);
-      const blob = new Blob([byteArr], { type: contentType });
-      const file = new File([blob], 'lefi-image.png', { type: contentType });
-      if (navigator.share) {
-        await navigator.share({ files: [file], title: 'Lefi Image' });
+      const blob = await fetchImageBlob(imageUrl);
+      const file = new File([blob], 'lefi-image.png', { type: blob.type });
+      const shareData = { files: [file], title: 'Lefi Image', text: prompt || '' };
+
+      if (navigator.canShare && navigator.canShare(shareData)) {
+        await navigator.share(shareData);
+      } else if (navigator.share) {
+        // fallback: share URL only (no file)
+        await navigator.share({ title: 'Lefi Image', text: prompt || '', url: imageUrl });
       } else {
-        toast.error('Sharing not supported on this device.');
+        // Copy link as last resort
+        await navigator.clipboard.writeText(imageUrl);
+        toast.success('Link copied to clipboard!');
       }
     } catch (e) {
-      if (e.name !== 'AbortError') toast.error('Share failed. Try Save instead.');
+      if (e.name !== 'AbortError') {
+        console.error('Share error:', e);
+        toast.error('Share failed. Try Save instead.');
+      }
     }
   };
 
@@ -260,125 +290,112 @@ const ImageResult = memo(function ImageResult() {
             Save Image
           </button>
           <button
+            onClick={handleShare}
+            className="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+          >
+            <Share2 className="w-4 h-4" />
+            Share Image
+          </button>
+          <button
             onClick={handleCopyLink}
             className="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
           >
-            <Copy className="w-4 h-4" />
+            {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
             Copy Link
           </button>
         </div>
       )}
 
-      {/* Top bar */}
-      <div className="relative z-10 flex items-center justify-between px-4 py-3 shrink-0">
-        <motion.button
-          initial={{ opacity: 0, x: -10 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ type: "tween", duration: 0.1 }}
-          onClick={() => navigate("/")}
-          className="flex items-center gap-1 text-violet-600 dark:text-violet-400 font-medium hover:opacity-70 transition-opacity min-h-[44px]"
+      {/* Header */}
+      <div className="relative z-10 flex items-center justify-between px-4 pt-4 pb-2 shrink-0">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => navigate(-1)}
+          className="rounded-full hover:bg-slate-100 dark:hover:bg-slate-800"
+          aria-label="Go back"
         >
           <ChevronLeft className="w-5 h-5" />
-          Back
-        </motion.button>
-
-        <div className="flex items-center gap-2">
-          <button
-            onClick={zoomOut}
-            aria-label="Zoom out"
-            disabled={scale <= MIN_SCALE}
-            className="flex items-center justify-center w-11 h-11 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors disabled:opacity-30"
-          >
+        </Button>
+        <div className="flex items-center gap-1">
+          <Button variant="ghost" size="icon" onClick={zoomOut} className="rounded-full" aria-label="Zoom out">
             <ZoomOut className="w-4 h-4" />
-          </button>
-          <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 w-10 text-center">
-            {Math.round(scale * 100)}%
-          </span>
-          <button
-            onClick={zoomIn}
-            aria-label="Zoom in"
-            disabled={scale >= MAX_SCALE}
-            className="flex items-center justify-center w-11 h-11 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors disabled:opacity-30"
-          >
+          </Button>
+          <Button variant="ghost" size="icon" onClick={zoomIn} className="rounded-full" aria-label="Zoom in">
             <ZoomIn className="w-4 h-4" />
-          </button>
+          </Button>
         </div>
       </div>
 
-      {/* Image area */}
-      {imageUrl ? (
-        <div
-          ref={containerRef}
-          className="relative z-10 flex-1 overflow-hidden select-none"
+      {/* Image Container */}
+      <div
+        ref={containerRef}
+        className="flex-1 flex items-center justify-center overflow-hidden relative select-none"
+        style={{ touchAction: scale > 1 ? 'none' : 'pan-y', cursor: scale > 1 ? 'grab' : 'default' }}
+        onContextMenu={handleImageContextMenu}
+        onTouchStart={handleImageLongPressStart}
+        onTouchEnd={handleImageLongPressEnd}
+        onTouchMove={handleImageLongPressEnd}
+      >
+        <AnimatePresence>
+          {!imgLoaded && (
+            <motion.div
+              key="skeleton"
+              initial={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 flex items-center justify-center"
+            >
+              <ImageSkeleton />
+            </motion.div>
+          )}
+        </AnimatePresence>
+        <motion.img
+          src={imageUrl}
+          alt={prompt || "Generated image"}
+          onLoad={() => setImgLoaded(true)}
           style={{
-            minHeight: 0,
-            cursor: scale > 1 ? "grab" : "default",
-            touchAction: scale > 1 ? "none" : "auto",
+            transform: `translate(${ox}px, ${oy}px) scale(${scale})`,
+            transformOrigin: 'center center',
+            transition: scale === 1 ? 'transform 0.2s ease' : 'none',
+            maxWidth: '100%',
+            maxHeight: '100%',
+            objectFit: 'contain',
+            display: imgLoaded ? 'block' : 'none',
+            pointerEvents: 'none',
+            userSelect: 'none',
+            WebkitUserSelect: 'none',
           }}
-        >
-          <AnimatePresence>
-            {!imgLoaded && <ImageSkeleton key="skeleton" />}
-          </AnimatePresence>
+          draggable={false}
+        />
+      </div>
 
-          <div
-            style={{
-              width: "100%",
-              height: "100%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              transform: `scale(${scale}) translate(${ox / scale}px, ${oy / scale}px)`,
-              transformOrigin: "center center",
-              willChange: "transform",
-              transition: "none",
-            }}
-            onContextMenu={handleImageContextMenu}
-            onTouchStart={handleImageLongPressStart}
-            onTouchEnd={handleImageLongPressEnd}
-            onTouchMove={handleImageLongPressEnd}
-          >
-            <img
-              src={imageUrl}
-              alt={prompt || "Generated image"}
-              onLoad={() => setImgLoaded(true)}
-              draggable={false}
-              style={{
-                maxWidth: "100%",
-                maxHeight: "100%",
-                objectFit: "contain",
-                borderRadius: "12px",
-                pointerEvents: "none",
-                userSelect: "none",
-                opacity: imgLoaded ? 1 : 0,
-                transition: "opacity 0.25s ease",
-              }}
-            />
+      {/* Bottom Actions */}
+      {imgLoaded && (
+        <div className="relative z-10 px-4 pb-6 pt-3 shrink-0">
+          {prompt && (
+            <p className="text-center text-sm text-slate-500 dark:text-slate-400 mb-3 line-clamp-2 px-2">
+              {prompt}
+            </p>
+          )}
+          <div className="flex gap-3">
+            <Button
+              onClick={handleDownload}
+              className="flex-1 gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white"
+            >
+              <Download className="w-4 h-4" />
+              Save Image
+            </Button>
+            <Button
+              onClick={handleShare}
+              variant="outline"
+              className="flex-1 gap-2"
+            >
+              <Share2 className="w-4 h-4" />
+              Share
+            </Button>
           </div>
         </div>
-      ) : (
-        <div className="flex-1 flex items-center justify-center text-slate-400">No image to display.</div>
       )}
-
-      {/* Bottom bar */}
-      <div className="relative z-10 px-4 py-4 shrink-0 flex gap-3">
-        <Button
-          onClick={handleDownload}
-          className="flex-1 gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white"
-        >
-          <Download className="w-4 h-4" />
-          Save
-        </Button>
-        {isMobileDevice && (
-          <Button
-            onClick={handleShare}
-            variant="outline"
-            className="flex-1 gap-2 border-violet-200 dark:border-slate-700 text-violet-600 dark:text-violet-400"
-          >
-            <Share2 className="w-4 h-4" />
-            Share
-          </Button>
-        )}
-      </div>
     </div>
   );
 });
