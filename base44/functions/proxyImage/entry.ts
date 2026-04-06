@@ -1,5 +1,3 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
-
 Deno.serve(async (req) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
@@ -14,15 +12,6 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const base44 = createClientFromRequest(req);
-    const user = await base44.auth.me();
-    if (!user) {
-      return Response.json({ error: 'Unauthorized' }, {
-        status: 401,
-        headers: { 'Access-Control-Allow-Origin': '*' },
-      });
-    }
-
     const body = await req.json().catch(() => ({}));
     const { url } = body;
 
@@ -44,7 +33,6 @@ Deno.serve(async (req) => {
     const contentType = response.headers.get('content-type') || 'image/png';
     const buffer = await response.arrayBuffer();
 
-    // Convertim la base64
     const bytes = new Uint8Array(buffer);
     let binary = '';
     for (let i = 0; i < bytes.byteLength; i++) {
