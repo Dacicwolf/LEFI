@@ -12,6 +12,7 @@ const MAX_SCALE = 4;
 const ZOOM_STEP = 0.5;
 const isMobileDevice = /android|iphone|ipad|ipod/i.test(navigator.userAgent);
 const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
+const UIButton = /** @type {any} */ (Button);
 
 // Fetches the image as a Blob via proxyImage backend (returns base64 JSON)
 async function fetchImageBlob(imageUrl) {
@@ -24,6 +25,20 @@ async function fetchImageBlob(imageUrl) {
   return new Blob([byteArr], { type: contentType || 'image/png' });
 }
 
+function buildImageFile(blob) {
+  return new File([blob], 'lefi-image.png', { type: blob.type || 'image/png' });
+}
+
+async function shareImageFile({ file, prompt }) {
+  if (!navigator.share) return false;
+  const shareData = { files: [file], title: 'Lefi Image', text: prompt || '' };
+  if (navigator.canShare && navigator.canShare(shareData)) {
+    await navigator.share(shareData);
+    return true;
+  }
+  return false;
+}
+
 const ImageResult = memo(function ImageResult() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -32,10 +47,40 @@ const ImageResult = memo(function ImageResult() {
   const prompt = params.get("prompt");
   const [copied, setCopied] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
+  const [imageBlob, setImageBlob] = useState(null);
+  const [blobReady, setBlobReady] = useState(false);
 
   useEffect(() => {
     if (prompt) sessionStorage.setItem('lastPrompt', prompt);
   }, [prompt]);
+
+  // Prefetch image blob in background so file-share can run directly on tap.
+  useEffect(() => {
+    let cancelled = false;
+    if (!imageUrl) {
+      setImageBlob(null);
+      setBlobReady(false);
+      return;
+    }
+
+    setBlobReady(false);
+    fetchImageBlob(imageUrl)
+      .then((blob) => {
+        if (cancelled) return;
+        setImageBlob(blob);
+        setBlobReady(true);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        console.error('Blob prefetch failed:', err);
+        setImageBlob(null);
+        setBlobReady(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [imageUrl]);
 
   const [contextMenu, setContextMenu] = useState(null);
   const liveRegionRef = useRef(null);
@@ -170,21 +215,20 @@ const ImageResult = memo(function ImageResult() {
   const handleDownload = async () => {
     setContextMenu(null);
     try {
-      const blob = await fetchImageBlob(imageUrl);
-      const file = new File([blob], 'lefi-image.png', { type: blob.type });
-      const shareData = { files: [file], title: 'Lefi Image' };
-
-      // On Android TWA/Chrome, sharing a file is the ONLY reliable way to save to gallery
-      if (navigator.canShare && navigator.canShare(shareData)) {
+      // Mobile-first: share file to native sheet so users can save the real image file.
+      if (isMobileDevice && imageBlob && navigator.share) {
         try {
-          await navigator.share(shareData);
-          toast.success('Image saved to gallery!');
-          return;
+          const shared = await shareImageFile({ file: buildImageFile(imageBlob), prompt });
+          if (shared) {
+            toast.success('Share menu opened for file save.');
+            return;
+          }
         } catch (shareErr) {
-          if (shareErr.name === 'AbortError') return; // user cancelled
-          // fall through to <a> download
+          if (shareErr.name === 'AbortError') return;
         }
       }
+
+      const blob = imageBlob || await fetchImageBlob(imageUrl);
 
       // Desktop / browsers that support <a download>
       const blobUrl = URL.createObjectURL(blob);
@@ -198,34 +242,36 @@ const ImageResult = memo(function ImageResult() {
       toast.success('Image downloaded!');
     } catch (e) {
       console.error('Download error:', e);
-      // Last resort fallback
-      window.open(imageUrl, '_blank', 'noopener,noreferrer');
-      toast.info('Image opened in browser. Long-press to save.');
+      if (isMobileDevice && navigator.share) {
+        toast.error('File is still preparing. Try again in a moment.');
+      } else {
+        window.open(imageUrl, '_blank', 'noopener,noreferrer');
+        toast.info('Image opened in browser. Long-press to save.');
+      }
     }
   };
 
-  // SHARE: opens native Android share sheet
+  // SHARE: opens native share sheet with the image file.
   const handleShare = async () => {
     setContextMenu(null);
+    if (!isMobileDevice) return;
     try {
-      const blob = await fetchImageBlob(imageUrl);
-      const file = new File([blob], 'lefi-image.png', { type: blob.type });
-      const shareData = { files: [file], title: 'Lefi Image', text: prompt || '' };
-
-      if (navigator.canShare && navigator.canShare(shareData)) {
-        await navigator.share(shareData);
-      } else if (navigator.share) {
-        // fallback: share URL only (no file)
-        await navigator.share({ title: 'Lefi Image', text: prompt || '', url: imageUrl });
-      } else {
-        // Copy link as last resort
-        await navigator.clipboard.writeText(imageUrl);
-        toast.success('Link copied to clipboard!');
+      if (imageBlob) {
+        const shared = await shareImageFile({ file: buildImageFile(imageBlob), prompt });
+        if (shared) return;
       }
+
+      if (!blobReady) {
+        toast.info('Image file is still preparing. Try again in 1-2 seconds.');
+        return;
+      }
+
+      await navigator.clipboard.writeText(imageUrl);
+      toast.success('File share unsupported. Link copied to clipboard.');
     } catch (e) {
       if (e.name !== 'AbortError') {
         console.error('Share error:', e);
-        toast.error('Share failed. Try Save instead.');
+        toast.error('Share failed. Could not share image file.');
       }
     }
   };
@@ -289,13 +335,15 @@ const ImageResult = memo(function ImageResult() {
             <Download className="w-4 h-4" />
             Save Image
           </button>
-          <button
-            onClick={handleShare}
-            className="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-          >
-            <Share2 className="w-4 h-4" />
-            Share Image
-          </button>
+          {isMobileDevice && (
+            <button
+              onClick={handleShare}
+              className="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+            >
+              <Share2 className="w-4 h-4" />
+              Share Image
+            </button>
+          )}
           <button
             onClick={handleCopyLink}
             className="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
@@ -308,7 +356,7 @@ const ImageResult = memo(function ImageResult() {
 
       {/* Header */}
       <div className="relative z-10 flex items-center justify-between px-4 pt-4 pb-2 shrink-0">
-        <Button
+        <UIButton
           variant="ghost"
           size="icon"
           onClick={() => navigate(-1)}
@@ -316,14 +364,14 @@ const ImageResult = memo(function ImageResult() {
           aria-label="Go back"
         >
           <ChevronLeft className="w-5 h-5" />
-        </Button>
+        </UIButton>
         <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" onClick={zoomOut} className="rounded-full" aria-label="Zoom out">
+          <UIButton variant="ghost" size="icon" onClick={zoomOut} className="rounded-full" aria-label="Zoom out">
             <ZoomOut className="w-4 h-4" />
-          </Button>
-          <Button variant="ghost" size="icon" onClick={zoomIn} className="rounded-full" aria-label="Zoom in">
+          </UIButton>
+          <UIButton variant="ghost" size="icon" onClick={zoomIn} className="rounded-full" aria-label="Zoom in">
             <ZoomIn className="w-4 h-4" />
-          </Button>
+          </UIButton>
         </div>
       </div>
 
@@ -378,21 +426,23 @@ const ImageResult = memo(function ImageResult() {
             </p>
           )}
           <div className="flex gap-3">
-            <Button
+            <UIButton
               onClick={handleDownload}
               className="flex-1 gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white"
             >
               <Download className="w-4 h-4" />
               Save Image
-            </Button>
-            <Button
-              onClick={handleShare}
-              variant="outline"
-              className="flex-1 gap-2"
-            >
-              <Share2 className="w-4 h-4" />
-              Share
-            </Button>
+            </UIButton>
+            {isMobileDevice && (
+              <UIButton
+                onClick={handleShare}
+                variant="outline"
+                className="flex-1 gap-2"
+              >
+                <Share2 className="w-4 h-4" />
+                Share
+              </UIButton>
+            )}
           </div>
         </div>
       )}
